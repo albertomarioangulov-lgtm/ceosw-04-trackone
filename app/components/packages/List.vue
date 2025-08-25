@@ -93,7 +93,9 @@ const loadItems = async (options:any) => {
   }
 
   const { packages, refresh} = await getPackages(query)
-  console.log('packages', packages)
+  // const queryString = new URLSearchParams(query).toString()
+  // const response = await $fetch(`/api/packages?${queryString}`)
+  // console.log('response', response)
   // packagesData.value = result.packages.value
   packagesData.value = {
     items: packages.value.items ?? [],
