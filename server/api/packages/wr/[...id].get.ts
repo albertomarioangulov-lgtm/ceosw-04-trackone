@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     .populate({ path: 'wr', select: 'wrId client',
       populate: { path: 'client', select: 'name' }
     })
-    .populate({ path: 'cr', select: 'crId', strictPopulate: false })
+    // .populate({ path: 'cr', select: 'crId', strictPopulate: false })
     .populate({ path: 'createdBy', select: 'name initials color' })
     // .where( 'wr' ).equals( id )
     .lean()
