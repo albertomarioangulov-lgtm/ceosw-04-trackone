@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
 
   const id = event.context.params!.id
   
-  const data = await Package.find()
+  const data = await Package.find({ wr: id })
     .populate({ path: 'wr', select: 'wrId client',
       populate: { path: 'client', select: 'name' }
     })
-    .populate({ path: 'cr', select: 'crId' })
+    .populate({ path: 'cr', select: 'crId', strictPopulate: false })
     .populate({ path: 'createdBy', select: 'name initials color' })
-    .where( 'wr' ).equals( id )
+    // .where( 'wr' ).equals( id )
     .lean()
     .exec()
 
