@@ -26,12 +26,14 @@ const usePackage = () => {
   const getPackage = (id: string) =>
     fetchResource(`${API_URL}/${id}`, getHeaders, 'GET', undefined, `${resourceName}-${id}`)
 
+  // const response = await $fetch(`/api/packages?${queryString}`)
+
   // Get all packages
   const getPackages = async (query:any) => {
     const queryString = new URLSearchParams(query).toString()
     console.log('Fetching packages with queryString:', queryString)
     // const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET', undefined, `${resourceName}-list`)
-    const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET', undefined)
+    const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET')
     watch(() => data.value, packages => {
       if (packages) store.setPackages(packages)
     }, { immediate: true })
