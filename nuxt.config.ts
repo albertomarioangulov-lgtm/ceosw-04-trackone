@@ -59,7 +59,7 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    mongodbUri: process.env.MONGODB_URI,
+    mongodbUri: process.env.MONGODB_URI_CEOSW,
     mongodbName: process.env.MONGODB_NAME,
     authSecret: process.env.NUXT_AUTH_SECRET,
     authOrigin: process.env.NUXT_AUTH_ORIGIN,
