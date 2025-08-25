@@ -1,0 +1,36 @@
+# Settings for Backend (on Cloud Run).
+# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+runConfig:
+  minInstances: 0
+  # maxInstances: 100
+  # concurrency: 80
+  # cpu: 1
+  # memoryMiB: 512
+
+  # Environment variables and secrets.
+  # env:
+  # Configure environment variables.
+  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+  # - variable: MESSAGE
+  #   value: Hello world!
+  #   availability:
+  #     - BUILD
+  #     - RUNTIME
+
+  # Grant access to secrets in Cloud Secret Manager.
+  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # - variable: MY_SECRET
+  #   secret: mySecretRef
+
+backend:
+  service_id: ceosw-04
+
+env:
+  - variable: MONGODB_URI_CEOSW
+    secret: MONGODB_URI_CEOSW
+  - variable: MONGODB_NAME
+    value: ceosw-prod
+  - variable: NUXT_AUTH_SECRET
+    secret: projects/amavsoluciones/secrets/NUXT_AUTH_SECRET/versions/latest
+  - variable: BREVO_API_KEY_CEOSW
+    secret: BREVO_API_KEY_CEOSW

@@ -63,7 +63,7 @@ export default defineNuxtConfig({
     mongodbName: process.env.MONGODB_NAME,
     authSecret: process.env.NUXT_AUTH_SECRET,
     authOrigin: process.env.NUXT_AUTH_ORIGIN,
-    brevoApiKey: process.env.BREVO_API_KEY,
+    brevoApiKey: process.env.BREVO_API_KEY_CEOSW,
 
     public: {
       clientLogo: process.env.CLIENT_LOGO,
