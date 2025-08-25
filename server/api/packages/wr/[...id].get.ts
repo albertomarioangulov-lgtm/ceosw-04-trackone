@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
     // .populate({ path: 'cr', select: 'crId', strictPopulate: false })
     .populate({ path: 'createdBy', select: 'name initials color' })
     // .where( 'wr' ).equals( id )
+    .where('cr').exists(false)
+    .sort({ _id: -1 })
     .lean()
     .exec()
 
