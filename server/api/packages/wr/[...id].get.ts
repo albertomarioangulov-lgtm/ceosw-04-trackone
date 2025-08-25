@@ -15,7 +15,18 @@ export default defineEventHandler(async (event) => {
     .populate({ path: 'cr', select: 'crId' })
     .populate({ path: 'createdBy', select: 'name initials color' })
     .where( 'wr' ).equals( id )
+    .lean()
     .exec()
+
+    // const rawPackages = await Package.find()
+    //     .populate({ path: 'wr', select: 'wrId client',
+    //       populate: { path: 'client', select: 'name' }
+    //     })
+    //     .populate({ path: 'cr', select: 'crId' })
+    //     .populate({ path: 'createdBy', select: 'name initials color' })
+    //     .where( 'wr' ).equals( wr )
+    //     .lean()
+    //     .exec()
 
   return data
 })
