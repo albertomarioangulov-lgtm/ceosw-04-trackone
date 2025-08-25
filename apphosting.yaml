@@ -27,10 +27,10 @@ backend:
 
 env:
   - variable: MONGODB_URI_CEOSW
-    secret: MONGODB_URI_CEOSW
+    secret: projects/amavsoluciones/secrets/MONGODB_URI_CEOSW/versions/latest
   - variable: MONGODB_NAME
     value: ceosw-prod
   - variable: NUXT_AUTH_SECRET
     secret: projects/amavsoluciones/secrets/NUXT_AUTH_SECRET/versions/latest
   - variable: BREVO_API_KEY_CEOSW
-    secret: BREVO_API_KEY_CEOSW
+    secret: Bprojects/amavsoluciones/secrets/BREVO_API_KEY_CEOSW/versions/latest
