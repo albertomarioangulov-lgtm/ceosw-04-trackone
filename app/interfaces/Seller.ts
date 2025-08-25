@@ -1,0 +1,15 @@
+export interface Seller {
+  _id?: string,
+  id?: string,
+  name?: string,
+  phone?: string[],
+  email?: string,
+  emails?: string[],
+  address?: string,
+  seller_code?: string,
+  code?: string,
+  fee?: string,
+  country?: string,
+  state?: string,
+  city?: string,
+}
