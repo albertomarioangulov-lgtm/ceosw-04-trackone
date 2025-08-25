@@ -40,7 +40,8 @@ const usePackage = () => {
 
   // Get packages by WR
   const getPackagesByWR = async (dataId: string) => {
-    const { data, error, pending, refresh } = await fetchResource(`${API_URL}/wr/${dataId}`, getHeaders, 'GET', undefined)
+    // const { data, error, pending, refresh } = await fetchResource(`${API_URL}/wr/${dataId}`, getHeaders, 'GET', undefined)
+    const { data, error, pending, refresh } = await fetchResource(`${API_URL}/wr/${dataId}`, getHeaders, 'GET')
     watch(() => data.value, packagesByWR => {
       if (packagesByWR) store.setPackagesByWR(packagesByWR)
     }, { immediate: true })
