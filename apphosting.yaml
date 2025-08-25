@@ -33,4 +33,4 @@ env:
   - variable: NUXT_AUTH_SECRET
     secret: projects/amavsoluciones/secrets/NUXT_AUTH_SECRET/versions/latest
   - variable: BREVO_API_KEY_CEOSW
-    secret: Bprojects/amavsoluciones/secrets/BREVO_API_KEY_CEOSW/versions/latest
+    secret: projects/amavsoluciones/secrets/BREVO_API_KEY_CEOSW/versions/latest
