@@ -9,8 +9,8 @@ definePageMeta({
 
   <v-alert
     type="success"
-    title="Alert title"
-    text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est labore voluptatibus! Eaque cupiditate minima, at placeat totam, magni doloremque veniam neque porro libero rerum unde voluptatem!"
+    title="¡Bienvenido a CEO TrackOne!"
+    text="Desde este panel podrás gestionar clientes, paquetes, y envíos de manera eficiente. ¡Explora las opciones del menú para comenzar!"
   >
   <template v-slot:[`prepend`]>
     <Icon size="2rem" name="line-md:confirm-circle" />
