@@ -92,14 +92,15 @@ const loadItems = async (options:any) => {
     sortDesc: options.sortBy?.[0]?.order === 'desc' ? 'true' : 'false'
   }
 
-  const { packages, refresh} = await getPackages(query)
+  const {packages} = await getPackages(query)
+  console.log('packages:: ', packages)
   // const queryString = new URLSearchParams(query).toString()
   // const response = await $fetch(`/api/packages?${queryString}`)
   // console.log('response', response)
   // packagesData.value = result.packages.value
   packagesData.value = {
-    items: packages.value.items ?? [],
-    total: packages.value.total ?? 0
+    items: packages?.items ?? [],
+    total: packages?.total ?? 0
   }
   isLoading.value = false
 

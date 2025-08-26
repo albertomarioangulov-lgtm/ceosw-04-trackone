@@ -1,3 +1,4 @@
+import { get } from "mongoose"
 import { usePackagesStore } from "~/store/packages"
 
 const resourceName = 'package'
@@ -29,15 +30,25 @@ const usePackage = () => {
   // const response = await $fetch(`/api/packages?${queryString}`)
 
   // Get all packages
-  const getPackages = async (query:any) => {
+  // const getPackages = async (query:any) => {
+  //   const queryString = new URLSearchParams(query).toString()
+  //   // console.log('Fetching packages with queryString:', queryString)
+  //   // const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET', undefined, `${resourceName}-list`)
+  //   const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET')
+  //   watch(() => data.value, packages => {
+  //     if (packages) store.setPackages(packages)
+  //   }, { immediate: true })
+  //   return { packages: data, error, pending, refresh }
+  // }
+
+  const getPackages = async (query: any) => {
     const queryString = new URLSearchParams(query).toString()
-    console.log('Fetching packages with queryString:', queryString)
-    // const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET', undefined, `${resourceName}-list`)
-    const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET')
-    watch(() => data.value, packages => {
-      if (packages) store.setPackages(packages)
-    }, { immediate: true })
-    return { packages: data, error, pending, refresh }
+    const packages = await $fetch(`${API_URL}?${queryString}`, {
+      headers: getHeaders()
+    })
+    // Opcional: actualiza el store si lo necesitas
+    store.setPackages(packages)
+    return { packages }
   }
 
   // Get packages by WR
