@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   // Filtro de búsqueda (ejemplo: por nombre)
   const filter: any = {}
   if (search) {
-    filter.name = { $regex: search, $options: 'i' }
+    filter.trkgNum = { $regex: search, $options: 'i' }
   }
 
   // Total de registros filtrados
