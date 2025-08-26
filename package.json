@@ -11,9 +11,7 @@
     "dev-test": "nuxt dev --dotenv .env.test",
     "dev-prod": "nuxt dev --dotenv .env.prod",
     "build-test": "nuxt build --dotenv .env.test",
-    "build-prod": "nuxt build --dotenv .env.prod",
-    "preview-test": "nuxt preview --dotenv .env.test",
-    "preview-prod": "nuxt preview --dotenv .env.prod"
+    "build-prod": "nuxt build --dotenv .env.prod"
   },
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",
