@@ -19,7 +19,7 @@ const packagesData = ref({ items: [], total: 0 })
 
 const tableOptions = ref({
   page: 1,
-  itemsPerPage: 10,
+  itemsPerPage: 25,
   sortBy: [],
   search: ''
 })
@@ -69,7 +69,14 @@ const viewItem = async (item:any) => {
 //   })
 // })
 
-
+// Simple debounce function to avoid using lodash
+function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
+  let timeout: ReturnType<typeof setTimeout>;
+  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  }
+}
 
 const loadItems = async (options:any) => {
   isLoading.value = true
@@ -86,7 +93,7 @@ const loadItems = async (options:any) => {
   // }).toString()
   const query = {
     page: options.page?.toString() ?? '1',
-    itemsPerPage: options.itemsPerPage?.toString() ?? '10',
+    itemsPerPage: options.itemsPerPage?.toString() ?? '25',
     search: options.search ?? '',
     sortBy: options.sortBy?.[0]?.key ?? '',
     sortDesc: options.sortBy?.[0]?.order === 'desc' ? 'true' : 'false'
@@ -106,6 +113,14 @@ const loadItems = async (options:any) => {
 
 }
 
+// Create a debounced version of the loadItems function.
+// This will wait 500ms after the user stops typing before making the API call.
+const debouncedLoadItems = debounce(loadItems, 500)
+
+watch(() => tableOptions.value.search, () => {
+  tableOptions.value.page = 1 // Reset to the first page for a new search
+  debouncedLoadItems(tableOptions.value)
+})
 
 
 onMounted(() => {
@@ -130,7 +145,7 @@ onMounted(() => {
     ></v-progress-linear>
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
-      <PackagesBtnSubmit />
+      <!-- <PackagesBtnSubmit /> -->
     </v-toolbar>
 
     <!-- @vue-expect-error -->
@@ -139,10 +154,23 @@ onMounted(() => {
       :headers="headers"
       :items="packagesData.items"
       :items-length="packagesData.total"
+      :items-per-page="tableOptions.itemsPerPage"
       :loading="isLoading"
       item-value="_id"
       @update:options="loadItems"
-    ></v-data-table-server>
+    >
+      <template v-slot:top>
+        <v-text-field
+          v-model="tableOptions.search"
+          class="ma-2"
+          density="compact"
+          placeholder="Search..."
+          hide-details
+        ></v-text-field>
+      </template>
+  
+  
+    </v-data-table-server>
     
     <!-- @vue-expect-error -->
     <!-- <v-data-table density="compact" :headers="headers" :items="packages.items"
