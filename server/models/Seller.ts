@@ -1,6 +1,6 @@
-import mongoose, { Schema, model, models } from 'mongoose'
+import mongoose from 'mongoose'
 
-const sellerSchema = new Schema({
+const sellerSchema = new mongoose.Schema({
   name: { type: String, required: true },
   phone: {type: String},
   email: String,
@@ -12,12 +12,12 @@ const sellerSchema = new Schema({
   country: String,
   state: String,
   city: String,
-  createdBy: { ref: "User", type: Schema.Types.ObjectId }
+  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
 })
 
-const Seller = models.Seller || model( 'Seller', sellerSchema )
+const Seller = mongoose.models.Seller || mongoose.model( 'Seller', sellerSchema )
 
 export default Seller

@@ -1,15 +1,15 @@
-import mongoose, { Schema, model, models } from 'mongoose'
+import mongoose from 'mongoose'
 
-const carrierSchema = new Schema({
+const carrierSchema = new mongoose.Schema({
   name: { type: String, required: true },
   code: { type: String, unique: true },
 
-  createdBy: { ref: "User", type: Schema.Types.ObjectId }
+  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
 })
 
-const Carrier = models.Carrier || model('Carrier', carrierSchema);
+const Carrier = mongoose.models.Carrier || mongoose.model('Carrier', carrierSchema);
 
 export default Carrier;

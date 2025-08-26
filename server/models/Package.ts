@@ -1,13 +1,13 @@
-import mongoose, { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
 import AutoIncrement from 'mongoose-sequence'
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
 
-const packageSchema = new Schema({
+const packageSchema = new mongoose.Schema({
   pkgId: Number,
   trkgNum: { type: String, required: true },
-  wr: { ref: "WR", type: Schema.Types.ObjectId },
+  wr: { ref: "WR", type: mongoose.Schema.Types.ObjectId },
   label: Number,
   weight: Number,
   measures: {
@@ -16,9 +16,9 @@ const packageSchema = new Schema({
     h: Number
   },
   notes: String,
-  cr: { ref: "CR", type: Schema.Types.ObjectId },
+  cr: { ref: "CR", type: mongoose.Schema.Types.ObjectId },
 
-  createdBy: { ref: "User", type: Schema.Types.ObjectId }
+  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
@@ -29,5 +29,5 @@ packageSchema.plugin(AutoIncrementPlugin, { inc_field: 'pkgId', start_seq: 1 })
 // @ts-expect-error
 packageSchema.plugin(AutoIncrementPlugin, { id: 'label_seq', inc_field: 'label', start_seq: 1, reference_fields: ['wr'] })
 
-const Package = models.Package || model( 'Package', packageSchema )
+const Package = mongoose.models.Package || mongoose.model( 'Package', packageSchema )
 export default Package
