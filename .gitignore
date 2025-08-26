@@ -24,6 +24,6 @@ logs
 !.env.example
 
 # Firebase
-.firebaserc
-apphosting.yaml
-firebase.json
+# .firebaserc
+# apphosting.yaml
+# firebase.json
