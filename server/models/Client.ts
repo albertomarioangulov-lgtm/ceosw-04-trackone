@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
 
-import Seller from './Seller';
-import User from './User';
+import './Seller';
+import './User';
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
@@ -18,7 +18,7 @@ const clientSchema = new mongoose.Schema({
     type: Date, // Usar el tipo Date es mejor para consultas y formato
     default: Date.now 
   },
-  seller: { ref: Seller, type: mongoose.Schema.Types.ObjectId, required: true },
+  seller: { ref: 'Seller', type: mongoose.Schema.Types.ObjectId, required: true },
   poboxid: Number,
   // docNum: { type: String, required: true, unique: true },
   docNum: { type: String },
@@ -44,7 +44,7 @@ const clientSchema = new mongoose.Schema({
     phone: String, // String es mejor para números de teléfono
     email: String
   }],
-  createdBy: { ref: User, type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false,

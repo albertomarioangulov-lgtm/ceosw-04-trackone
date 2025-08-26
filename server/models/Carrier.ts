@@ -1,11 +1,11 @@
 import mongoose from 'mongoose'
-import User from './User';
+import './User';
 
 const carrierSchema = new mongoose.Schema({
   name: { type: String, required: true },
   code: { type: String, unique: true },
 
-  createdBy: { ref: User, type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false

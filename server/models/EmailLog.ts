@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import User from './User';
+import './User';
 
 const emailLogSchema = new mongoose.Schema({
   to: String,
@@ -10,7 +10,7 @@ const emailLogSchema = new mongoose.Schema({
   status: String,
   sentAt: { type: Date, default: Date.now },
   error: Object,
-  createdBy: { ref: User, type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false

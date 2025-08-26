@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 import bcryptjs from 'bcryptjs';
 
-import Role from './Role'
+import './Role'
 
 const userSchema = new mongoose.Schema({
   name: String,
@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     icon: { type: String, default: 'account' },
   },
   color: { type: String, default: 'blue' },
-  roles: [{ ref: Role, type: mongoose.Schema.Types.ObjectId }],
+  roles: [{ ref: 'Role', type: mongoose.Schema.Types.ObjectId }],
   permissions: [ String ],
   createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
 }, {
