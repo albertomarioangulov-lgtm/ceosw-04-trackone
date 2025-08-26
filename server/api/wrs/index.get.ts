@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   
   const data = await WR.find()
     .populate({ path: 'client', select: 'name address' })
+    // .populate({ path: 'status', select: 'name' })
     .populate({ path: 'createdBy', select: 'name initials color avatar' })
     .sort({ _id: -1 })
     .exec()
