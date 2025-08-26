@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models } from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 
 // @ts-expect-error
@@ -46,4 +46,4 @@ clientSchema.virtual('lastWR', {
   foreignField: 'client'
 })
 
-export default models.Client || model( 'Client', clientSchema )
+export default mongoose.models.Client || model( 'Client', clientSchema )

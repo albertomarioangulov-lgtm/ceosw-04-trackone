@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models } from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose';
 import AutoIncrement from 'mongoose-sequence'
 
 // @ts-expect-error
@@ -29,4 +29,4 @@ packageSchema.plugin(AutoIncrementPlugin, { inc_field: 'pkgId', start_seq: 1 })
 // @ts-expect-error
 packageSchema.plugin(AutoIncrementPlugin, { id: 'label_seq', inc_field: 'label', start_seq: 1, reference_fields: ['wr'] })
 
-export default models.Package || model( 'Package', packageSchema )
+export default mongoose.models.Package || model( 'Package', packageSchema )

@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 
 const wrStatusesSchema = new Schema({
   name: String,
@@ -8,4 +8,4 @@ const wrStatusesSchema = new Schema({
   versionKey: false
 })
 
-export default models.WRStatus || model( 'WRStatus', wrStatusesSchema )
+export default mongoose.models.WRStatus || model( 'WRStatus', wrStatusesSchema )
