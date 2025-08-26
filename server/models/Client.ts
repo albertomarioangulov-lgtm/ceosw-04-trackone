@@ -5,9 +5,15 @@ import AutoIncrement from 'mongoose-sequence'
 const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const clientSchema = new Schema({
-  name: { type: String, required: true },
-  // code: { type: String, unique: true },
-  dateIn: String,
+  name: { 
+    type: String, 
+    required: true,
+    trim: true // Elimina espacios en blanco al inicio y al final
+  },
+  dateIn: { 
+    type: Date, // Usar el tipo Date es mejor para consultas y formato
+    default: Date.now 
+  },
   seller: { ref: "Seller", type: Schema.Types.ObjectId, required: true },
   poboxid: Number,
   // docNum: { type: String, required: true, unique: true },
@@ -16,14 +22,22 @@ const clientSchema = new Schema({
   country: String,
   state: String,
   city: String,
-  phone: String,
-  address: String,
-  emails: [String],
-  email: String,
+  phone: { type: String }, // String es mejor para números de teléfono (+, -, etc.)
+  address: { type: String, trim: true },
+  emails: [{
+    type: String,
+    trim: true,
+    lowercase: true // Guardar emails en minúsculas para consistencia
+  }],
+  email: { // Email principal
+    type: String,
+    trim: true,
+    lowercase: true
+  },
   contacts: [{
     name: String,
     position: String,
-    phone: Number,
+    phone: String, // String es mejor para números de teléfono
     email: String
   }],
   createdBy: { ref: "User", type: Schema.Types.ObjectId }
@@ -31,19 +45,17 @@ const clientSchema = new Schema({
   timestamps: true,
   versionKey: false,
   toJSON: { virtuals: true }
-})
+});
 
 // @ts-expect-error
 clientSchema.plugin(AutoIncrementPlugin, {
     id: 'poboxid_seq',
     inc_field: 'poboxid',
     reference_fields: ['seller']
-})
+});
 
-// clientSchema.virtual('lastWR', {
-//   ref: 'WR',
-//   localField: '_id',
-//   foreignField: 'client'
-// })
+// Índice para asegurar unicidad y mejorar rendimiento en búsquedas
+clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });
+clientSchema.index({ name: 1 }); // Índice para búsquedas por nombre
 
 export default mongoose.models.Client || model( 'Client', clientSchema )
