@@ -57,6 +57,8 @@ export default defineNuxtPlugin((app) => {
 
     defaults: {
       VToolbar: { density },
+      VDataTable: { density },
+      VDataTableServer: { density },
       VTextField: { variant, density, hideDetails },
       VTextarea: { variant,  density, hideDetails },
       VColorInput: { variant,  density, hideDetails },
