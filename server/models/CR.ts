@@ -1,5 +1,6 @@
 import mongoose, { Schema, model } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
+import Package from './Package';
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
@@ -12,10 +13,18 @@ const crSchema = new Schema({
   createdBy: { ref: "User", type: Schema.Types.ObjectId }
 }, {
   timestamps: true,
-  versionKey: false
+  versionKey: false,
+  toJSON: { virtuals: true }
 })
 
 // @ts-expect-error
 crSchema.plugin(AutoIncrementPlugin, { inc_field: 'crId', start_seq: 12001 })
+
+crSchema.virtual('packageCount', {
+  ref: Package,
+  localField: '_id',
+  foreignField: 'cr',
+  count: true
+})
 
 export default model( 'CR', crSchema )
