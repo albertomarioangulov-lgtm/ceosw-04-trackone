@@ -1,6 +1,6 @@
 import { SendSmtpEmail, TransactionalEmailsApi, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
 import Package from "~~/server/models/Package"
-import type { Package as PackageType } from '~~/app/interfaces/Package';
+// import type { Package as PackageType } from '~~/app/interfaces/Package';
 
 const config = useRuntimeConfig()
 
@@ -9,17 +9,23 @@ const config = useRuntimeConfig()
 const sendEmailWr = async(savedData:any) => {
   const wr = savedData._id.toString()
   const name = savedData.client.name
+  const clientEmails = savedData.client.emails
   // const companion = savedData.companion
   // const phone = savedData.phone
   // const email = savedData.email
   // const email = "almaanvi@gmail.com"
 
-  console.log('savedData: ', savedData)
+  // console.log('savedData: ', savedData)
 
-  const recipients = [
-  { email: "almaanvi@gmail.com", name: "Alberto Mario" },
-  { email: "ceoswdev@gmail.com", name: "CEO TrackOne" }
-];
+  const staticRecipients = [
+    { email: "info@comprasyenviosonline.com", name: "Info CEO TrackOne" },
+    { email: "ceoswdev@gmail.com", name: "CEO TrackOne" }
+  ];
+
+  // Mapea los correos del cliente al formato requerido por Brevo
+  const clientRecipients = Array.isArray(clientEmails)
+    ? clientEmails.map((email: string) => ({ email, name }))
+    : [];
 
   const now = new Date()
   const formattedDate = now.toLocaleString()
@@ -86,9 +92,7 @@ const sendEmailWr = async(savedData:any) => {
   let totalVolKgs = 0
   let totalCft = 0
 
-  const packages: PackageType[] = rawPackages.map(pkg => {
-
-    // const createdAt = new Date(pkg.createdAt.toDateString())
+  rawPackages.forEach(pkg => {
     const year = pkg.createdAt.getFullYear()
     const month = pkg.createdAt.getMonth() + 1
     const day = pkg.createdAt.getDate()
@@ -131,12 +135,6 @@ const sendEmailWr = async(savedData:any) => {
         <td ${tdStyle}>${year}-${month}-${day} ${hour}:${mm}</td>
       </tr>
     `
-
-    return {
-      ...pkg,
-      _id: pkg._id.toString(), // Convert ObjectId to string
-      wr: pkg.wr ? pkg.wr.toString() : undefined, // Convert ObjectId/null/undefined to string/undefined
-    }
   });
 
   // ${ packages.map(pkg => `
@@ -200,7 +198,7 @@ const sendEmailWr = async(savedData:any) => {
   sendSmtpEmail.htmlContent = html;
   // sendSmtpEmail.templateId = 2; // ID de la plantilla
   sendSmtpEmail.sender = { name: "CEOSW TrackOne", email: "ceoswdev@gmail.com" };
-  sendSmtpEmail.to = recipients;
+  sendSmtpEmail.to = [...staticRecipients, ...clientRecipients];
 
   sendSmtpEmail.params = {
     name: name,
@@ -231,7 +229,3 @@ const sendEmailWr = async(savedData:any) => {
 } 
 
 export default sendEmailWr
-
-
-
-
