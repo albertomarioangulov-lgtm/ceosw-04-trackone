@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
 
 const sellerSchema = new Schema({
   name: { type: String, required: true },
@@ -18,4 +18,6 @@ const sellerSchema = new Schema({
   versionKey: false
 })
 
-export default mongoose.models.Seller || model( 'Seller', sellerSchema )
+const Seller = models.Seller || model( 'Seller', sellerSchema )
+
+export default Seller

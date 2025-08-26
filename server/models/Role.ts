@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import mongoose, { Schema, model, models } from 'mongoose';
 
 const roleSchema = new Schema({
   name: String,
@@ -9,4 +9,6 @@ const roleSchema = new Schema({
   versionKey: false
 })
 
-export default mongoose.models.Role || model( 'Role', roleSchema )
+const Role = models.Role || model( 'Role', roleSchema )
+
+export default Role

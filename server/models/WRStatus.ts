@@ -1,6 +1,6 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
 
-const wrStatusesSchema = new Schema({
+const wrStatusSchema = new Schema({
   name: String,
   createdBy: { ref: "User", type: Schema.Types.ObjectId }
 }, {
@@ -8,4 +8,6 @@ const wrStatusesSchema = new Schema({
   versionKey: false
 })
 
-export default mongoose.models.WRStatus || model( 'WRStatus', wrStatusesSchema )
+const WRStatus = models.WRStatus || model( 'WRStatus', wrStatusSchema )
+
+export default WRStatus

@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 import Package from './Package';
 
@@ -27,4 +27,6 @@ crSchema.virtual('packageCount', {
   count: true
 })
 
-export default mongoose.models.CR || model( 'CR', crSchema )
+const CR = models.CR || model('CR', crSchema)
+
+export default CR

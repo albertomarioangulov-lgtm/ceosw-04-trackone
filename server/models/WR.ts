@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 import Package from './Package';
 
@@ -26,4 +26,6 @@ wrSchema.virtual('packageCount', {
   count: true
 })
 
-export default mongoose.models.WR || model( 'WR', wrSchema )
+const WR = models.WR || model( 'WR', wrSchema )
+
+export default WR

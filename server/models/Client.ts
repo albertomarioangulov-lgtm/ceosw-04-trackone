@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose, { Schema, model, models } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 
 // @ts-expect-error
@@ -58,4 +58,6 @@ clientSchema.plugin(AutoIncrementPlugin, {
 clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });
 clientSchema.index({ name: 1 }); // Índice para búsquedas por nombre
 
-export default mongoose.models.Client || model( 'Client', clientSchema )
+const Client = models.Client || model('Client', clientSchema);
+
+export default Client
