@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import AutoIncrement from 'mongoose-sequence'
 
-import './WR'
-import './CR'
-import './User'
+import WR from './WR';
+import CR from './CR';
+import User from './User';
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
@@ -11,7 +11,7 @@ const AutoIncrementPlugin = AutoIncrement(mongoose);
 const packageSchema = new mongoose.Schema({
   pkgId: Number,
   trkgNum: { type: String, required: true },
-  wr: { ref: "WR", type: mongoose.Schema.Types.ObjectId },
+  wr: { ref: WR, type: mongoose.Schema.Types.ObjectId },
   label: Number,
   weight: Number,
   measures: {
@@ -20,9 +20,9 @@ const packageSchema = new mongoose.Schema({
     h: Number
   },
   notes: String,
-  cr: { ref: "CR", type: mongoose.Schema.Types.ObjectId },
+  cr: { ref: CR, type: mongoose.Schema.Types.ObjectId },
 
-  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: User, type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import './User'
+import User from './User'
 
 const sellerSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -13,7 +13,7 @@ const sellerSchema = new mongoose.Schema({
   country: String,
   state: String,
   city: String,
-  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: User, type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false

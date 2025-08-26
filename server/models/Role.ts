@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import './User'
+import User from './User'
 
 const roleSchema = new mongoose.Schema({
   name: String,
