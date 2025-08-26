@@ -40,10 +40,10 @@ clientSchema.plugin(AutoIncrementPlugin, {
     reference_fields: ['seller']
 })
 
-clientSchema.virtual('lastWR', {
-  ref: 'WR',
-  localField: '_id',
-  foreignField: 'client'
-})
+// clientSchema.virtual('lastWR', {
+//   ref: 'WR',
+//   localField: '_id',
+//   foreignField: 'client'
+// })
 
 export default mongoose.models.Client || model( 'Client', clientSchema )
