@@ -59,8 +59,8 @@ clientSchema.plugin(AutoIncrementPlugin, {
 });
 
 // Índice para asegurar unicidad y mejorar rendimiento en búsquedas
-clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });
-clientSchema.index({ name: 1 }); // Índice para búsquedas por nombre
+// clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });
+// clientSchema.index({ name: 1 }); // Índice para búsquedas por nombre
 
 const Client = mongoose.models.Client || mongoose.model('Client', clientSchema);
 
