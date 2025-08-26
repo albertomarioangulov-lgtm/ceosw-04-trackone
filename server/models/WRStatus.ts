@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import './User'
 
 const wrStatusSchema = new mongoose.Schema({
   name: String,

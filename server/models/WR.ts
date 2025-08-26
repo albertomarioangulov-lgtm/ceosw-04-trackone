@@ -2,6 +2,10 @@ import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 import Package from './Package';
 
+// Import referenced models to ensure they are registered with Mongoose before this model is compiled.
+import './Client'
+import './WRStatus'
+import './User'
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
 

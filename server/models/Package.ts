@@ -1,6 +1,10 @@
 import mongoose from 'mongoose';
 import AutoIncrement from 'mongoose-sequence'
 
+import './WR'
+import './CR'
+import './User'
+
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
 

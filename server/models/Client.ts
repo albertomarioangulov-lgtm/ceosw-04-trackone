@@ -1,5 +1,8 @@
 import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
+// Import referenced models to ensure they are registered with Mongoose before this model is compiled.
+import './Seller'
+import './User'
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
