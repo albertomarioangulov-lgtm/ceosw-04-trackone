@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 const emailLogSchema = new Schema({
   to: String,
@@ -15,4 +15,4 @@ const emailLogSchema = new Schema({
   versionKey: false
 });
 
-export default model('EmailLog', emailLogSchema);
+export default models.EmailLog || model('EmailLog', emailLogSchema);

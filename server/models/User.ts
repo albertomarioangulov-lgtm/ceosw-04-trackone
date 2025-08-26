@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose'
+import { Schema, model, models } from 'mongoose'
 import bcryptjs from 'bcryptjs';
 
 import Role from './Role'
@@ -36,4 +36,4 @@ userSchema.methods.toJSON = function () {
   return obj
 }
 
-export default model( 'User', userSchema )
+export default models.User || model( 'User', userSchema )
