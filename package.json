@@ -11,6 +11,10 @@
     "dev-test": "nuxt dev --dotenv .env.test",
     "dev-prod": "nuxt dev --dotenv .env.prod"
   },
+  "engines": {
+    "node": "20.x",
+    "pnpm": ">=10"
+  },
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",
     "@mdi/font": "^7.4.47",
