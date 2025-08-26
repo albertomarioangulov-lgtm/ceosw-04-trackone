@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose'
 
 const packageSchema = new Schema({
   pkgId: Number,
-  trkgNum: { type: String, required: true, unique: true },
+  trkgNum: { type: String, required: true },
   wr: { ref: "WR", type: Schema.Types.ObjectId },
   label: Number,
   weight: Number,
