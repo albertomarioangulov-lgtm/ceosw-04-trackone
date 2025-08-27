@@ -1,8 +1,8 @@
 import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
-import Package from './Package';
 
 import './Carrier';
+import './Package';
 import './WR';
 import './User';
 
@@ -25,7 +25,7 @@ const crSchema = new mongoose.Schema({
 crSchema.plugin(AutoIncrementPlugin, { inc_field: 'crId', start_seq: 12001 })
 
 crSchema.virtual('packageCount', {
-  ref: Package,
+  ref: 'Package',
   localField: '_id',
   foreignField: 'cr',
   count: true

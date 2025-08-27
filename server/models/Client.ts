@@ -47,8 +47,7 @@ const clientSchema = new mongoose.Schema({
   createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
-  versionKey: false,
-  toJSON: { virtuals: true }
+  versionKey: false
 });
 
 // @ts-expect-error
