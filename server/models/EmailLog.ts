@@ -1,7 +1,7 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose from 'mongoose'
 import './User';
 
-const emailLogSchema = new Schema({
+const emailLogSchema = new mongoose.Schema({
   to: String,
   subject: String,
   htmlContent: String,
@@ -10,12 +10,12 @@ const emailLogSchema = new Schema({
   status: String,
   sentAt: { type: Date, default: Date.now },
   error: Object,
-  createdBy: { ref: 'User', type: Schema.Types.ObjectId }
+  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
 });
 
-const EmailLog = mongoose.models.EmailLog || model('EmailLog', emailLogSchema)
+const EmailLog = mongoose.models.EmailLog || mongoose.model('EmailLog', emailLogSchema)
 
 export default EmailLog

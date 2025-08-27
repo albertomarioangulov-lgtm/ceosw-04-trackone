@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose'
+import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
 
@@ -7,9 +7,8 @@ import './User';
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
-// const AutoIncrementPlugin = AutoIncrement({ connection: models.Client?.db });
 
-const clientSchema = new Schema({
+const clientSchema = new mongoose.Schema({
   name: { 
     type: String, 
     required: true,
@@ -19,7 +18,7 @@ const clientSchema = new Schema({
     type: Date, // Usar el tipo Date es mejor para consultas y formato
     default: Date.now 
   },
-  seller: { ref: 'Seller', type: Schema.Types.ObjectId, required: true },
+  seller: { ref: 'Seller', type: mongoose.Schema.Types.ObjectId, required: true },
   poboxid: Number,
   // docNum: { type: String, required: true, unique: true },
   docNum: { type: String },
@@ -45,7 +44,7 @@ const clientSchema = new Schema({
     phone: String, // String es mejor para números de teléfono
     email: String
   }],
-  createdBy: { ref: 'User', type: Schema.Types.ObjectId }
+  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
@@ -62,6 +61,6 @@ clientSchema.plugin(AutoIncrementPlugin, {
 // clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });
 // clientSchema.index({ name: 1 }); // Índice para búsquedas por nombre
 
-const Client = mongoose.models.Client || model('Client', clientSchema);
+const Client = mongoose.models.Client || mongoose.model('Client', clientSchema);
 
 export default Client
