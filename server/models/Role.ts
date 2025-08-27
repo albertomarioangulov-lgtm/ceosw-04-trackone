@@ -1,15 +1,15 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 import './User'
 
-const roleSchema = new mongoose.Schema({
+const roleSchema = new Schema({
   name: String,
   color: String,
-  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: "User", type: Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
 })
 
-const Role = mongoose.models.Role || mongoose.model( 'Role', roleSchema )
+const Role = mongoose.models.Role || model( 'Role', roleSchema )
 
 export default Role

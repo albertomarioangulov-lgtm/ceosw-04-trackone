@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
@@ -9,12 +9,13 @@ import './User'
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
+// const AutoIncrementPlugin = AutoIncrement({ connection: models.WR?.db });
 
-const wrSchema = new mongoose.Schema({
+const wrSchema = new Schema({
   wrId: Number,
-  client: { ref: 'Client', type: mongoose.Schema.Types.ObjectId },
-  status: { ref: 'WRStatus', type: mongoose.Schema.Types.ObjectId },
-  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
+  client: { ref: 'Client', type: Schema.Types.ObjectId },
+  status: { ref: 'WRStatus', type: Schema.Types.ObjectId },
+  createdBy: { ref: 'User', type: Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false,
@@ -31,6 +32,6 @@ wrSchema.virtual('packageCount', {
   count: true
 })
 
-const WR = mongoose.models.WR || mongoose.model( 'WR', wrSchema )
+const WR = mongoose.models.WR || model( 'WR', wrSchema )
 
 export default WR

@@ -1,10 +1,8 @@
 import { Nitro } from 'nitropack'
 import mongoose from 'mongoose'
 
-// import { createRoles, createUsers } from "../libs/initialSetup"
-
 export default async (nitroApp: Nitro) => {
-  // Evitar múltiples conexiones si este plugin se ejecuta más de una vez.
+  // Evita crear conexiones duplicadas, especialmente útil en desarrollo con HMR (Hot Module Replacement).
   if (mongoose.connection.readyState === 1) {
     console.log('=> Using existing database connection.');
     return;
@@ -16,7 +14,8 @@ export default async (nitroApp: Nitro) => {
   const uri = `${config.mongodbUri}/${config.mongodbName}?retryWrites=true&w=majority`
 
   try {
-    // Configurar listeners de eventos ANTES de conectar
+    // Configurar listeners de eventos ANTES de conectar es una buena práctica
+    // para no perder ningún evento inicial.
     mongoose.connection.on('connected', () => {
       console.log(`Connected to database: ${config.mongodbName}`);
     });
@@ -30,13 +29,14 @@ export default async (nitroApp: Nitro) => {
     });
 
     // Conectar a MongoDB
-    // Para entornos de producción, es una buena práctica añadir opciones de conexión más específicas.
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000, // Timeout después de 5s en lugar de 30s
-      autoIndex: false, // No construir índices automáticamente, especialmente en producción
+      // Fail faster if the database is not reachable
+      serverSelectionTimeoutMS: 5000,
     });
 
     // Cierre elegante (Graceful Shutdown)
+    // Esto asegura que la conexión a la base de datos se cierre correctamente
+    // cuando la aplicación de Nuxt se detiene.
     nitroApp.hooks.hook('close', async () => {
       await mongoose.disconnect();
       console.log('Mongoose disconnected due to app shutdown.');
@@ -44,8 +44,4 @@ export default async (nitroApp: Nitro) => {
   } catch (e) {
     console.error("Initial Mongoose connection failed:", e);
   }
-
-// Initial Setup
-// createRoles()
-// createUsers()
 }

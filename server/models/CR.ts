@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 
 import './Carrier';
@@ -8,13 +8,14 @@ import './User';
 
 // @ts-expect-error
 const AutoIncrementPlugin = AutoIncrement(mongoose);
+// const AutoIncrementPlugin = AutoIncrement({ connection: models.CR?.db });
 
-const crSchema = new mongoose.Schema({
+const crSchema = new Schema({
   crId: Number,
-  carrier: { ref: 'Carrier', type: mongoose.Schema.Types.ObjectId },
-  wr: { ref: 'WR', type: mongoose.Schema.Types.ObjectId, required: true },
-  // status: { ref: "WRStatus", type: mongoose.Schema.Types.ObjectId },
-  createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
+  carrier: { ref: 'Carrier', type: Schema.Types.ObjectId },
+  wr: { ref: 'WR', type: Schema.Types.ObjectId, required: true },
+  // status: { ref: "WRStatus", type: Schema.Types.ObjectId },
+  createdBy: { ref: 'User', type: Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false,
@@ -31,6 +32,6 @@ crSchema.virtual('packageCount', {
   count: true
 })
 
-const CR = mongoose.models.CR || mongoose.model('CR', crSchema)
+const CR = mongoose.models.CR || model('CR', crSchema)
 
 export default CR

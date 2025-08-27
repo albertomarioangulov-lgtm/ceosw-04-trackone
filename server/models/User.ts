@@ -1,9 +1,9 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema, model } from 'mongoose'
 import bcryptjs from 'bcryptjs';
 
 import './Role'
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
   name: String,
   username: { type: String, unique: true },
   email: { type: String, unique: true },
@@ -13,9 +13,9 @@ const userSchema = new mongoose.Schema({
     icon: { type: String, default: 'account' },
   },
   color: { type: String, default: 'blue' },
-  roles: [{ ref: 'Role', type: mongoose.Schema.Types.ObjectId }],
+  roles: [{ ref: 'Role', type: Schema.Types.ObjectId }],
   permissions: [ String ],
-  createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
+  createdBy: { ref: "User", type: Schema.Types.ObjectId }
 }, {
   timestamps: true,
   versionKey: false
@@ -36,6 +36,6 @@ userSchema.methods.toJSON = function () {
   return obj
 }
 
-const User = mongoose.models.User || mongoose.model( 'User', userSchema )
+const User = mongoose.models.User || model( 'User', userSchema )
 
 export default User
