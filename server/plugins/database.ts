@@ -29,7 +29,10 @@ export default async (nitroApp: Nitro) => {
     });
 
     // Connect to MongoDB
-    await mongoose.connect(uri)
+    // Fail faster if the database is not reachable. This is crucial for serverless environments.
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000 // Falla después de 5 segundos en lugar de 30
+    });
 
     // Graceful Shutdown
     // This ensures that the database connection is closed correctly
@@ -40,5 +43,8 @@ export default async (nitroApp: Nitro) => {
     });
   } catch (e) {
     console.error("Initial Mongoose connection failed:", e);
+    // Re-throw the error to ensure the container crashes and Cloud Run shows the actual
+    // connection error in the logs, instead of a generic timeout error.
+    throw e;
   }
 }
