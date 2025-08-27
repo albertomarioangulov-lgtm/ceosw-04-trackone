@@ -29,10 +29,7 @@ export default async (nitroApp: Nitro) => {
     });
 
     // Conectar a MongoDB
-    await mongoose.connect(uri, {
-      // Fail faster if the database is not reachable
-      serverSelectionTimeoutMS: 5000,
-    });
+    await mongoose.connect(uri)
 
     // Cierre elegante (Graceful Shutdown)
     // Esto asegura que la conexión a la base de datos se cierre correctamente
