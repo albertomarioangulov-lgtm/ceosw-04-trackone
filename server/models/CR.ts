@@ -2,7 +2,6 @@ import mongoose from 'mongoose'
 import AutoIncrement from 'mongoose-sequence'
 
 import './Carrier';
-import './Package';
 import './WR';
 import './User';
 
