@@ -1,48 +1,62 @@
 export default {
-  "home": 'Inicio',
+  // General
+  "Home": 'Inicio',
   welcome: 'Bienvenido',
+  actions: 'Acciones',
+  name: "Nombre",
+  "Name": 'Nombre',
+  code: "Código",
+  date: "Fecha",
+  descr: "Descripción",
+  description: "Descripción",
+  "Description": 'Descripción',
+  phone: "Teléfono",
+  "Phone": 'Teléfono',
+  address: "Dirección",
+  "Address": 'Dirección',
+  state: "Estado",
+  "Status": 'Estado',
+  city: "Ciudad",
+  "cancel": 'Cancelar',
+  "submit": 'Enviar',
+  "is required": 'es requerido',
+
+  // Resources
   users: "Usuarios",
   client: "Cliente",
   clients: "Clientes",
-  code: "Código",
-  config: "Configuración",
-  location: "Ubicacion",
+  "Client": "Cliente",
+  "Clients": "Clientes",
+  location: "Ubicación",
   locations: "Ubicaciones",
-  locationList: "Lista de Ubicaciones",
   assets: "Activos",
-  name: "Nombre",
+  "asset": 'Activo',
   notice: "Aviso",
   notices: "Avisos",
   quotes: "Cotizaciones",
   workOrders: "Ordenes de Trabajo",
-  userList: "Lista de Usuarios",
-  date: "Fecha",
-  descr: "Descripción",
-  description: "Descripción",
-  docType: "Tipo de Documento",
-  docNum: "Numero de Documento",
-  state: "Estado",
-  city: "Ciudad",
-  phone: "Teléfono",
-  address: "Dirección",
-  assetMovements: "Movimiento de Activos",
-  measurements: "Mediciones",
-  assetList: "Lista de Activos",
+  "Work Orders": "Ordenes de Trabajo",
   workOrder: "Orden de Trabajo",
-  workOrderList: "Lista de Ordenes de Trabajo",
-  
   "Notice Types": "Tipos de Aviso",
-
+  "Notice Type": 'Tipo de Aviso',
   "Contacts": 'Contactos',
+  config: "Configuración",
 
-  "client  List": 'Lista de Clientes',
+  // Lists
+  userList: "Lista de Usuarios",
+  "User List": "Lista de Usuarios",
+  "Client List": 'Lista de Clientes',
+  locationList: "Lista de Ubicaciones",
   "Location List": 'Lista de Ubicaciones',
+  assetList: "Lista de Activos",
   "Asset List": 'Lista de Activos',
   "Notice List": 'Lista de Avisos',
   "Quote List": 'Lista de Cotizaciones',
+  workOrderList: "Lista de Ordenes de Trabajo",
   "Work Order List": 'Lista de Ordenes de Trabajo',
   "Notice Type List": 'Lista de Tipos de Aviso',
 
+  // Forms & Titles
   "New User": 'Nuevo Usuario',
   "New Client": 'Nuevo Cliente',
   newLocation: 'Nueva Ubicación',
@@ -52,7 +66,6 @@ export default {
   "New Quote": 'Nueva Cotización',
   "New Work Order": 'Nueva Orden de Trabajo',
   "New Notice Type": 'Nuevo Tipo de Aviso',
-
   "Edit User": 'Editar Usuario',
   "Edit Client": 'Editar Cliente',
   editLocation: 'Editar Ubicación',
@@ -61,7 +74,6 @@ export default {
   "Edit Quote": 'Editar Cotización',
   "Edit Work Order": 'Editar Orden de Trabajo',
   "Edit Notice Type": 'Editar Tipo de Aviso',
-
   "See User": 'Ver Usuario',
   "See Client": 'Ver Cliente',
   "See Location": 'Ver Ubicación',
@@ -69,16 +81,13 @@ export default {
   "See Notice": 'Ver Aviso',
   "See Quote": 'Ver Cotización',
   "See Work Order": 'Ver Orden de Trabajo',
+  "Client Details": "Detalles del Cliente",
+  "Client Info": "Información del Cliente",
 
-  "Name": 'Nombre',
+  // Fields
+  docType: "Tipo de Documento",
+  docNum: "Número de Documento",
   "Username": 'Nombre de Usuario',
-  "actions": 'Acciones',
-  "Phone": 'Teléfono',
-  "Address": 'Dirección',
-  "Description": 'Descripción',
-  "asset": 'Activo',
-  "Notice Type": 'Tipo de Aviso',
-  "Status": 'Estado',
   "Created By": 'Creado Por',
   "Created Date": 'Fecha Creado',
   "Password": 'Contraseña',
@@ -86,34 +95,35 @@ export default {
 
   "Add Contact": 'Agregar Contacto',
   "Contact position": 'Cargo',
-
   "Full Name": 'Nombre Completo',
   "Document Type": 'Tipo de Documento',
-  "Document Number": 'Numero de Documento',
-
+  "Document Number": 'Número de Documento',
   "brand": 'Marca',
   "model": 'Modelo',
-  serialNum: 'Numero de Serie',
+  serialNum: 'Número de Serie',
   manufacturer: 'Fabricante',
   manufacturedDate: 'Fecha de Fabricación',
-
   "Priority Type": 'Tipo de Prioridad',
-
   "Value": 'Valor',
   "Quantity": 'Cantidad',
+  "Subtotal": 'Subtotal',
 
-  "Add Item": 'Agregar item',
-
-  "cancel": 'Cancelar',
-  "submit": 'Enviar',
-
-  "is required": 'es requerido',
-
+  // Buttons & Actions
+  "Add Item": 'Agregar Ítem',
+  "Add Items": 'Agregar Ítems',
+  "Download Pdf": 'Descargar Pdf',
   "Manage Quote": 'Gestionar Cotización',
   "Create WO": 'Crear OT',
+  "Send Email": "Enviar Email",
+  "Welcome Email": "Email de Bienvenida",
+  "Ticket": "Ticket",
+  "Edit": "Editar",
 
-  "Add Items": 'Agregar Items',
-  "Download Pdf": 'Descargar Pdf',
-
-  "Subtotal": 'Subtotal'
+  // Placeholders & Statuses
+  "Assigned Locations": "Ubicaciones Asignadas",
+  "No locations assigned": "No hay ubicaciones asignadas",
+  "Assigned Assets": "Activos Asignados",
+  "No assets assigned": "No hay activos asignados",
+  "No work orders": "No hay órdenes de trabajo",
+  "No notices": "No hay avisos"
 }
