@@ -7,47 +7,89 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Get pagination and search parameters from the query
+    // Obtener parámetros de paginación, búsqueda y ordenamiento del query
     const query = getQuery(event)
     const page = Number(query.page ?? 1)
-    const itemsPerPage = Number(query.itemsPerPage ?? 10)
+    const itemsPerPage = Number(query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
     const sortBy = (query.sortBy as string) || '_id'
     const sortDesc = query.sortDesc === 'true'
 
-    // Build search filter (example: by tracking number)
+    // Construir el filtro de búsqueda
     const filter: any = {}
     if (search) {
       filter.trkgNum = { $regex: search, $options: 'i' }
     }
 
-    // Build sort object
-    const sort: { [key: string]: 'asc' | 'desc' } = {}
-    sort[sortBy] = sortDesc ? 'desc' : 'asc'
+    // Construir el objeto de ordenamiento para el pipeline
+    const sort: { [key: string]: 1 | -1 } = {}
+    sort[sortBy] = sortDesc ? -1 : 1
 
-    // Get total count of filtered documents
-    const total = await Package.countDocuments(filter)
+    // Usamos un pipeline de agregación para obtener los datos y el conteo total en una sola consulta
+    const aggregationResult = await Package.aggregate([
+      // Etapa 1: Filtrar los paquetes según el criterio de búsqueda
+      { $match: filter },
 
-    // Paginated and filtered query
-    const items = await Package.find(filter)
-      .populate({ path: 'wr', select: 'wrId client',
-        populate: { path: 'client', select: 'name' }
-      })
-      .populate({ path: 'createdBy', select: 'name initials color avatar' })
-      .sort(sort)
-      .skip((page - 1) * itemsPerPage)
-      .limit(itemsPerPage)
-      .exec()
+      // Etapa 2: Realizar los "joins" (lookups) para obtener datos relacionados
+      {
+        $lookup: {
+          from: 'wrs', // Nombre de la colección para el modelo 'WR'
+          localField: 'wr',
+          foreignField: '_id',
+          as: 'wr'
+        }
+      },
+      { $unwind: { path: '$wr', preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: 'clients', // Nombre de la colección para 'Client'
+          localField: 'wr.client',
+          foreignField: '_id',
+          as: 'wr.client'
+        }
+      },
+      { $unwind: { path: '$wr.client', preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: 'users', // Nombre de la colección para 'User'
+          localField: 'createdBy',
+          foreignField: '_id',
+          as: 'createdBy'
+        }
+      },
+      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+
+      // Etapa 3: Usar $facet para obtener los datos paginados y el conteo total
+      {
+        $facet: {
+          items: [
+            { $sort: sort },
+            { $skip: (page - 1) * itemsPerPage },
+            { $limit: itemsPerPage }
+          ],
+          total: [
+            { $count: 'count' }
+          ]
+        }
+      }
+    ])
+
+    // El resultado de $facet es un array con un único objeto
+    const result = aggregationResult[0]
+    const items = result.items
+    const total = result.total.length > 0 ? result.total[0].count : 0
 
     return {
       items,
       total
     }
   } catch (error) {
-    // Log the error on the server console for debugging
+    // Registrar el error en la consola del servidor para depuración
     console.error('Error fetching packages:', error)
 
-    // Throw a standardized HTTP error for the client
+    // Lanzar un error HTTP estandarizado para el cliente
     throw createError({
       statusCode: 500,
       statusMessage: 'An internal server error occurred. Please try again later.'
