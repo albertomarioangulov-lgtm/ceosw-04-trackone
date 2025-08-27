@@ -27,12 +27,19 @@ const useClient = () => {
     fetchResource(`${API_URL}/${id}`, getHeaders, 'GET', undefined, `${resourceName}-${id}`)
 
   // Get all clients
-  const getClients = async () => {
-    const { data, error, pending, refresh } = await fetchResource(API_URL, getHeaders, 'GET', undefined, `${resourceName}-list`)
-    watch(() => data.value, clients => {
-      if (clients) store.setClients(clients)
-    }, { immediate: true })
-    return { clients: data, error, pending, refresh }
+  const getClients = async (query: any) => {
+    const queryString = new URLSearchParams(query).toString()
+    // const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET')
+    // watch(() => data.value, clients => {
+    //   if (clients) store.setClients(clients)
+    // }, { immediate: true })
+    // return { clients: data, error, pending, refresh }
+    const clients = await $fetch(`${API_URL}?${queryString}`, {
+      headers: getHeaders()
+    })
+    // Opcional: actualiza el store si lo necesitas
+    store.setClients(clients)
+    return { clients }
   }
 
 
