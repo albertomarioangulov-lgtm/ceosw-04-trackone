@@ -2,7 +2,7 @@ import { Nitro } from 'nitropack'
 import mongoose from 'mongoose'
 
 export default async (nitroApp: Nitro) => {
-  // Evita crear conexiones duplicadas, especialmente útil en desarrollo con HMR (Hot Module Replacement).
+  // Avoid creating duplicate connections, especially useful in development with HMR (Hot Module Replacement).
   if (mongoose.connection.readyState === 1) {
     console.log('=> Using existing database connection.');
     return;
@@ -14,8 +14,8 @@ export default async (nitroApp: Nitro) => {
   const uri = `${config.mongodbUri}/${config.mongodbName}?retryWrites=true&w=majority`
 
   try {
-    // Configurar listeners de eventos ANTES de conectar es una buena práctica
-    // para no perder ningún evento inicial.
+    // Setting up event listeners BEFORE connecting is a good practice
+    // to avoid missing any initial events.
     mongoose.connection.on('connected', () => {
       console.log(`Connected to database: ${config.mongodbName}`);
     });
@@ -28,12 +28,12 @@ export default async (nitroApp: Nitro) => {
       console.log('Mongoose disconnected.');
     });
 
-    // Conectar a MongoDB
+    // Connect to MongoDB
     await mongoose.connect(uri)
 
-    // Cierre elegante (Graceful Shutdown)
-    // Esto asegura que la conexión a la base de datos se cierre correctamente
-    // cuando la aplicación de Nuxt se detiene.
+    // Graceful Shutdown
+    // This ensures that the database connection is closed correctly
+    // when the Nuxt application stops.
     nitroApp.hooks.hook('close', async () => {
       await mongoose.disconnect();
       console.log('Mongoose disconnected due to app shutdown.');
