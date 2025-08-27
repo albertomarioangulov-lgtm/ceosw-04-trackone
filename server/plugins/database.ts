@@ -30,7 +30,11 @@ export default async (nitroApp: Nitro) => {
     });
 
     // Conectar a MongoDB
-    await mongoose.connect(uri);
+    // Para entornos de producción, es una buena práctica añadir opciones de conexión más específicas.
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000, // Timeout después de 5s en lugar de 30s
+      autoIndex: false, // No construir índices automáticamente, especialmente en producción
+    });
 
     // Cierre elegante (Graceful Shutdown)
     nitroApp.hooks.hook('close', async () => {
