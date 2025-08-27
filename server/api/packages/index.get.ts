@@ -6,47 +6,51 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
   }
 
-  // Recibe parámetros de paginación y búsqueda
-  const query = getQuery(event)
-  // const page = query.page
-  // const itemsPerPage = query.itemsPerPage
-  const page = Number(query.page ?? 1)
-  const itemsPerPage = Number(query.itemsPerPage ?? 10)
-  const search = query.search ?? ''
+  try {
+    // Get pagination and search parameters from the query
+    const query = getQuery(event)
+    const page = Number(query.page ?? 1)
+    const itemsPerPage = Number(query.itemsPerPage ?? 10)
+    const search = (query.search as string) ?? ''
+    const sortBy = (query.sortBy as string) || '_id'
+    const sortDesc = query.sortDesc === 'true'
 
-  // Filtro de búsqueda (ejemplo: por nombre)
-  const filter: any = {}
-  if (search) {
-    filter.trkgNum = { $regex: search, $options: 'i' }
-  }
+    // Build search filter (example: by tracking number)
+    const filter: any = {}
+    if (search) {
+      filter.trkgNum = { $regex: search, $options: 'i' }
+    }
 
-  // Total de registros filtrados
-  const total = await Package.countDocuments(filter)
-  
-  // const data = await Package.find()
-  //   .populate({ path: 'wr', select: 'wrId client',
-  //     populate: { path: 'client', select: 'name' }
-  //   })
-  //   .populate({ path: 'cr', select: 'crId' })
-  //   .populate({ path: 'createdBy', select: 'name initials color avatar' })
-  //   .sort({ _id: -1 })
-  //   .limit(100)
-  //   .exec()
+    // Build sort object
+    const sort: { [key: string]: 'asc' | 'desc' } = {}
+    sort[sortBy] = sortDesc ? 'desc' : 'asc'
 
-  // Consulta paginada y filtrada
-  const items = await Package.find(filter)
-    .populate({ path: 'wr', select: 'wrId client',
-      populate: { path: 'client', select: 'name' }
+    // Get total count of filtered documents
+    const total = await Package.countDocuments(filter)
+
+    // Paginated and filtered query
+    const items = await Package.find(filter)
+      .populate({ path: 'wr', select: 'wrId client',
+        populate: { path: 'client', select: 'name' }
+      })
+      .populate({ path: 'createdBy', select: 'name initials color avatar' })
+      .sort(sort)
+      .skip((page - 1) * itemsPerPage)
+      .limit(itemsPerPage)
+      .exec()
+
+    return {
+      items,
+      total
+    }
+  } catch (error) {
+    // Log the error on the server console for debugging
+    console.error('Error fetching packages:', error)
+
+    // Throw a standardized HTTP error for the client
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'An internal server error occurred. Please try again later.'
     })
-    // .populate({ path: 'cr', select: 'crId' })
-    .populate({ path: 'createdBy', select: 'name initials color avatar' })
-    .sort({ _id: -1 })
-    .skip((page - 1) * itemsPerPage)
-    .limit(itemsPerPage)
-    .exec()
-
-  return {
-    items,
-    total
   }
 })
