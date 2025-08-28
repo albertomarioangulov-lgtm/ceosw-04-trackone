@@ -27,38 +27,24 @@ const usePackage = () => {
   const getPackage = (id: string) =>
     fetchResource(`${API_URL}/${id}`, getHeaders, 'GET', undefined, `${resourceName}-${id}`)
 
-  // const response = await $fetch(`/api/packages?${queryString}`)
-
   // Get all packages
-  // const getPackages = async (query:any) => {
-  //   const queryString = new URLSearchParams(query).toString()
-  //   // console.log('Fetching packages with queryString:', queryString)
-  //   // const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET', undefined, `${resourceName}-list`)
-  //   const { data, error, pending, refresh } = await fetchResource(`${API_URL}?${queryString}`, getHeaders, 'GET')
-  //   watch(() => data.value, packages => {
-  //     if (packages) store.setPackages(packages)
-  //   }, { immediate: true })
-  //   return { packages: data, error, pending, refresh }
-  // }
-
   const getPackages = async (query: any) => {
     const queryString = new URLSearchParams(query).toString()
     const packages = await $fetch(`${API_URL}?${queryString}`, {
       headers: getHeaders()
     })
-    // Opcional: actualiza el store si lo necesitas
     store.setPackages(packages)
     return { packages }
   }
 
   // Get packages by WR
-  const getPackagesByWR = async (dataId: string) => {
-    // const { data, error, pending, refresh } = await fetchResource(`${API_URL}/wr/${dataId}`, getHeaders, 'GET', undefined)
-    const { data, error, pending, refresh } = await fetchResource(`${API_URL}/wr/${dataId}`, getHeaders, 'GET')
-    // watch(() => data.value, packagesByWR => {
-    //   if (packagesByWR) store.setPackagesByWR(packagesByWR)
-    // }, { immediate: true })
-    return { packagesByWR: data, error, pending, refresh }
+  const getPackagesByWR = async (dataId: string, query: any) => {
+    const queryString = new URLSearchParams(query).toString()
+    const packagesByWR = await $fetch(`${API_URL}/wr/${dataId}?${queryString}`, {
+      headers: getHeaders()
+    })
+    store.setPackagesByWR(packagesByWR)
+    return { packagesByWR }
   }
 
   return {
