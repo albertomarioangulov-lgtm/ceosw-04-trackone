@@ -36,7 +36,7 @@ import { useI18n } from 'vue-i18n';
       
     </v-toolbar>
     
-    <WrsList />
+    <CrsList />
 
   </v-container>
 </template>
