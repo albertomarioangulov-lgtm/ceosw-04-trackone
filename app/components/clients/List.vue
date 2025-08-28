@@ -43,15 +43,6 @@ const zerofillpoboxid = (item:any) => {
   return item.toString().padStart(4, '0')
 }
 
-// Simple debounce function to avoid using lodash
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout>;
-  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  }
-}
-
 const loadItems = async (options:any) => {
   isLoading.value = true
 
@@ -107,7 +98,7 @@ onMounted(() => {
     ></v-progress-linear>
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
-      <ClientsBtnSubmit />
+      <!-- <ClientsBtnSubmit /> -->
     </v-toolbar>
 
     <!-- @vue-expect-error -->
@@ -130,32 +121,11 @@ onMounted(() => {
           hide-details
         ></v-text-field>
       </template>
-  
-  
-    </v-data-table-server>
-    
-    <!-- @vue-expect-error -->
-    <!-- <v-data-table density="compact" :headers="headers" :items="clients"
-      :hide-default-footer="clients.length < 11"
-      items-per-page="50"
-    >
-
-      <template v-slot:[`item.createdAt`]="{ item }">
-        <a-data-table-item-created-at :item="item" />
-      </template>
-
-      <template v-slot:[`item.createdBy`]="{ item, value }">
-        <a-data-table-item-created-by :item="item" :value="value" />
-      </template>
-
-      <template v-slot:[`item.location`]="{ item, value }">
-        {{ item.country }}-{{ item.state }} {{ item.city }}
-      </template>
 
       <template v-slot:[`item.pobox`]="{ item, value }">
         <span>{{ item.seller.code }} - {{ zerofillpoboxid(item.poboxid) }}</span>
       </template>
-
+      
       <template v-slot:[`item.actions`]="{ item }">
 
         <a-data-table-item-action-btn :item="item" :itemId="itemId"
@@ -163,10 +133,12 @@ onMounted(() => {
           @on-action="viewItem(item)"
         />
 
-        <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
+        <!-- <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
       </template>
-    </v-data-table> -->
+  
+    </v-data-table-server>
+    
   </v-card>
 
 </template>

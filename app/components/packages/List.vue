@@ -43,15 +43,6 @@ const viewItem = async (item:any) => {
 }
 
 
-// Simple debounce function to avoid using lodash
-function debounce<T extends (...args: any[]) => any>(func: T, wait: number): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout>;
-  return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  }
-}
-
 const loadItems = async (options:any) => {
   isLoading.value = true
   // Extrae los parámetros de paginación, búsqueda y ordenamiento
