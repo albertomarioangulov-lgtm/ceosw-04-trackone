@@ -2,8 +2,7 @@ export default {
   "Home": 'Home',
   welcome: 'Welcome',
   users: "Users",
-  client: "Client",
-  clients: "Clients",
+  
   locations: "Locations",
   assets: "Assets",
   notices: "Notices",
@@ -11,6 +10,21 @@ export default {
   userList: "User List",
 
   newLocation: 'New Location',
+
+  // Client Module
+  client: "Client",
+  clients: "Clients",
+  clientList: "Client List",
+  newClient: "New Client",
+  editClient: "Edit Client",
+
+  // Package Module
+  packages: "Packages",
+  package: "Package",
+  packageList: "Package List",
+  newPackage: "New Package",
+  editPackage: "Edit Package",
+
 
   "Work Orders": "Work Orders",
   "Notice Types": "Notice Types",
