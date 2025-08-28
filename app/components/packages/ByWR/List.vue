@@ -87,7 +87,7 @@ onMounted(() => {
           @on-action="viewItem(item)"
         /> -->
 
-        <PackagesBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
+        <!-- <PackagesBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
       </template>
     </v-data-table>

@@ -89,8 +89,8 @@ const items = [
         />
       </div>
       <v-spacer />
-      <ClientsBtnSendEmail :item="clientData!" :itemId="dataId" />
-      <ClientsBtnSubmit action="edit" :itemData="clientData" />
+      <!-- <ClientsBtnSendEmail :item="clientData!" :itemId="dataId" /> -->
+      <!-- <ClientsBtnSubmit action="edit" :itemData="clientData" /> -->
     </v-toolbar>
 
     <v-row>

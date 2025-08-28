@@ -49,7 +49,7 @@ onMounted(() => {
     ></v-progress-linear>
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
-      <WrsBtnSubmit />
+      <!-- <WrsBtnSubmit /> -->
     </v-toolbar>
     
     <!-- @vue-expect-error -->
@@ -76,7 +76,7 @@ onMounted(() => {
           @on-action="viewItem(item)"
         />
 
-        <WrsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
+        <!-- <WrsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
       </template>
     </v-data-table>
