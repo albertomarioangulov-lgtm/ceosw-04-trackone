@@ -4,11 +4,11 @@ import mongoose from 'mongoose'
 export default async (nitroApp: Nitro) => {
   // Avoid creating duplicate connections, especially useful in development with HMR (Hot Module Replacement).
   if (mongoose.connection.readyState === 1) {
-    console.log('=> Using existing database connection.');
+    console.log('\x1b[33m🔄 Using existing database connection.\x1b[0m');
     return;
   }
 
-  console.log('=> Creating new database connection.');
+  console.log('\x1b[34m ➜ Creating new database connection.\x1b[0m');
   const config = useRuntimeConfig()
 
   const uri = `${config.mongodbUri}/${config.mongodbName}?retryWrites=true&w=majority`
@@ -17,15 +17,15 @@ export default async (nitroApp: Nitro) => {
     // Setting up event listeners BEFORE connecting is a good practice
     // to avoid missing any initial events.
     mongoose.connection.on('connected', () => {
-      console.log(`Connected to database: ${config.mongodbName}`);
+      console.log(`\x1b[32m🔗 Connection to \x1b[1m${config.mongodbName}\x1b[22m established successfully.\x1b[0m`);
     });
 
     mongoose.connection.on('error', (err) => {
-      console.error('Mongoose connection error:', err);
+      console.error('\x1b[31m❌ Mongoose connection error:\x1b[0m', err);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.log('Mongoose disconnected.');
+      console.log('\x1b[33m❗  Mongoose disconnected.\x1b[0m');
     });
 
     // Connect to MongoDB
@@ -39,10 +39,10 @@ export default async (nitroApp: Nitro) => {
     // when the Nuxt application stops.
     nitroApp.hooks.hook('close', async () => {
       await mongoose.disconnect();
-      console.log('Mongoose disconnected due to app shutdown.');
+      console.log('\x1b[33m🔌 Mongoose disconnected due to app shutdown.\x1b[0m');
     });
   } catch (e) {
-    console.error("Initial Mongoose connection failed:", e);
+    console.error("\x1b[31m💥 Initial Mongoose connection failed:\x1b[0m", e);
     // Re-throw the error to ensure the container crashes and Cloud Run shows the actual
     // connection error in the logs, instead of a generic timeout error.
     throw e;
