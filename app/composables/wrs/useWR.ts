@@ -27,12 +27,18 @@ const useWR = () => {
     fetchResource(`${API_URL}/${id}`, getHeaders, 'GET', undefined, `${resourceName}-${id}`)
 
   // Get all wrs
-  const getWrs = async () => {
-    const { data, error, pending, refresh } = await fetchResource(API_URL, getHeaders, 'GET', undefined, `${resourceName}-list`)
-    watch(() => data.value, wrs => {
-      if (wrs) store.setWrs(wrs)
-    }, { immediate: true })
-    return { wrs: data, error, pending, refresh }
+  const getWrs = async (query: any) => {
+    // const { data, error, pending, refresh } = await fetchResource(API_URL, getHeaders, 'GET', undefined, `${resourceName}-list`)
+    // watch(() => data.value, wrs => {
+    //   if (wrs) store.setWrs(wrs)
+    // }, { immediate: true })
+    // return { wrs: data, error, pending, refresh }
+    const queryString = new URLSearchParams(query).toString()
+    const wrs = await $fetch(`${API_URL}?${queryString}`, {
+      headers: getHeaders()
+    })
+    store.setWrs(wrs)
+    return { wrs }
   }
 
 
