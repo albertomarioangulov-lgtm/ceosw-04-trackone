@@ -38,47 +38,9 @@ export default defineEventHandler(async (event) => {
       sort.createdAt = -1
     }
 
-    // --- Construcción del pipeline de agregación ---
-    const dataPipeline: any[] = [{ $sort: sort }]
-
-    // Añadir paginación si es necesario
-    if (itemsPerPage > 0) {
-      dataPipeline.push({ $skip: (page - 1) * itemsPerPage })
-      dataPipeline.push({ $limit: itemsPerPage })
-    }
-
-    // Añadir lookups y proyección para popular datos
-    dataPipeline.push(
-      {
-        $lookup: {
-          from: 'users', // collection name for User model
-          localField: 'createdBy',
-          foreignField: '_id',
-          as: 'createdBy'
-        }
-      },
-      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-      // Dar forma a los datos populados sin perder los campos originales
-      {
-        $addFields: {
-          client: {
-            _id: '$client._id',
-            name: '$client.name',
-            address: '$client.address'
-          },
-          createdBy: {
-            _id: '$createdBy._id',
-            name: '$createdBy.name',
-            initials: '$createdBy.initials',
-            color: '$createdBy.color',
-            avatar: '$createdBy.avatar'
-          }
-        }
-      }
-    )
-
     const pipeline: any[] = [
-      // Etapa 1: Lookup para poder filtrar por nombre de cliente
+      // Etapa 1: Lookup en 'clients' para poder filtrar por nombre de cliente.
+      // Se hace antes del $facet para que el filtro ($match) funcione.
       {
         $lookup: {
           from: 'clients', // collection name for Client model
@@ -88,11 +50,58 @@ export default defineEventHandler(async (event) => {
         }
       },
       { $unwind: { path: '$client', preserveNullAndEmptyArrays: true } },
-      // Etapa 2: Filtrar los documentos
+
+      // Etapa 2: Filtrar documentos después del lookup
       { $match: filter },
-      // Etapa 3: Facet para obtener datos paginados y conteo total
-      { $facet: { metadata: [{ $count: 'total' }], data: dataPipeline } }
     ]
+
+    // Etapa 3: Usar $facet para obtener metadatos (conteo) y datos paginados/populados
+    const facet: any = {
+      metadata: [{ $count: 'total' }],
+      data: [
+        { $sort: sort },
+      ],
+    }
+
+    // Añadir paginación si es necesario
+    if (itemsPerPage > 0) {
+      facet.data.push({ $skip: (page - 1) * itemsPerPage })
+      facet.data.push({ $limit: itemsPerPage })
+    }
+
+    // Añadir lookups y proyección para popular datos (post-paginación para eficiencia)
+    facet.data.push(
+      {
+        $lookup: {
+          from: 'users', // collection name for User model
+          localField: 'createdBy',
+          foreignField: '_id',
+          as: 'createdBy'
+        },
+      },
+      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+      // Dar forma a los datos populados sin perder los campos originales
+      {
+        $addFields: {
+          // El objeto 'client' ya está disponible por el lookup previo al facet.
+          // Aquí damos forma a 'createdBy' que acabamos de popular y re-aseguramos la forma de 'client'.
+          client: {
+            _id: '$client._id',
+            name: '$client.name',
+            address: '$client.address',
+          },
+          createdBy: {
+            _id: '$createdBy._id',
+            name: '$createdBy.name',
+            initials: '$createdBy.initials',
+            color: '$createdBy.color',
+            avatar: '$createdBy.avatar',
+          },
+        },
+      },
+    )
+
+    pipeline.push({ $facet: facet })
 
     // Ejecutar la agregación
     const result = await WR.aggregate(pipeline).exec()
@@ -103,6 +112,6 @@ export default defineEventHandler(async (event) => {
     return { items, total }
   } catch (error) {
     console.error('Error fetching WRs:', error)
-    throw createError({ statusCode: 500, statusMessage: 'An internal server error occurred.' })
+    throw createError({ statusCode: 500, statusMessage: 'Error fetching Warehouse Receipts' })
   }
 })
