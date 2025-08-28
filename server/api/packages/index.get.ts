@@ -18,7 +18,10 @@ export default defineEventHandler(async (event) => {
     // Construir el filtro de búsqueda
     const filter: any = {}
     if (search) {
-      filter.trkgNum = { $regex: search, $options: 'i' }
+      filter.$or = [
+        { trkgNum: { $regex: search, $options: 'i' } },
+        { 'wr.client.name': { $regex: search, $options: 'i' } },
+      ]
     }
 
     // Construir el objeto de ordenamiento para el pipeline
@@ -27,10 +30,8 @@ export default defineEventHandler(async (event) => {
 
     // Usamos un pipeline de agregación para obtener los datos y el conteo total en una sola consulta
     const aggregationResult = await Package.aggregate([
-      // Etapa 1: Filtrar los paquetes según el criterio de búsqueda
-      { $match: filter },
-
-      // Etapa 2: Realizar los "joins" (lookups) para obtener datos relacionados
+      // Etapa 1: Realizar los "joins" (lookups) para obtener datos relacionados.
+      // Esto es necesario antes de filtrar por campos de colecciones relacionadas.
       {
         $lookup: {
           from: 'wrs', // Nombre de la colección para el modelo 'WR'
@@ -50,6 +51,10 @@ export default defineEventHandler(async (event) => {
         }
       },
       { $unwind: { path: '$wr.client', preserveNullAndEmptyArrays: true } },
+
+      // Etapa 2: Filtrar los paquetes según el criterio de búsqueda.
+      // Se aplica después de los lookups para poder filtrar por el nombre del cliente.
+      { $match: filter },
 
       {
         $lookup: {
