@@ -27,12 +27,19 @@ const useCR = () => {
     fetchResource(`${API_URL}/${id}`, getHeaders, 'GET', undefined, `${resourceName}-${id}`)
 
   // Get all crs
-  const getCrs = async () => {
-    const { data, error, pending, refresh } = await fetchResource(API_URL, getHeaders, 'GET', undefined, `${resourceName}-list`)
-    watch(() => data.value, crs => {
-      if (crs) store.setCrs(crs)
-    }, { immediate: true })
-    return { crs: data, error, pending, refresh }
+  const getCrs = async (query: any) => {
+    // const { data, error, pending, refresh } = await fetchResource(API_URL, getHeaders, 'GET', undefined, `${resourceName}-list`)
+    // watch(() => data.value, crs => {
+    //   if (crs) store.setCrs(crs)
+    // }, { immediate: true })
+    // return { crs: data, error, pending, refresh }
+    const queryString = new URLSearchParams(query).toString()
+    const crs = await $fetch(`${API_URL}?${queryString}`, {
+      headers: getHeaders()
+    })
+    // Opcional: actualiza el store si lo necesitas
+    store.setCrs(crs)
+    return { crs }
   }
 
   return {
