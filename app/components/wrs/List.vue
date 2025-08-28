@@ -131,6 +131,11 @@ onMounted(() => {
 
       <template v-slot:[`item.actions`]="{ item }">
 
+        <a-data-table-item-action-btn :item="item" :itemId="itemId"
+          icon="mdi-circle-outline"
+          @on-action="viewItem(item)"
+        />
+
         <!-- <PackagesBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
       </template>
