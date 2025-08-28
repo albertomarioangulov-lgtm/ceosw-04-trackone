@@ -12,20 +12,19 @@ export default defineEventHandler(async (event) => {
     const page = Number(query.page ?? 1)
     const itemsPerPage = Number(query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
-    const sortBy = (query.sortBy as string) || 'createdAt' // Default sort by creation date
+    const sortBy = (query.sortBy as string) || '_id' // Default sort by creation date
     const sortDesc = query.sortDesc === 'true'
 
-    // Construir el filtro de búsqueda.
-    // Ejemplo: si el modelo CR tuviera un campo 'title' para buscar:
-    // const filter: any = {}
-    // if (search) {
-    //   filter.title = { $regex: search, $options: 'i' }
-    // }
     const filter: any = {}
     if (search) {
-      // Para buscar en campos de colecciones relacionadas (ej. nombre del cliente),
-      // se necesitaría realizar el $lookup antes del $match.
-      // Por simplicidad, aquí se asume la búsqueda sobre un campo local.
+      filter.$or = [
+        {
+          $expr: {
+            $regexMatch: { input: { $toString: '$crId' }, regex: search, options: 'i' }
+          }
+        },
+        { 'wr.client.name': { $regex: search, $options: 'i' } }
+      ]
     }
 
     // Construir el objeto de ordenamiento para el pipeline
@@ -34,19 +33,31 @@ export default defineEventHandler(async (event) => {
 
     // Usamos un pipeline de agregación para obtener los datos y el conteo total en una sola consulta
     const aggregationResult = await CR.aggregate([
-      // Etapa 1: Filtrar los documentos según el criterio de búsqueda
-      { $match: filter },
-
-      // Etapa 2: Realizar los "joins" (lookups) para obtener datos relacionados
+      // Etapa 1: Realizar los "joins" (lookups) para obtener datos relacionados.
+      // Esto es necesario antes de filtrar por campos de colecciones relacionadas.
       {
         $lookup: {
-          from: 'clients', // Nombre de la colección para el modelo 'Client'
-          localField: 'client',
+          from: 'wrs', // Nombre de la colección para el modelo 'WR'
+          localField: 'wr',
           foreignField: '_id',
-          as: 'client'
+          as: 'wr'
         }
       },
-      { $unwind: { path: '$client', preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: '$wr', preserveNullAndEmptyArrays: true } },
+
+      {
+        $lookup: {
+          from: 'clients', // Nombre de la colección para 'Client'
+          localField: 'wr.client',
+          foreignField: '_id',
+          as: 'wr.client'
+        }
+      },
+      { $unwind: { path: '$wr.client', preserveNullAndEmptyArrays: true } },
+
+      // Etapa 2: Filtrar los documentos según el criterio de búsqueda.
+      // Se aplica después de los lookups para poder filtrar por el nombre del cliente.
+      { $match: filter },
 
       {
         $lookup: {
