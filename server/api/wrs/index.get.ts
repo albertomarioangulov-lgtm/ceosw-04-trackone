@@ -26,7 +26,8 @@ export default defineEventHandler(async (event) => {
             $regexMatch: { input: { $toString: '$wrId' }, regex: search, options: 'i' }
           }
         },
-        { 'client.name': { $regex: search, $options: 'i' } }
+        { 'client.name': { $regex: search, $options: 'i' } },
+        { 'client.address': { $regex: search, $options: 'i' } }
       ]
     }
 
