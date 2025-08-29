@@ -31,19 +31,26 @@ export default defineEventHandler(async (event) => {
     }
 
     // Construir el objeto de ordenamiento para el pipeline
-    const sort: { [key: string]: 1 | -1 } = {}
+    const baseSort: { [key: string]: 1 | -1 } = {}
     if (sortBy) {
-      sort[sortBy] = sortDesc ? -1 : 1
+      baseSort[sortBy] = sortDesc ? -1 : 1
     } else {
-      sort.createdAt = -1
+      baseSort.createdAt = -1
     }
 
+    // Construir el objeto de ordenamiento final que prioriza WRs con paquetes disponibles
+    const finalSort: { [key: string]: 1 | -1 } = {
+      hasAvailablePackages: -1, // Prioriza los que tienen paquetes disponibles (1 viene antes que 0)
+      ...baseSort               // Luego aplica el ordenamiento solicitado por el usuario o el por defecto
+    };
+
+    // Pipeline secuencial y simplificado. Confiamos en el nuevo índice de `packages.wr`
+    // para que el $lookup de paquetes sea eficiente.
     const pipeline: any[] = [
-      // Etapa 1: Lookup en 'clients' para poder filtrar por nombre de cliente.
-      // Se hace antes del $facet para que el filtro ($match) funcione.
+      // Etapa 1: Lookup inicial para poder filtrar por nombre de cliente
       {
         $lookup: {
-          from: 'clients', // collection name for Client model
+          from: 'clients',
           localField: 'client',
           foreignField: '_id',
           as: 'client'
@@ -51,63 +58,78 @@ export default defineEventHandler(async (event) => {
       },
       { $unwind: { path: '$client', preserveNullAndEmptyArrays: true } },
 
-      // Etapa 2: Filtrar documentos después del lookup
+      // Etapa 2: Aplicar el filtro de búsqueda
       { $match: filter },
-    ]
 
-    // Etapa 3: Usar $facet para obtener metadatos (conteo) y datos paginados/populados
-    const facet: any = {
-      metadata: [{ $count: 'total' }],
-      data: [
-        { $sort: sort },
-      ],
-    }
-
-    // Añadir paginación si es necesario
-    if (itemsPerPage > 0) {
-      facet.data.push({ $skip: (page - 1) * itemsPerPage })
-      facet.data.push({ $limit: itemsPerPage })
-    }
-
-    // Añadir lookups y proyección para popular datos (post-paginación para eficiencia)
-    facet.data.push(
+      // Etapa 3: Traer todos los paquetes asociados.
+      // Con el índice en `packages.wr`, esta operación ahora es mucho más rápida.
       {
         $lookup: {
-          from: 'users', // collection name for User model
-          localField: 'createdBy',
-          foreignField: '_id',
-          as: 'createdBy'
-        },
+          from: 'packages',
+          localField: '_id',
+          foreignField: 'wr',
+          as: 'packages'
+        }
       },
-      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-      // Dar forma a los datos populados sin perder los campos originales
+
+      // Etapa 4: Calcular conteos y el campo para el ordenamiento prioritario
       {
         $addFields: {
-          // El objeto 'client' ya está disponible por el lookup previo al facet.
-          // Aquí damos forma a 'createdBy' que acabamos de popular y re-aseguramos la forma de 'client'.
-          client: {
-            _id: '$client._id',
-            name: '$client.name',
-            address: '$client.address',
-          },
-          createdBy: {
-            _id: '$createdBy._id',
-            name: '$createdBy.name',
-            initials: '$createdBy.initials',
-            color: '$createdBy.color',
-            avatar: '$createdBy.avatar',
-          },
-        },
+          packageCount: { $size: '$packages' },
+          availablePackageCount: {
+            $size: {
+              $filter: {
+                input: '$packages',
+                as: 'pkg',
+                // Condición robusta para contar paquetes disponibles, basada en tu sugerencia.
+                // Un paquete está disponible si el campo 'cr' no existe (su tipo es 'missing')
+                // o si el campo 'cr' existe pero es explícitamente nulo (su tipo es 'null').
+                // Esta es la forma más fiable de implementar la lógica de `{ cr: { $exists: false } }`.
+                cond: { $in: [ { $type: '$$pkg.cr' }, ['missing', 'null'] ] }
+              }
+            }
+          }
+        }
       },
-    )
+      {
+        $addFields: {
+          hasAvailablePackages: {
+            $cond: { if: { $gt: ['$availablePackageCount', 0] }, then: 1, else: 0 }
+          }
+        }
+      },
 
-    pipeline.push({ $facet: facet })
+      // Etapa 5: Ordenar la lista completa de resultados
+      { $sort: finalSort },
+
+      // Etapa 6: Usar $facet para paginar y obtener el conteo total
+      {
+        $facet: {
+          paginatedData: [
+            // Aplicar paginación
+            ...(itemsPerPage > 0 ? [
+              { $skip: (page - 1) * itemsPerPage },
+              { $limit: itemsPerPage }
+            ] : []),
+            // Aplicar lookups finales (baratos) solo a los datos de la página actual
+            { $lookup: { from: 'users', localField: 'createdBy', foreignField: '_id', as: 'createdBy' } },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+            // Excluir campos temporales que ya no son necesarios
+            { $project: { packages: 0, hasAvailablePackages: 0 } }
+          ],
+          totalCount: [
+            { $count: 'count' }
+          ]
+        }
+      }
+    ];
 
     // Ejecutar la agregación
     const result = await WR.aggregate(pipeline).exec()
 
-    const items = result[0]?.data ?? []
-    const total = result[0]?.metadata[0]?.total ?? 0
+    // Extraer y dar forma a los resultados del $facet
+    const items = result[0]?.paginatedData ?? []
+    const total = result[0]?.totalCount[0]?.count ?? 0
 
     return { items, total }
   } catch (error) {
