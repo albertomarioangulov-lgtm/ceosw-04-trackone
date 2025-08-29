@@ -22,6 +22,7 @@ const title = ref('packageByWRList')
 const titleI18n = computed(() => t(title.value))
 const isLoading = ref(true)
 const showSearch = ref(false)
+const availableOnly = ref(false)
 
 const tableData = ref({ items: [], total: 0 })
 
@@ -61,7 +62,8 @@ const loadItems = async (options:any) => {
     itemsPerPage: options.itemsPerPage?.toString() ?? '25',
     search: options.search ?? '',
     sortBy: options.sortBy?.[0]?.key ?? '',
-    sortDesc: options.sortBy?.[0]?.order === 'desc' ? 'true' : 'false'
+    sortDesc: options.sortBy?.[0]?.order === 'desc' ? 'true' : 'false',
+    availableOnly: availableOnly.value.toString()
   }
 
   const { packagesByWR } = await getPackagesByWR(itemId.value, query)
@@ -77,6 +79,11 @@ const debouncedLoadItems = debounce(loadItems, 500)
 watch(() => tableOptions.value.search, () => {
   tableOptions.value.page = 1 // Reset to the first page for a new search
   debouncedLoadItems(tableOptions.value)
+})
+
+watch(availableOnly, () => {
+  tableOptions.value.page = 1 // Reset to the first page when filter changes
+  loadItems(tableOptions.value)
 })
 
 onMounted(() => {
@@ -96,6 +103,14 @@ onMounted(() => {
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <v-switch
+        v-model="availableOnly"
+        :label="t('availableOnly')"
+        color="primary"
+        hide-details
+        class="mr-2"
+      ></v-switch>
 
       <v-btn icon @click="showSearch = !showSearch" :color="tableOptions.search ? 'primary' : undefined">
         <v-badge dot color="red" :model-value="!!tableOptions.search" offset-x="-1" offset-y="-1">

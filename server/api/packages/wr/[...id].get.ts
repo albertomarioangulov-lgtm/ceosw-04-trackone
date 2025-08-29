@@ -18,13 +18,18 @@ export default defineEventHandler(async (event) => {
     const search = (query.search as string) ?? ''
     const sortBy = (query.sortBy as string) ?? ''
     const sortDesc = query.sortDesc === 'true'
+    const availableOnly = query.availableOnly === 'true'
 
     // --- Construcción del pipeline de agregación ---
 
-    // 1. Etapa de filtrado inicial: paquetes de un WR específico que no están en un CR
+    // 1. Etapa de filtrado inicial: paquetes de un WR específico
     const initialMatch: FilterQuery<any> = {
       wr: new mongoose.Types.ObjectId(wrId),
-      cr: { $exists: false }
+    }
+
+    // Aplicar filtro condicional para mostrar solo paquetes disponibles (no en un CR)
+    if (availableOnly) {
+      initialMatch.cr = { $exists: false }
     }
 
     const pipeline: any[] = [{ $match: initialMatch }]
@@ -36,7 +41,8 @@ export default defineEventHandler(async (event) => {
         $match: {
           $or: [
             { tracking: searchRegex },
-            { description: searchRegex }
+            { description: searchRegex },
+            { notes: searchRegex }
             // Añadir aquí otros campos del paquete por los que se quiera buscar
           ]
         }
@@ -69,12 +75,15 @@ export default defineEventHandler(async (event) => {
       { $unwind: { path: '$wr', preserveNullAndEmptyArrays: true } },
       { $lookup: { from: 'clients', localField: 'wr.client', foreignField: '_id', as: 'wr.client' } },
       { $unwind: { path: '$wr.client', preserveNullAndEmptyArrays: true } },
+      { $lookup: { from: 'crs', localField: 'cr', foreignField: '_id', as: 'cr' } },
+      { $unwind: { path: '$cr', preserveNullAndEmptyArrays: true } },
       { $lookup: { from: 'users', localField: 'createdBy', foreignField: '_id', as: 'createdBy' } },
       { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
       {
         $addFields: {
           'wr': { _id: '$wr._id', wrId: '$wr.wrId', client: { _id: '$wr.client._id', name: '$wr.client.name' } },
-          'createdBy': { _id: '$createdBy._id', name: '$createdBy.name', initials: '$createdBy.initials', color: '$createdBy.color' }
+          'cr': { _id: '$cr._id', crId: '$cr.crId' },
+          'createdBy': { _id: '$createdBy._id', name: '$createdBy.name', initials: '$createdBy.initials', color: '$createdBy.color', avatar: '$createdBy.avatar' }
         }
       }
     )
