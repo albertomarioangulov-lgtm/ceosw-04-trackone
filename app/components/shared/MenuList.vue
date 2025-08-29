@@ -102,7 +102,7 @@ function toggleGroup(i: number) {
 </template>
 
 <style scoped> 
-.menu-child {
-  padding-left: 24px !important;
+.v-list :deep(.menu-child) {
+  padding-inline-start: 24px !important;
 }
 </style>
