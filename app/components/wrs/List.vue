@@ -29,6 +29,7 @@ const headers = ref([
   { title: 'wrId', key: 'wrId' },
   { title: 'WR Date', key: 'createdAt' },
   { title: 'Client', key: 'client.name' },
+  { title: 'Packages', key: 'packageCounter', align: 'center' },
   // { title: 'Location', key: 'location' },
   { title: 'Address', key: 'client.address' },
   { title: 'By', key: 'createdBy' },
@@ -127,6 +128,16 @@ onMounted(() => {
 
       <template v-slot:[`item.createdBy`]="{ item, value }">
         <a-data-table-item-created-by :item="item" :value="value" />
+      </template>
+
+      <template v-slot:[`item.packageCounter`]="{ item }">
+        <v-chip
+          :color="item.availablePackageCount > 0 ? 'success' : undefined"
+          size="small"
+          variant="tonal"
+        >
+          {{ item.availablePackageCount || 0 }}/{{ item.packageCount || 0 }}
+        </v-chip>
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
