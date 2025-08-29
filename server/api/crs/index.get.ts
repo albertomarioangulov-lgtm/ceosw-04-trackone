@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const page = Number(query.page ?? 1)
     const itemsPerPage = Number(query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
-    const sortBy = (query.sortBy as string) || '_id' // Default sort by creation date
+    const sortBy = (query.sortBy as string) ?? ''
     const sortDesc = query.sortDesc === 'true'
 
     const filter: any = {}
@@ -23,13 +23,18 @@ export default defineEventHandler(async (event) => {
             $regexMatch: { input: { $toString: '$crId' }, regex: search, options: 'i' }
           }
         },
-        { 'wr.client.name': { $regex: search, $options: 'i' } }
+        { 'wr.client.name': { $regex: search, $options: 'i' } },
+        { 'wr.client.address': { $regex: search, $options: 'i' } }
       ]
     }
 
     // Construir el objeto de ordenamiento para el pipeline
     const sort: { [key: string]: 1 | -1 } = {}
-    sort[sortBy] = sortDesc ? -1 : 1
+    if (sortBy) {
+      sort[sortBy] = sortDesc ? -1 : 1
+    } else {
+      sort.createdAt = -1
+    }
 
     // Usamos un pipeline de agregación para obtener los datos y el conteo total en una sola consulta
     const aggregationResult = await CR.aggregate([
@@ -59,23 +64,26 @@ export default defineEventHandler(async (event) => {
       // Se aplica después de los lookups para poder filtrar por el nombre del cliente.
       { $match: filter },
 
-      {
-        $lookup: {
-          from: 'users', // Nombre de la colección para el modelo 'User'
-          localField: 'createdBy',
-          foreignField: '_id',
-          as: 'createdBy'
-        }
-      },
-      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-
       // Etapa 3: Usar $facet para obtener los datos paginados y el conteo total
       {
         $facet: {
           items: [
             { $sort: sort },
-            { $skip: (page - 1) * itemsPerPage },
-            { $limit: itemsPerPage }
+            // Aplicar paginación
+            ...(itemsPerPage > 0 ? [
+              { $skip: (page - 1) * itemsPerPage },
+              { $limit: itemsPerPage }
+            ] : []),
+            // Aplicar lookup de 'createdBy' solo a los datos de la página
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy'
+              }
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
           ],
           total: [
             { $count: 'count' }
