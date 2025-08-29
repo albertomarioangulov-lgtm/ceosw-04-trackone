@@ -11,7 +11,10 @@ const AutoIncrementPlugin = AutoIncrement(mongoose);
 const packageSchema = new mongoose.Schema({
   pkgId: Number,
   trkgNum: { type: String, required: true },
-  wr: { ref: 'WR', type: mongoose.Schema.Types.ObjectId },
+  wr: {
+    ref: 'WR', type: mongoose.Schema.Types.ObjectId,
+    index: true
+  },
   label: Number,
   weight: Number,
   measures: {
