@@ -125,5 +125,6 @@ export default {
   "Assigned Assets": "Activos Asignados",
   "No assets assigned": "No hay activos asignados",
   "No work orders": "No hay órdenes de trabajo",
-  "No notices": "No hay avisos"
+  "No notices": "No hay avisos",
+  "No contacts": "No hay contactos"
 }
