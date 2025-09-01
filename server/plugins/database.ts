@@ -42,7 +42,7 @@ export default async (nitroApp: Nitro) => {
     // Connect to MongoDB
     // Fail faster if the database is not reachable. This is crucial for serverless environments.
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 5000, // Falla después de 5 segundos en lugar de 30
+      serverSelectionTimeoutMS: 10000, // Falla después de 5 segundos en lugar de 30
     });
 
     // Graceful Shutdown
