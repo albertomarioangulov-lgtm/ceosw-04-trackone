@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { useTheme } from 'vuetify';
 
+const themeCookie = useCookie<string>('theme');
+
 const { signOut, data } = useAuth()
 // @ts-expect-error
 const { name, email, color, initials, roles, avatar } = data.value!.userData
 
 const iconSize = ref('x-large')
 
-const theme = useTheme()
+const theme = useTheme();
 
 const iconTheme = computed( () => {
   return theme.global.current.value.dark ? 'mdi:white-balance-sunny' : 'mdi:weather-night'
 })
-const toggleTheme = (() => {
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
-})
-
+const toggleTheme = () => {
+  const newTheme = theme.global.current.value.dark ? 'light' : 'dark';
+  theme.global.name.value = newTheme;
+  themeCookie.value = newTheme;
+}
 </script>
 
 <template>
