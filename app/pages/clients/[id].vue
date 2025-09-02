@@ -20,6 +20,15 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 };
 
+// Función para formatear el P.O. Box
+const formatPobox = (client: any) => {
+  if (!client || !client.seller || client.poboxid == null) {
+    return 'No asignado';
+  }
+  const poboxid = client.poboxid.toString().padStart(4, '0');
+  return `${client.seller.code} - ${poboxid}`;
+};
+
 // Si la API devuelve un 404, muestra la página de error de Nuxt.
 if (error.value?.statusCode === 404) {
   showError({ statusCode: 404, statusMessage: 'Cliente No Encontrado' });
@@ -55,13 +64,26 @@ if (error.value?.statusCode === 404) {
             <v-card-title>Detalles Principales</v-card-title>
             <v-divider></v-divider>
             <v-list density="compact">
-              <v-list-item prepend-icon="mdi-email-outline" title="Email" :subtitle="client.email"></v-list-item>
+              <v-list-item prepend-icon="mdi-inbox-outline" title="P.O. Box" :subtitle="formatPobox(client)"></v-list-item>
               <v-list-item prepend-icon="mdi-phone-outline" title="Teléfono" :subtitle="client.phone"></v-list-item>
-              <v-list-item prepend-icon="mdi-calendar-star" title="Miembro desde" :subtitle="formatDate(client.createdAt)"></v-list-item>
+              <v-list-item prepend-icon="mdi-email-outline" title="Emails" lines="two">
+                <template #subtitle>
+                  <template  v-for="email in client.emails" :key="email">
+                    <span class="mr-2"><v-chip density="compact">{{ email }}</v-chip></span>
+                  </template>
+                </template>
+              </v-list-item>
+              <template v-if="client.createdAt">
+                <v-list-item prepend-icon="mdi-calendar-star" title="Miembro desde" :subtitle="formatDate(client.createdAt)"></v-list-item>
+              </template>
               <v-list-item prepend-icon="mdi-map-marker-outline" title="Location" lines="two">
                 <template #subtitle>
                   <!-- <div class="font-weight-medium">{{ client.country }}</div> -->
-                  <div class="font-weight-medium">{{ client.country }}, {{ client.state }} {{ client.city }}</div>
+                   
+                  <div class="font-weight-medium">
+                    <Icon class="mr-2" size="1.0em" :name="`flagpack:${client.country.toLowerCase()}`"></Icon>
+                    {{ client.country }}, {{ client.state }} {{ client.city }}
+                  </div>
                   <div>{{ client.address }}</div>
                 </template>
               </v-list-item>
