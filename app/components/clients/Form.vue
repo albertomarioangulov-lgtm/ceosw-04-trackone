@@ -217,7 +217,7 @@ onBeforeUpdate(() => {
             
 
             <v-col cols="12" sm="4">
-              <v-autocomplete
+              <v-autocomplete clearable
                 :label="$t('country')"
                 v-model="state.country"
                 :items="countries"
@@ -225,6 +225,21 @@ onBeforeUpdate(() => {
                 item-value="isoCode"
                 @update:modelValue="onChangeCountry"
               >
+                <template v-slot:selection="{ value, item }">
+                  <Icon class="mr-2" size="1.0em" :name="`flagpack:${item.raw.isoCode.toLowerCase()}`"></Icon>
+                  {{ item.raw.name }}
+                </template>
+                
+                <template v-slot:item="{ props, item }">
+                  <v-list-item v-bind="props"
+                    :title="item.raw.name"
+                    :subtitle="item.raw.isoCode"
+                  >
+                    <template v-slot:append>
+                      <Icon size="1.0em" :name="`flagpack:${item.raw.isoCode.toLowerCase()}`"></Icon>
+                    </template>
+                  </v-list-item>
+                </template>
               </v-autocomplete>
             </v-col>
 
