@@ -26,7 +26,7 @@ const clientSchema = new mongoose.Schema({
   country: String,
   state: String,
   city: String,
-  phone: { type: String }, // String es mejor para números de teléfono (+, -, etc.)
+  phone: [{ type: String }], // String es mejor para números de teléfono (+, -, etc.)
   address: { type: String, trim: true },
   emails: [{
     type: String,
