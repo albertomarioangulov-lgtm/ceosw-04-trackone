@@ -10,9 +10,9 @@ export default defineEventHandler(async (event) => {
   const id = event.context.params!.id
   
   const client = await Client.findById( id )
+    .populate({ path: 'seller', select: 'name code' })
     .populate({ path: 'createdBy', select: 'name initials color' })
     .exec()
 
-    console.log('client: ',client)
     return client
 })
