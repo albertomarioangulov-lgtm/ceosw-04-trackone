@@ -110,14 +110,12 @@ const dashboardStats = computed(() => [
 <template>
   <v-container fluid>
     <!-- Filtro de Fechas y Refresh -->
-    <v-row class="mb-4 align-center">
+    <v-row class="mb-0 align-center">
       <v-col cols="12" md="3">
         <v-text-field
           v-model="startDate"
           label="Fecha de Inicio"
           type="date"
-          density="compact"
-          hide-details
         />
       </v-col>
       <v-col cols="12" md="3">
@@ -139,7 +137,7 @@ const dashboardStats = computed(() => [
     </v-row>
 
     <!-- Stat Cards -->
-    <v-row>
+    <v-row class="mt-0 pt-0">
       <v-col v-for="stat in dashboardStats" :key="stat.title" cols="12" sm="6" md="3">
         <StatsCard :title="stat.title" :stats="pending ? '...' : stat.stats" :icon="stat.icon" :color="stat.color" />
       </v-col>
