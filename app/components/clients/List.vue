@@ -98,7 +98,7 @@ onMounted(() => {
     ></v-progress-linear>
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
-      <!-- <ClientsBtnSubmit /> -->
+      <ClientsBtnSubmit />
     </v-toolbar>
 
     <!-- @vue-expect-error -->
@@ -125,6 +125,10 @@ onMounted(() => {
       <template v-slot:[`item.pobox`]="{ item, value }">
         <span>{{ item.seller.code }} - {{ zerofillpoboxid(item.poboxid) }}</span>
       </template>
+
+      <template v-slot:[`item.location`]="{ item }">
+        <Icon size="1.0em" :name="`flagpack:${item.country.toLowerCase()}`"></Icon> <span>{{ item.country }} - {{ item.state }} - {{ item.city }}</span>
+      </template>
       
       <template v-slot:[`item.actions`]="{ item }">
 
@@ -133,7 +137,7 @@ onMounted(() => {
           @on-action="viewItem(item)"
         />
 
-        <!-- <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
+        <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
 
       </template>
   
