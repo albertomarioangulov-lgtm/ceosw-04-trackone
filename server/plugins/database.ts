@@ -15,6 +15,14 @@ export default async (nitroApp: Nitro) => {
 
   const config = useRuntimeConfig()
 
+  // 1. Validate required configuration
+  if (!config.mongodbUri || !config.mongodbName) {
+    dbLog.fatal('Missing `mongodbUri` or `mongodbName` in runtime config. Aborting connection.');
+    // En un entorno de producción, esto debería detener el arranque de la aplicación.
+    // En Nitro/Nuxt, lanzar un error aquí detendrá el servidor.
+    throw new Error('Database configuration is incomplete.');
+  }
+
   const uri = `${config.mongodbUri}/${config.mongodbName}?retryWrites=true&w=majority`
 
   // Sanitize URI for logging to avoid exposing credentials and cluster address.
@@ -40,9 +48,14 @@ export default async (nitroApp: Nitro) => {
     });
 
     // Connect to MongoDB
-    // Fail faster if the database is not reachable. This is crucial for serverless environments.
+    // 2. Use configurable connection options
+    const mongooseOptions = {
+      serverSelectionTimeoutMS: config.mongodbServerSelectionTimeoutMS || 10000, // Fail after 10s instead of 30s
+      maxPoolSize: config.mongodbMaxPoolSize || 10, // Maintain up to 10 socket connections
+    };
+
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 10000, // Falla después de 5 segundos en lugar de 30
+      ...mongooseOptions
     });
 
     // Graceful Shutdown
