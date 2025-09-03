@@ -14,13 +14,13 @@ const isLoading = ref<boolean>(false)
 const title = ref<string>('Send Email')
 const sendEmailDialog = ref<boolean>(false)
 
-const { sendEmailWr } = useWR()
+const { sendEmailCr } = useCR()
 // const { getClient, getClients } = useClient()
 
 const sendEmailProcess = async (id: string) => {
   isLoading.value = true
   try {
-    const { data}  = await sendEmailWr(id)
+    const { data}  = await sendEmailCr(id)
     if (data) {
       // console.log('response', response)
       // emit('onRefresh')
@@ -48,8 +48,8 @@ const sendEmailProcess = async (id: string) => {
     class="ml-2"
     @click="sendEmailDialog = true"
   >
-    <v-icon>mdi-plus</v-icon>
-    {{ $t('Send Email') }}
+    <v-icon class="mr-1">mdi-email-outline</v-icon>
+    {{ $t('Send CR Email') }}
   </v-btn>
 
 
@@ -63,7 +63,7 @@ const sendEmailProcess = async (id: string) => {
         <v-toolbar-title>{{ $t(`${title}`) }}</v-toolbar-title>
       </v-toolbar>
 
-      <v-card-text>Desea enviar un email a este cliente?</v-card-text>
+      <v-card-text>Desea enviar un email de CR a este cliente?</v-card-text>
 
       <v-row class="ml-2 mt-0 mb-4">
             <v-btn class="mr-4 ml-4"
