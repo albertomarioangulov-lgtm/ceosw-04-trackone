@@ -29,9 +29,11 @@ const clientSchema = new mongoose.Schema({
   phone: [{ type: String }], // String es mejor para números de teléfono (+, -, etc.)
   address: { type: String, trim: true },
   emails: [{
-    type: String,
-    trim: true,
-    lowercase: true // Guardar emails en minúsculas para consistencia
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true // Guardar emails en minúsculas para consistencia
+    }
   }],
   email: { // Email principal
     type: String,
