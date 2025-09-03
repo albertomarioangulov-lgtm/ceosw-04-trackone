@@ -5,6 +5,8 @@ import type { Client } from '~~/app/interfaces/Client';
 const { t } = useI18n()
 const { hasPermission } = usePermission()
 
+const emit = defineEmits(['onSuccess'])
+
 interface Props {
   action?: 'create' | 'edit' | ''
   itemData?: Client
@@ -51,7 +53,7 @@ const { getClient } = useClient()
 
 const createItem = () => {
   loading.value = true
-  dataForm.value = { contacts: [] }
+  dataForm.value = { }
   action.value = 'create'
   isOpen.value = true
   setTimeout(() => {
@@ -80,6 +82,10 @@ const onClose = () => {
 }
 const onClear = () => {
   dataForm.value = { contacts: [] }
+}
+
+const onSuccess = () => {
+  emit('onSuccess')
 }
 
 // Function to handle click based on action
@@ -126,6 +132,7 @@ const handleClick = (item?: Client) => {
     :action="action"
     @on-close="onClose"
     @on-clear="onClear"
+    @on-success="onSuccess"
     :data-form="dataForm"
   />
 </template>
