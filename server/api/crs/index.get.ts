@@ -64,6 +64,23 @@ export default defineEventHandler(async (event) => {
       // Se aplica después de los lookups para poder filtrar por el nombre del cliente.
       { $match: filter },
 
+      // Etapa 3: Traer los paquetes asociados a cada CR.
+      {
+        $lookup: {
+          from: 'packages',
+          localField: '_id',
+          foreignField: 'cr',
+          as: 'packages'
+        }
+      },
+
+      // Etapa 4: Calcular la cantidad de paquetes.
+      {
+        $addFields: {
+          packageCount: { $size: '$packages' }
+        }
+      },
+
       // Etapa 3: Usar $facet para obtener los datos paginados y el conteo total
       {
         $facet: {
@@ -84,6 +101,8 @@ export default defineEventHandler(async (event) => {
               }
             },
             { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
+            // Excluir el array de paquetes que ya no es necesario
+            { $project: { packages: 0 } }
           ],
           total: [
             { $count: 'count' }
