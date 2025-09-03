@@ -12,6 +12,7 @@ const itemId = ref('')
 const title = ref('clientList')
 const titleI18n = computed(() => t(title.value))
 const isLoading = ref(true)
+const showSearch = ref(false)
 
 const tableData = ref({ items: [], total: 0 })
 const tableOptions = ref({
@@ -46,10 +47,6 @@ const zerofillpoboxid = (item:any) => {
 const loadItems = async (options:any) => {
   isLoading.value = true
 
-  const { page, itemsPerPage, sortBy, search } = options
-
-  const sortParam = sortBy.length > 0 ? `${ sortBy[0].desc ? '-' : '' }${ sortBy[0].key }` : ''
-
   const query = {
     page: options.page?.toString() ?? '1',
     itemsPerPage: options.itemsPerPage?.toString() ?? '25',
@@ -61,11 +58,25 @@ const loadItems = async (options:any) => {
   const { clients } = await getClients(query)
 
   tableData.value = {
-    items: clients.items ?? [],
-    total: clients.total ?? 0
+    items: clients?.items ?? [],
+    total: clients?.total ?? 0
   }
 
   isLoading.value = false
+}
+
+const onSuccess = () => {
+  // After creating or editing a client, reset the view to ensure the changes are visible.
+  // If a search filter is active, clearing it is the safest way to ensure the user
+  // sees the updated item, as it might not match the old search term anymore.
+  if (tableOptions.value.search) {
+    tableOptions.value.search = ''
+  } else {
+    // If there was no search, the watch won't be triggered.
+    // Manually reset the page to 1 and reload the data.
+    tableOptions.value.page = 1
+    loadItems(tableOptions.value)
+  }
 }
 
 
@@ -98,7 +109,18 @@ onMounted(() => {
     ></v-progress-linear>
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
-      <ClientsBtnSubmit />
+      <v-spacer></v-spacer>
+
+      <v-btn icon @click="showSearch = !showSearch" :color="tableOptions.search ? 'primary' : undefined">
+        <v-badge dot color="red" :model-value="!!tableOptions.search" offset-x="-1" offset-y="-1">
+          <v-icon>{{ tableOptions.search ? 'mdi-filter-variant' : 'mdi-magnify' }}</v-icon>
+        </v-badge>
+        <v-tooltip activator="parent" location="bottom">
+          {{ tableOptions.search ? `Filtering by: "${tableOptions.search}"` : 'Search' }}
+        </v-tooltip>
+      </v-btn>
+
+      <ClientsBtnSubmit @onSuccess="onSuccess" />
     </v-toolbar>
 
     <!-- @vue-expect-error -->
@@ -113,21 +135,27 @@ onMounted(() => {
       @update:options="loadItems"
     >
       <template v-slot:top>
-        <v-text-field
-          v-model="tableOptions.search"
-          class="ma-2"
-          density="compact"
-          placeholder="Search..."
-          hide-details
-        ></v-text-field>
+        <v-expand-transition>
+          <div v-if="showSearch">
+            <v-text-field class="ma-2"
+              v-model="tableOptions.search"
+              placeholder="Search..."
+              clearable
+              autofocus
+            ></v-text-field>
+          </div>
+        </v-expand-transition>
       </template>
 
       <template v-slot:[`item.pobox`]="{ item, value }">
-        <span>{{ item.seller.code }} - {{ zerofillpoboxid(item.poboxid) }}</span>
+        <span v-if="item.seller">{{ item.seller.code }} - {{ zerofillpoboxid(item.poboxid) }}</span>
       </template>
 
       <template v-slot:[`item.location`]="{ item }">
-        <Icon size="1.0em" :name="`flagpack:${item.country.toLowerCase()}`"></Icon> <span>{{ item.country }} - {{ item.state }} - {{ item.city }}</span>
+        <template v-if="item.country">
+          <Icon size="1.0em" :name="`flagpack:${item.country.toLowerCase()}`"></Icon>
+          <span class="ml-1">{{ item.country }} - {{ item.state }} - {{ item.city }}</span>
+        </template>
       </template>
       
       <template v-slot:[`item.actions`]="{ item }">
@@ -137,7 +165,7 @@ onMounted(() => {
           @on-action="viewItem(item)"
         />
 
-        <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
+        <ClientsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" @onSuccess="onSuccess" />
 
       </template>
   
