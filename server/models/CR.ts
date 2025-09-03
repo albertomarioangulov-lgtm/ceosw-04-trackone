@@ -11,7 +11,11 @@ const AutoIncrementPlugin = AutoIncrement(mongoose);
 const crSchema = new mongoose.Schema({
   crId: Number,
   carrier: { ref: 'Carrier', type: mongoose.Schema.Types.ObjectId },
-  wr: { ref: 'WR', type: mongoose.Schema.Types.ObjectId, required: true },
+  wr: {
+    ref: 'WR', type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    index: true
+  },
   // status: { ref: "WRStatus", type: Schema.Types.ObjectId },
   createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {

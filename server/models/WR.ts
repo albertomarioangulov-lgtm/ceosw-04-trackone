@@ -11,7 +11,10 @@ const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const wrSchema = new mongoose.Schema({
   wrId: Number,
-  client: { ref: 'Client', type: mongoose.Schema.Types.ObjectId },
+  client: {
+    ref: 'Client', type: mongoose.Schema.Types.ObjectId,
+    index: true
+  },
   status: { ref: 'WRStatus', type: mongoose.Schema.Types.ObjectId },
   createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
