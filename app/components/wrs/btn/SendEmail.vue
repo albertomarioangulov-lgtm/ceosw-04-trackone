@@ -49,7 +49,7 @@ const sendEmailProcess = async (id: string) => {
     @click="sendEmailDialog = true"
   >
     <v-icon class="mr-1">mdi-email-outline</v-icon>
-    {{ $t('Send Email') }}
+    {{ $t('Send WR Email') }}
   </v-btn>
 
 
