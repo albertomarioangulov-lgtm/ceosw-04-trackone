@@ -1,4 +1,3 @@
-import { getServerSession, getToken } from '#auth'
 import Client from "~~/server/models/Client"
 
 export default defineEventHandler(async (event) => {
