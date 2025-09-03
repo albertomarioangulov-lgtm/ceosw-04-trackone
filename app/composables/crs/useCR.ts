@@ -42,11 +42,15 @@ const useCR = () => {
     return { crs }
   }
 
+  const sendEmailCr = async (id: string ) => 
+    fetchResource(`${API_URL}/send-email/${id}`, getHeaders, 'GET', undefined)
+
   return {
     createCR,
     updateCR,
     getCR,
     getCrs,
+    sendEmailCr
   }
 }
 
