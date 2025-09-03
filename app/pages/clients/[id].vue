@@ -69,7 +69,7 @@ if (error.value?.statusCode === 404) {
               <v-list-item prepend-icon="mdi-email-outline" title="Emails" lines="two">
                 <template #subtitle>
                   <template  v-for="email in client.emails" :key="email">
-                    <span class="mr-2"><v-chip density="compact">{{ email }}</v-chip></span>
+                    <span class="mr-2"><v-chip density="compact">{{ email.email }}</v-chip></span>
                   </template>
                 </template>
               </v-list-item>
@@ -77,15 +77,23 @@ if (error.value?.statusCode === 404) {
                 <v-list-item prepend-icon="mdi-calendar-star" title="Miembro desde" :subtitle="formatDate(client.createdAt)"></v-list-item>
               </template>
               <v-list-item prepend-icon="mdi-map-marker-outline" title="Location" lines="two">
-                <template #subtitle>
-                  <!-- <div class="font-weight-medium">{{ client.country }}</div> -->
-                   
+                <v-list-item-subtitle class="mb-1 text-high-emphasis opacity-100">
+                  <div class="">
+                    <span><Icon class="mr-2" size="1.1em" :name="`flagpack:${client.country.toLowerCase()}`"></Icon></span>
+                    <span class="text-high-emphasis opacity-80">{{ client.country }}, {{ client.state }} {{ client.city }}</span>
+                  </div>
+                  <!-- <div>{{ client.address }}</div> -->
+                </v-list-item-subtitle>
+                <v-list-item-subtitle>
+                  {{ client.address }}
+                </v-list-item-subtitle>
+                <!-- <template #subtitle>
                   <div class="font-weight-medium">
-                    <Icon class="mr-2" size="1.0em" :name="`flagpack:${client.country.toLowerCase()}`"></Icon>
+                    <Icon opacity="1" class="mr-2" size="1.0em" :name="`flagpack:${client.country.toLowerCase()}`"></Icon>
                     {{ client.country }}, {{ client.state }} {{ client.city }}
                   </div>
                   <div>{{ client.address }}</div>
-                </template>
+                </template> -->
               </v-list-item>
             </v-list>
           </v-card>
