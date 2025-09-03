@@ -62,7 +62,8 @@ export default defineNuxtPlugin((app) => {
       VTextField: { variant, density, hideDetails },
       VTextarea: { variant,  density, hideDetails },
       VColorInput: { variant,  density, hideDetails },
-      VAutocomplete: { variant, density, hideDetails }
+      VAutocomplete: { variant, density, hideDetails },
+      VCombobox: { variant, density, hideDetails },
     },
 
     theme: {
