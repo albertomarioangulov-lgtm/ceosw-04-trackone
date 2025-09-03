@@ -10,13 +10,12 @@ export default defineEventHandler( async (event) => {
   const userId = getUserId(event)
 
   const body = await readBody(event)
-  const { name, code, seller, docTyp, docNum, dateIn, zipCode, state, city, phone, address, email, emails, contacts } = body
+  const { name, code, seller, docTyp, docNum, dateIn, zipCode, country, state, city, phone, address, email, emails, contacts } = body
 
   const newData = new Client({
-    name, code, seller, docTyp, docNum, dateIn, zipCode, state, city, phone, address, email, emails, contacts,
+    name, code, seller, docTyp, docNum, dateIn, zipCode, country, state, city, phone, address, email, emails, contacts,
     createdBy: userId
   })
-  // @ts-expect-error
   const savedData = await newData.save()
   
   return savedData
