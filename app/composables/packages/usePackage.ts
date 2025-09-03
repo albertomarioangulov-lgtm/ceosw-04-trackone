@@ -1,4 +1,3 @@
-import { get } from "mongoose"
 import { usePackagesStore } from "~/store/packages"
 
 const resourceName = 'package'
@@ -46,13 +45,23 @@ const usePackage = () => {
     store.setPackagesByWR(packagesByWR)
     return { packagesByWR }
   }
+  // Get packages by CR
+  const getPackagesByCR = async (dataId: string, query: any) => {
+    const queryString = new URLSearchParams(query).toString()
+    const packagesByCR = await $fetch(`${API_URL}/cr/${dataId}?${queryString}`, {
+      headers: getHeaders()
+    })
+    store.setPackagesByCR(packagesByCR)
+    return { packagesByCR }
+  }
 
   return {
     createPackage,
     updatePackage,
     getPackage,
     getPackages,
-    getPackagesByWR
+    getPackagesByWR,
+    getPackagesByCR
   }
 }
 
