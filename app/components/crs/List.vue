@@ -29,9 +29,11 @@ const { getCrs } = useCR()
 const headers = ref([
   { title: 'crId', key: 'crId' },
   { title: 'CR Date', key: 'createdAt' },
+  { title: 'WR', key: 'wr.wrId' },
   { title: 'Client', key: 'wr.client.name' },
-  // { title: 'Location', key: 'location' },
+  { title: 'Location', key: 'location' },
   { title: 'Address', key: 'wr.client.address' },
+  { title: 'Packages', key: 'packageCount', align: 'center' },
   { title: 'By', key: 'createdBy' },
   { title: 'Actions', key: 'actions', sortable: false, width: '90', align: 'center' }
 ])
@@ -125,23 +127,8 @@ onMounted(() => {
         <a-data-table-item-created-at :item="item" />
       </template>
 
-      <template v-slot:[`item.createdBy`]="{ item, value }">
-        <a-data-table-item-created-by :item="item" :value="value" />
-      </template>
-
-      <template v-slot:[`item.actions`]="{ item }">
-
-        <!-- <PackagesBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
-
-      </template>
-  
-    </v-data-table-server>
-    
-    
-    <!-- <v-data-table density="compact" :headers="headers" :items="crs">
-
-      <template v-slot:[`item.createdAt`]="{ item }">
-        <a-data-table-item-created-at :item="item" />
+      <template v-slot:[`item.location`]="{ item }">
+        <Icon size="1.0em" :name="`flagpack:${item.wr.client.country.toLowerCase()}`"></Icon> <span>{{ item.wr.client.country }} - {{ item.wr.client.state }} - {{ item.wr.client.city }}</span>
       </template>
 
       <template v-slot:[`item.createdBy`]="{ item, value }">
@@ -155,10 +142,11 @@ onMounted(() => {
           @on-action="viewItem(item)"
         />
 
-        <CrsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" />
+        <!-- <CrsBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
       </template>
-    </v-data-table> -->
+  
+    </v-data-table-server>
   </v-card>
 
 </template>
