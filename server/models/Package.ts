@@ -23,7 +23,10 @@ const packageSchema = new mongoose.Schema({
     h: Number
   },
   notes: String,
-  cr: { ref: 'CR', type: mongoose.Schema.Types.ObjectId },
+  cr: {
+    ref: 'CR', type: mongoose.Schema.Types.ObjectId,
+    index: true
+  },
 
   createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
