@@ -6,8 +6,8 @@ const config = useRuntimeConfig()
 
 // const wr = '6894e69e6bdb70de608e6b65'
 
-const sendEmailWr = async(savedData:any) => {
-  const wr = savedData._id.toString()
+const sendEmailCr = async(savedData:any) => {
+  const cr = savedData._id.toString()
   const name = savedData.client.name
   const clientEmails = savedData.client.emails
   // const companion = savedData.companion
@@ -40,7 +40,7 @@ const sendEmailWr = async(savedData:any) => {
     })
     // .populate({ path: 'cr', select: 'crId' })
     .populate({ path: 'createdBy', select: 'name initials color' })
-    .where( 'wr' ).equals( wr )
+    .where( 'cr' ).equals( cr )
     .lean()
     .exec()
 
@@ -231,4 +231,4 @@ const sendEmailWr = async(savedData:any) => {
 
 } 
 
-export default sendEmailWr
+export default sendEmailCr
