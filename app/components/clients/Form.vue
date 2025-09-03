@@ -17,6 +17,7 @@ interface Props {
 interface Emits {
   (e: 'onClose'):void
   (e: 'onClear'):void
+  (e: 'onSuccess'):void
 }
 
 const props = withDefaults( defineProps<Props>(), {
@@ -25,13 +26,14 @@ const props = withDefaults( defineProps<Props>(), {
 })
 const emits = defineEmits<Emits>()
 
-const state = ref<Client>({ ...props.dataForm, contacts: props.dataForm.contacts ? [...props.dataForm.contacts] : [] })
+const state = ref<Client>({ ...props.dataForm, emails: props.dataForm.emails ? [...props.dataForm.emails] : [] })
 
 // Sincroniza state con dataForm al editar
 watch( () => props.dataForm,
   (newVal) => {
     state.value = { ...newVal,
-      contacts: newVal.contacts ? [...newVal.contacts] : []
+      // contacts: newVal.contacts ? [...newVal.contacts] : [],
+      emails: newVal.emails ? [...newVal.emails] : []
     }
   }, { deep: true, immediate: true }
 )
@@ -52,8 +54,13 @@ const rules = () => ({
   name: { required },
   // code: { required, alphaNum, minLength: minLength(2) },
   // docTyp: { required },
-  // docNum: { required },
-  email: { email },
+  seller: { required },
+  emails: {
+    $each: helpers.forEach({
+      required,
+      email: { required, email },
+    })
+  },
   // contacts: {
   //   $each: helpers.forEach({
   //     required,
@@ -71,13 +78,23 @@ const v$ = useVuelidate(rules, state)
 const getFieldErrors = (field: keyof Client) =>
   v$.value[field]?.$errors.map((e: any) => e.$message) || []
 
-// const getContactFieldErrors = (index: number, field: 'name' | 'position' | 'phone' | 'email') =>
-//   v$.value.contacts.$errors.map((e: any) => e.$response.$errors[index]?.[field]?.map((e: any) => e.$message))
+
+const getEmailsFieldErrors = (index: number, field: 'email') =>
+  v$.value.emails.$errors.map((e: any) => e.$response.$errors[index]?.[field]?.map((e: any) => e.$message))
+
+
+// const query = {
+//     page: options.page?.toString() ?? '1',
+//     itemsPerPage: options.itemsPerPage?.toString() ?? '25',
+//     search: options.search ?? '',
+//     sortBy: options.sortBy?.[0]?.key ?? '',
+//     sortDesc: options.sortBy?.[0]?.order === 'desc' ? 'true' : 'false'
+//   }
 
 const { getSellers } = useSeller()
 const { sellers, pending: pendingSellers } = await getSellers() as { sellers: Ref<Seller[]>; pending: Ref<boolean> }
 
-const { createClient, updateClient } = useClient()
+const { createClient, updateClient, getClients } = useClient()
 
 const processForm = async () => {
   v$.value.$touch()
@@ -97,13 +114,13 @@ const processForm = async () => {
     }
 
     if (actionProcess) {
+      emits('onSuccess')
       emits('onClose')
       clearForm()
     }
   } catch (error) {
     console.error('Error processing form:', error)
   } finally {
-    await refreshNuxtData(['client-list'])
     isLoading.value = false
   }
 }
@@ -135,6 +152,19 @@ const removeContact = (index:any) => {
   }
 }
 
+const addEmail = () => {
+  if (!Array.isArray(state.value.emails)) {
+    state.value.emails = [];
+  }
+  state.value.emails?.push({ email: null } as { email: string | null } );
+};
+
+const removeEmail = (index: number) => {
+  if (Array.isArray(state.value.emails)) {
+    state.value.emails.splice(index, 1)
+  }
+}
+
 const onChangeCountry = () => {
   statesByCountry.value = State.getStatesOfCountry(state.value.country)
   // citiesByState.value = City.getCitiesOfState('CO', state.value.state!)
@@ -148,7 +178,9 @@ const onChangeState = () => {
 }
 
 onBeforeUpdate(() => {
-  statesByCountry.value = State.getStatesOfCountry('CO')
+  // statesByCountry.value = State.getStatesOfCountry('CO')
+  statesByCountry.value = State.getStatesOfCountry(state.value.country || 'CO')
+  citiesByState.value = City.getCitiesOfState(state.value.country || 'CO', state.value.state || '')
 })
 
 </script>
@@ -225,7 +257,7 @@ onBeforeUpdate(() => {
                 item-value="isoCode"
                 @update:modelValue="onChangeCountry"
               >
-                <template v-slot:selection="{ value, item }">
+                <template v-slot:selection="{ item }">
                   <Icon class="mr-2" size="1.0em" :name="`flagpack:${item.raw.isoCode.toLowerCase()}`"></Icon>
                   {{ item.raw.name }}
                 </template>
@@ -295,15 +327,32 @@ onBeforeUpdate(() => {
               />
             </v-col>
 
-            <v-col cols="12" sm="12">
-              <v-text-field density="compact"
-                label="E-mail"
-                v-model="state.email"
-                @input="v$.email.$touch()"
-                @blur="v$.email.$touch()"
-                :error-messages="getFieldErrors('email')"
-              ></v-text-field>
-            </v-col>
+              <!-- <div class="d-flex align-center mb-2">
+                <span class="text-subtitle-1">Emails</span>
+                <v-btn class="ml-2" size="small" variant="tonal" color="primary" @click="addEmail" icon="mdi-plus"></v-btn>
+              </div>
+              <v-row v-for="(v, index) in state.emails" :key="index">
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="v.email"
+                    :label="`Email ${index + 1}`"
+                    @input="v$.contacts.$touch()"
+                    @blur="v$.emails.$touch()"
+                    :error-messages="getEmailsFieldErrors(index, 'email')"
+                  >
+                    <template v-slot:append>
+                      <v-btn
+                        icon="mdi-delete-outline"
+                        variant="text"
+                        color="error"
+                        size="small"
+                        @click="removeEmail(index)"
+                      ></v-btn>
+                    </template>
+                  </v-text-field>
+                
+                </v-col>
+              </v-row> -->
 
             <v-col cols="12" sm="12">
               <v-autocomplete dense outlined clearable
@@ -328,64 +377,36 @@ onBeforeUpdate(() => {
 
           </v-row>
 
-          <!-- <v-row class="mt-4 pb-0">
-            <v-card-title v-if="state.contacts![0]" class="pl-7">{{ t('Contacts') }}</v-card-title>
-            <v-btn variant="text" color="info" class="mt-2 ml-2" @click="addContact">
-              <v-icon>mdi-plus</v-icon>{{ t('Add Contact') }}
+          <v-row class="mt-4 pb-0">
+            <v-card-title v-if="state.emails![0]" class="pl-7">{{ t('Emails') }}</v-card-title>
+            <v-btn variant="text" color="info" class="mt-2 ml-2" @click="addEmail">
+              <v-icon>mdi-plus</v-icon>{{ t('Add Email') }}
             </v-btn>
-          </v-row> -->
+          </v-row>
 
-          <!-- <v-row >
-            <template v-for="(v, index) in state.contacts" :key="index">
-              <v-col cols="12" sm="3" >
-                <v-text-field
-                  :label="t('name')"
-                  v-model="v.name"
-                  @input="v$.contacts.$touch()"
-                  @blur="v$.contacts.$touch()"
-                  :error-messages="getContactFieldErrors(index, 'name')"
-                ></v-text-field>
-              </v-col>
+          <v-row >
+            <template v-for="(v, index) in state.emails" :key="index">
 
-              <v-col cols="12" sm="3" >
-                <v-text-field
-                  :label="t('Contact position')"
-                  v-model="v.position"
-                  @input="v$.contacts.$touch()"
-                  @blur="v$.contacts.$touch()"
-                  :error-messages="getContactFieldErrors(index, 'position')"
-                  ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="2" >
-                <v-text-field
-                  :label="t('phone')"
-                  v-model="v.phone"
-                  @input="v$.contacts.$touch()"
-                  @blur="v$.contacts.$touch()"
-                  :error-messages="getContactFieldErrors(index, 'phone')"
-                  ></v-text-field>
-              </v-col>
               
               <v-col cols="12" sm="4" >
                 <v-text-field
                   label="Email"
                   v-model="v.email"
-                  @input="v$.contacts.$touch()"
-                  @blur="v$.contacts.$touch()"
-                  :error-messages="getContactFieldErrors(index, 'email')"
+                  @input="v$.emails.$touch()"
+                  @blur="v$.emails.$touch()"
+                  :error-messages="getEmailsFieldErrors(index, 'email')"
                 >
                   <template v-slot:append class="mr-0">
                     <v-btn class="mr-0" density="compact" icon variant="plain" color="error"
-                      @click="removeContact(index)" v-if="index >= 0">
+                      @click="removeEmail(index)" v-if="index >= 0">
                       <v-icon>mdi-delete-outline</v-icon>
-                      <v-tooltip activator="parent" location="top">Delete contact</v-tooltip>
+                      <v-tooltip activator="parent" location="top">Delete email</v-tooltip>
                     </v-btn>
                   </template>
                 </v-text-field>
               </v-col>
             </template>
-          </v-row> -->
+          </v-row>
 
           <v-row class="mb-1 mt-6">
             <v-btn class="mr-4 ml-4" color="success" type="submit" :disabled="isLoading">Submit</v-btn>
