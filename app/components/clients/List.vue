@@ -31,7 +31,7 @@ const headers = ref([
   { title: 'Phone', key: 'phone' },
   { title: 'Location', key: 'location' },
   { title: 'Address', key: 'address' },
-  // { title: 'By', key: 'createdBy' },
+  { title: 'By', key: 'createdBy' },
   { title: 'Actions', key: 'actions', sortable: false, width: '90', align: 'center' }
 ])
 const viewItem = async (item:any) => {
@@ -156,6 +156,10 @@ onMounted(() => {
           <Icon size="1.0em" :name="`flagpack:${item.country.toLowerCase()}`"></Icon>
           <span class="ml-1">{{ item.country }} - {{ item.state }} - {{ item.city }}</span>
         </template>
+      </template>
+
+      <template v-slot:[`item.createdBy`]="{ item, value }">
+        <a-data-table-item-created-by :item="item" :value="value" />
       </template>
       
       <template v-slot:[`item.actions`]="{ item }">
