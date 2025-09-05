@@ -36,7 +36,7 @@ if (error.value?.statusCode === 404) {
 </script>
 
 <template>
-  <v-container>
+  <v-container class="pt-0 pl-0 pr-0" fluid>
     <!-- Estado de Carga -->
     <div v-if="pending" class="text-center pa-12">
       <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
@@ -60,7 +60,7 @@ if (error.value?.statusCode === 404) {
       <v-row>
         <!-- Columna Izquierda: Detalles y Dirección -->
         <v-col cols="12" md="6">
-          <v-card>
+          <v-card class="fill-height">
             <v-card-title>Detalles Principales</v-card-title>
             <v-divider></v-divider>
             <v-list density="compact">
@@ -101,19 +101,50 @@ if (error.value?.statusCode === 404) {
 
         <!-- Columna Derecha: Actividad Reciente -->
         <v-col cols="12" md="6">
-          <v-card>
+          <v-card class="fill-height">
             <v-card-title>Actividad Reciente</v-card-title>
             <v-divider></v-divider>
-            <v-list v-if="client.recentActivity?.length > 0" lines="two">
+            <v-list v-if="client.lastWr || client.lastCr || client.lastPackage" lines="two">
               <v-list-item
-                v-for="activity in client.recentActivity"
-                :key="activity.id"
-                :title="activity.description"
-                :subtitle="formatDate(activity.date)"
+                v-if="client.lastWr"
+                :to="`/wrs/${client.lastWr._id}`"
+                :title="`Último WR: #${client.lastWr.wrId}`"
+                :subtitle="`Creado el: ${formatDate(client.lastWr.createdAt)}`"
               >
                 <template #prepend>
-                  <v-avatar color="blue-lighten-4">
-                    <v-icon color="primary">mdi-history</v-icon>
+                  <v-avatar color="deep-purple-lighten-5">
+                    <v-icon color="deep-purple-accent-2">mdi-receipt-text-outline</v-icon>
+                  </v-avatar>
+                </template>
+              </v-list-item>
+              <v-list-item
+                v-if="client.lastCr"
+                :to="`/crs/${client.lastCr._id}`"
+                :title="`Último CR: #${client.lastCr.crId}`"
+                :subtitle="`Creado el: ${formatDate(client.lastCr.createdAt)}`"
+              >
+                <template #prepend>
+                  <v-avatar color="teal-lighten-5">
+                    <v-icon color="teal-accent-3">mdi-receipt-text-check-outline</v-icon>
+                  </v-avatar>
+                </template>
+              </v-list-item>
+              <v-list-item
+                v-if="client.lastPackage"
+                :to="`/packages/${client.lastPackage._id}`"
+                :title="`Último Paquete: ${client.lastPackage.trkgNum}`"
+                lines="two"
+              >
+                <template #subtitle>
+                  <div>{{ `Recibido el: ${formatDate(client.lastPackage.createdAt)}` }}</div>
+                  <div v-if="client.lastPackage.notes" class="text-caption mt-1 d-flex align-center">
+                    <v-icon size="x-small" class="mr-1">mdi-note-text-outline</v-icon>
+                    <span class="text-truncate">{{ client.lastPackage.notes }}</span>
+                  </div>
+                </template>
+                <template #prepend>
+                  <v-avatar color="blue-lighten-5">
+                    <v-icon color="blue-accent-2">mdi-package-variant-closed</v-icon>
                   </v-avatar>
                 </template>
               </v-list-item>
@@ -125,32 +156,7 @@ if (error.value?.statusCode === 404) {
         </v-col>
       </v-row>
 
-      <!-- Fila para Últimos Paquetes -->
-      <v-row>
-        <v-col cols="12">
-          <v-card class="mt-6">
-            <v-card-title>Últimos Paquetes Recibidos</v-card-title>
-            <v-divider></v-divider>
-            <v-list v-if="client.latestPackages?.length > 0" lines="two">
-              <v-list-item
-                v-for="pkg in client.latestPackages"
-                :key="pkg.id"
-                :title="pkg.description"
-                :subtitle="`Recibido el: ${formatDate(pkg.receivedOn)}`"
-              >
-                <template #prepend>
-                  <v-avatar color="green-lighten-4">
-                    <v-icon color="success">mdi-package-variant-closed</v-icon>
-                  </v-avatar>
-                </template>
-              </v-list-item>
-            </v-list>
-            <v-card-text v-else class="text-center text-medium-emphasis pa-6">
-              No se han recibido paquetes recientemente.
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+      <!-- Aquí se podrían mostrar los paquetes si se incluyeran en la API -->
     </div>
   </v-container>
 </template>
