@@ -15,6 +15,10 @@ const packageSchema = new mongoose.Schema({
     ref: 'WR', type: mongoose.Schema.Types.ObjectId,
     index: true
   },
+  client: {
+    ref: 'Client', type: mongoose.Schema.Types.ObjectId,
+    index: true
+  },
   label: Number,
   weight: Number,
   measures: {
