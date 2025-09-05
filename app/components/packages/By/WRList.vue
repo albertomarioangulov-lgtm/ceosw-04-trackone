@@ -23,6 +23,7 @@ const titleI18n = computed(() => t(title.value))
 const isLoading = ref(true)
 const showSearch = ref(false)
 const availableOnly = ref(false)
+const selected = ref<any[]>([])
 
 const tableData = ref({ items: [], total: 0 })
 
@@ -133,6 +134,10 @@ onMounted(() => {
       :loading="isLoading"
       item-value="_id"
       @update:options="loadItems"
+      v-model:model-value="selected"
+      show-select
+      item-selectable="selectable"
+      select-strategy="all"
     >
       <template v-slot:top>
         <v-expand-transition>
@@ -167,6 +172,7 @@ onMounted(() => {
       </template>
   
     </v-data-table-server>
+    <pre>Selected: {{ selected }}</pre>
     
     <!-- @vue-expect-error -->
     <!-- <v-data-table density="compact" :headers="headers" :items="packagesByWR">
