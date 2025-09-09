@@ -14,7 +14,7 @@ const props = withDefaults( defineProps<Props>(), {
 
 <template>
   <NuxtImg
-    src="/images/ceosw-s-logo.svg"
+    src="/images/ceosw-s-logo3.svg"
     :height="height"
     :quality="quality"
     class="logo-anim"
