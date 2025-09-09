@@ -31,15 +31,15 @@
     "country-state-city": "^3.2.1",
     "date-fns": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.18.0",
+    "mongoose": "^8.18.1",
     "mongoose-sequence": "^6.0.1",
     "next-auth": "~4.21.1",
-    "nuxt": "^4.0.3",
+    "nuxt": "^4.1.1",
     "papaparse": "^5.5.3",
     "pinia": "^3.0.3",
-    "vue": "^3.5.20",
+    "vue": "^3.5.21",
     "vue-chartjs": "^5.3.2",
-    "vue-i18n": "^11.1.11",
+    "vue-i18n": "^11.1.12",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
@@ -47,8 +47,9 @@
     "@types/mongoose-sequence": "^3.0.11",
     "@types/papaparse": "^5.3.16",
     "@vueuse/core": "^13.9.0",
-    "chalk": "^5.6.0",
+    "chalk": "^5.6.2",
     "vite-plugin-vuetify": "^2.1.2",
-    "vuetify": "^3.9.6"
-  }
+    "vuetify": "^3.9.7"
+  },
+  "packageManager": "pnpm@10.15.1+sha512.34e538c329b5553014ca8e8f4535997f96180a1d0f614339357449935350d924e22f8614682191264ec33d1462ac21561aff97f6bb18065351c162c7e8f6de67"
 }
