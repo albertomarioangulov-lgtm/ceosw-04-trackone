@@ -56,7 +56,7 @@ if (error.value?.statusCode === 404) {
 
     <!-- Contenido Principal -->
     <div v-else-if="client">
-      <h1 class="mb-5 text-h4 font-weight-bold">{{ client.name }}</h1>
+      <h1 class="mb-5 text-h5 font-weight-bold">{{ client.name }}</h1>
       <v-row>
         <!-- Columna Izquierda: Detalles y Dirección -->
         <v-col cols="12" md="6">
