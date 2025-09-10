@@ -4,6 +4,7 @@ import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import { md3 } from 'vuetify/blueprints'
 import { VColorInput } from 'vuetify/labs/VColorInput'
+import { VDateInput } from 'vuetify/labs/VDateInput'
 
 const variant = 'filled'
 const density = 'compact'
@@ -52,7 +53,7 @@ export default defineNuxtPlugin((app) => {
   const vuetify = createVuetify({
     blueprint: md3,
     components: {
-      VColorInput
+      VColorInput, VDateInput
     },
 
     defaults: {
@@ -62,6 +63,7 @@ export default defineNuxtPlugin((app) => {
       VTextField: { variant, density, hideDetails },
       VTextarea: { variant,  density, hideDetails },
       VColorInput: { variant,  density, hideDetails },
+      VDateInput: { variant,  density, hideDetails },
       VAutocomplete: { variant, density, hideDetails },
       VCombobox: { variant, density, hideDetails },
     },
