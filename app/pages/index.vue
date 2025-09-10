@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAuth } from '#imports'
-import { subMonths, startOfMonth, endOfMonth, formatISO, formatDistanceToNow } from 'date-fns'
+import { subMonths, startOfMonth, endOfMonth, formatISO, parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import StatsCard from '~~/app/components/dashboard/StatsCard.vue'
 import WrsByMonthChart from '~~/app/components/dashboard/charts/WrsByMonthChart.vue'
@@ -22,20 +22,35 @@ const getHeaders = () => ({
 
 // --- Filtro de Rango de Fechas ---
 const today = new Date()
-// Por defecto, los últimos 6 meses
-const startDate = useCookie('dashboard-startDate', {
+const startDateCookie = useCookie('dashboard-startDate', {
   default: () => formatISO(startOfMonth(subMonths(today, 5)), { representation: 'date' }),
 })
-const endDate = useCookie('dashboard-endDate', {
+const endDateCookie = useCookie('dashboard-endDate', {
   default: () => formatISO(endOfMonth(today), { representation: 'date' }),
+})
+
+// `v-date-input` funciona mejor con objetos Date.
+// Creamos propiedades computadas para convertir entre el string del cookie y el objeto Date.
+const startDate = computed({
+  get: () => parseISO(startDateCookie.value),
+  set: (val) => {
+    if (val) startDateCookie.value = formatISO(val, { representation: 'date' })
+  },
+})
+
+const endDate = computed({
+  get: () => parseISO(endDateCookie.value),
+  set: (val) => {
+    if (val) endDateCookie.value = formatISO(val, { representation: 'date' })
+  },
 })
 
 const { data, pending, error, refresh } = await useAsyncData(
   'dashboard-data',
   async () => {
     const params = new URLSearchParams({
-      startDate: startDate.value,
-      endDate: endDate.value,
+      startDate: startDateCookie.value,
+      endDate: endDateCookie.value,
     })
 
     const [stats, wrsByMonth, packageStatus, recentWrs, topClients] = await Promise.all([
@@ -48,7 +63,7 @@ const { data, pending, error, refresh } = await useAsyncData(
     return { stats, wrsByMonth, packageStatus, recentWrs, topClients }
   },
   {
-    watch: [startDate, endDate], // Vuelve a ejecutar la llamada cuando las fechas cambian
+    watch: [startDateCookie, endDateCookie], // Vuelve a ejecutar la llamada cuando las fechas cambian
   },
 )
 
@@ -64,8 +79,8 @@ async function handleRefresh() {
 }
 
 onMounted(() => {
-  // Actualiza cada 60 segundos
-  refreshInterval = setInterval(handleRefresh, 60000)
+  // Actualiza cada 300 segundos
+  refreshInterval = setInterval(handleRefresh, 300000)
 })
 
 onUnmounted(() => {
@@ -112,19 +127,23 @@ const dashboardStats = computed(() => [
     <!-- Filtro de Fechas y Refresh -->
     <v-row class="mb-0 align-center">
       <v-col cols="12" md="3">
-        <v-text-field
+        <v-date-input
           v-model="startDate"
           label="Fecha de Inicio"
-          type="date"
+          clearable
+          prepend-icon=""
+          prepend-inner-icon="mdi-calendar"
+          :display-format="formatISODate"
         />
       </v-col>
       <v-col cols="12" md="3">
-        <v-text-field
+        <v-date-input
           v-model="endDate"
           label="Fecha de Fin"
-          type="date"
-          density="compact"
-          hide-details
+          clearable
+          prepend-icon=""
+          prepend-inner-icon="mdi-calendar"
+          :display-format="formatISODate"
         />
       </v-col>
       <v-spacer />
