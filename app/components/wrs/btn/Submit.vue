@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { Carrier } from '~~/app/interfaces/Carrier';
+import type { WR } from '~~/app/interfaces/WR';
 
 const { t } = useI18n()
 const { hasPermission } = usePermission()
 
 interface Props {
   action?: 'create' | 'edit' | ''
-  itemData?: Carrier
+  itemData?: WR
   textOnBtn?: boolean
   isIconBtn?: boolean
 }
@@ -47,11 +47,11 @@ if (props.isIconBtn) {
 
 }
 
-const { getCarrier } = useCarrier()
+const { getWR } = useWR()
 
 const createItem = () => {
   loading.value = true
-  dataForm.value = { contacts: [] }
+  dataForm.value = {}
   action.value = 'create'
   isOpen.value = true
   setTimeout(() => {
@@ -63,9 +63,9 @@ const editItem = async (item:any) => {
   loading.value = true
   isLoading.value = true
   itemId.value = item._id
-  const { data } = await getCarrier(item._id)
+  const { data } = await getWR(item._id)
   if(data){
-    dataForm.value = data.value as Carrier
+    dataForm.value = data.value as WR
     action.value = 'edit'
     isOpen.value = true
     setTimeout(() => {
@@ -79,11 +79,11 @@ const onClose = () => {
   isOpen.value = false
 }
 const onClear = () => {
-  dataForm.value = { contacts: [] }
+  dataForm.value = {}
 }
 
 // Function to handle click based on action
-const handleClick = (item?: Carrier) => {
+const handleClick = (item?: WR) => {
   if (props.action === 'edit' && item) {
     editItem(item)
   } else {
@@ -94,7 +94,7 @@ const handleClick = (item?: Carrier) => {
 </script>
 
 <template>
-  <template v-if="hasPermission('manage_carriers')">
+  <template v-if="hasPermission('manage_wrs')">
     <!-- <template v-if="!(isLoading && itemId === props.itemData?._id)"> -->
       <!-- @vue-expect-error -->
       <v-btn class="ml-1"
