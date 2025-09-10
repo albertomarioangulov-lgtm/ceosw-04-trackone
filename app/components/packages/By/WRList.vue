@@ -24,6 +24,8 @@ const isLoading = ref(true)
 const showSearch = ref(false)
 const availableOnly = ref(false)
 const selected = ref<any[]>([])
+const createCRDialog = ref(false)
+const isCreatingCR = ref(false)
 
 const tableData = ref({ items: [], total: 0 })
 
@@ -35,6 +37,7 @@ const tableOptions = ref({
 })
 
 const { getPackagesByWR } = usePackage()
+const { createCR } = useCR()
 // const { packagesByWR, pending } = await getPackagesByWR(itemId.value)
 
 const headers = ref([
@@ -75,6 +78,26 @@ const loadItems = async (options:any) => {
   isLoading.value = false
 }
 
+const handleCreateCR = async () => {
+  if (selected.value.length === 0) return
+  isCreatingCR.value = true
+  try {
+    // The 'selected' ref contains the IDs of the items because of `item-value="_id"`
+    await createCR({ wr: itemId.value, packages: selected.value })
+    createCRDialog.value = false
+    selected.value = []
+    await loadItems(tableOptions.value)
+    // TODO: Implement success notification
+  } catch (error) {
+    console.error('Error creating CR:', error)
+    // TODO: Implement error notification
+  } finally {
+    isCreatingCR.value = false
+  }
+}
+
+const selectable = (item: any) => !item.cr
+
 const debouncedLoadItems = debounce(loadItems, 500)
 
 watch(() => tableOptions.value.search, () => {
@@ -104,6 +127,16 @@ onMounted(() => {
     <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
       <v-spacer></v-spacer>
+
+      <v-btn
+        v-if="selected.length > 0"
+        color="primary"
+        variant="tonal"
+        class="mr-2"
+        @click="createCRDialog = true"
+      >
+        {{ t('Create CR') }} ({{ selected.length }})
+      </v-btn>
 
       <v-switch
         v-model="availableOnly"
@@ -172,7 +205,19 @@ onMounted(() => {
       </template>
   
     </v-data-table-server>
-    <pre>Selected: {{ selected }}</pre>
+    <v-dialog v-model="createCRDialog" width="auto">
+      <v-card>
+        <v-card-title>{{ t('Create CR') }}</v-card-title>
+        <v-card-text>
+          {{ t(`Are you sure you want to create a CR with ${selected.length} packages?`) }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error" @click="createCRDialog = false">{{ t('Cancel') }}</v-btn>
+          <v-btn color="success" @click="handleCreateCR" :loading="isCreatingCR">{{ t('Create') }}</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     
     <!-- @vue-expect-error -->
     <!-- <v-data-table density="compact" :headers="headers" :items="packagesByWR">
