@@ -1,7 +1,6 @@
 export interface WR {
-  _id: number;
-  wrId: number;
-  client: string;
-  name: string;
-  code: string;
+  _id?: number;
+  wrId?: number;
+  client?: string;
+  packages?: [string]
 }
