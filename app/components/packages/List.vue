@@ -35,6 +35,7 @@ const headers = ref([
   { title: 'Label', key: 'label' },
   { title: 'CR', key: 'cr.crId' },
   { title: 'Notes', key: 'notes' },
+  { title: 'By', key: 'createdBy' },
   { title: 'Actions', key: 'actions', sortable: false, width: '90', align: 'center' }
 ])
 
@@ -131,6 +132,12 @@ onMounted(() => {
             ></v-text-field>
           </div>
         </v-expand-transition>
+      </template>
+
+      <template v-slot:[`item.wr.client.name`]="{ item }">
+        <v-chip v-if="item.wr?.client?._id" :to="`/clients/${item.wr.client._id}`" color="primary" variant="text" size="small" class="font-weight-medium">
+          {{ item.wr.client.name }}
+        </v-chip>
       </template>
 
       <template v-slot:[`item.createdAt`]="{ item }">

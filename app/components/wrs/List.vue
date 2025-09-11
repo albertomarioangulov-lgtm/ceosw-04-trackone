@@ -122,6 +122,12 @@ onMounted(() => {
         </v-expand-transition>
       </template>
 
+      <template v-slot:[`item.client.name`]="{ item }">
+        <v-chip v-if="item.client?._id" :to="`/clients/${item.client._id}`" color="primary" variant="text" size="small" class="font-weight-medium">
+          {{ item.client.name }}
+        </v-chip>
+      </template>
+
       <template v-slot:[`item.createdAt`]="{ item }">
         <a-data-table-item-created-at :item="item" />
       </template>
