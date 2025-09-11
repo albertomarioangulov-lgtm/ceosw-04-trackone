@@ -26,12 +26,12 @@ const wrSchema = new mongoose.Schema({
 // @ts-expect-error
 wrSchema.plugin(AutoIncrementPlugin, { inc_field: 'wrId', start_seq: 11001 })
 
-wrSchema.virtual('packageCount', {
-  ref: 'Package',
-  localField: '_id',
-  foreignField: 'wr',
-  count: true
-})
+// wrSchema.virtual('packageCount', {
+//   ref: 'Package',
+//   localField: '_id',
+//   foreignField: 'wr',
+//   count: true
+// })
 
 const WR = mongoose.models.WR || mongoose.model( 'WR', wrSchema )
 
