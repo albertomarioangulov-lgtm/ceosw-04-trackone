@@ -24,6 +24,9 @@ export default {
   packageList: "Package List",
   newPackage: "New Package",
   editPackage: "Edit Package",
+  "Add Package": "Add Package",
+  "Add Packages": "Add Packages",
+  "Add Packages to WR": "Add Packages to WR",
 
 
   "Work Orders": "Work Orders",

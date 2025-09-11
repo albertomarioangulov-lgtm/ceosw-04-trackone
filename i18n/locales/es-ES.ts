@@ -111,6 +111,9 @@ export default {
   // Buttons & Actions
   "Add Item": 'Agregar Ítem',
   "Add Items": 'Agregar Ítems',
+  "Add Packages": 'Agregar Paquetes',
+  "Add Packages to WR": 'Agregar Paquetes al WR',
+  "Add Package": 'Agregar Paquete',
   "Download Pdf": 'Descargar Pdf',
   "Manage Quote": 'Gestionar Cotización',
   "Create WO": 'Crear OT',
