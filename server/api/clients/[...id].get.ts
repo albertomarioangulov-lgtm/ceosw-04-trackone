@@ -31,7 +31,40 @@ export default defineEventHandler(async (event) => {
           { $match: { $expr: { $eq: ['$client', '$$clientId'] } } },
           { $sort: { createdAt: -1 } }, // Ordenar por fecha para obtener el más reciente
           { $limit: 1 },
-          { $project: { _id: 1, wrId: 1, createdAt: 1 } } // Seleccionamos los campos que necesitamos del WR
+          // Hacemos un lookup a los paquetes de este WR para poder contarlos
+          {
+            $lookup: {
+              from: 'packages',
+              let: { wrId: '$_id' },
+              pipeline: [
+                { $match: { $expr: { $eq: ['$wr', '$$wrId'] } } },
+                // Proyectamos solo el campo 'cr' para el conteo
+                { $project: { _id: 0, cr: 1 } }
+              ],
+              as: 'packages'
+            }
+          },
+          // Agregamos los campos de conteo
+          {
+            $addFields: {
+              // Conteo total de paquetes en el WR
+              packageCount: { $size: '$packages' },
+              // Conteo de paquetes disponibles (aquellos sin 'cr')
+              availablePackageCount: {
+                $size: {
+                  $filter: {
+                    input: '$packages',
+                    as: 'pkg',
+                    // Un paquete está disponible si el campo 'cr' no existe (tipo 'missing')
+                    // o si el campo 'cr' existe pero es explícitamente nulo (tipo 'null').
+                    cond: { $in: [{ $type: '$$pkg.cr' }, ['missing', 'null']] }
+                  }
+                }
+              }
+            }
+          },
+          // Seleccionamos los campos que necesitamos del WR y los nuevos conteos
+          { $project: { _id: 1, wrId: 1, createdAt: 1, packageCount: 1, availablePackageCount: 1 } }
         ],
         as: 'lastWr'
       }
