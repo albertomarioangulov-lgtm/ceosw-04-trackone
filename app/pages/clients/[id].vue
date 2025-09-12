@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const route = useRoute();
 const clientId = route.params.id as string;
+const packagesListRef = ref<any>(null)
 
 const { token } = useAuth()
 
@@ -12,7 +13,28 @@ const getHeaders = () => ({
 
 
 // `useFetch` obtiene los datos del lado del servidor (o cliente) y maneja los estados de carga y error.
-const { data: client, pending, error } = await useFetch(`/api/clients/${clientId}`, { headers: getHeaders(), lazy: true });
+const { data: client, pending, error, refresh: refreshClient } = await useFetch(`/api/clients/${clientId}`, { headers: getHeaders(), lazy: true });
+
+const selectedPackages = ref<string[]>([])
+
+const handleCRCreation = async () => {
+  selectedPackages.value = []
+  await refreshClient()
+  await nextTick()
+  if (packagesListRef.value) {
+    packagesListRef.value.reload()
+  }
+}
+
+const handleWRCreation = async () => {
+  await refreshClient()
+  // After refreshing the client, the `lastWr` might have changed.
+  // We need to wait for the DOM to update and then tell the package list to reload.
+  await nextTick()
+  if (packagesListRef.value) {
+    packagesListRef.value.reload()
+  }
+}
 
 // Función de utilidad para formatear fechas
 const formatDate = (dateString: string) => {
@@ -156,7 +178,58 @@ if (error.value?.statusCode === 404) {
         </v-col>
       </v-row>
 
-      <!-- Aquí se podrían mostrar los paquetes si se incluyeran en la API -->
+      <v-toolbar class="mt-4 mb-0" rounded="lg">
+        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+          <v-toolbar-title>WR: {{ client.lastWr.wrId }}</v-toolbar-title>
+        </template>
+
+        <v-spacer />
+
+        <template v-if="(client.lastWr && client.lastWr.availablePackageCount == 0) || !client.lastWr">
+          <WrsBtnSubmit :item-data="{client: client._id}" @on-wr-created="handleWRCreation" />
+        </template>
+
+        <template v-if="client.lastWr">
+          <CrsBtnCreateCR
+            :selected="selectedPackages"
+            :wr-id="client.lastWr._id"
+            @on-cr-created="handleCRCreation"
+          />
+        </template>
+        
+        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+          <WrsBtnSubmit isIconBtn
+            action="addPackages"
+            :item-data="client.lastWr"
+            @on-wr-created="handleWRCreation"
+            btn-icon="mdi-package-variant-plus"
+            btn-color="info"
+          />
+        </template>
+
+        <!-- <v-spacer /> -->
+
+        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+          <WrsBtnSendEmail isIconBtn :item="client!" :itemId="client.lastWr._id"  />
+        </template>
+
+        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+          <v-btn
+            color="red-darken-1"
+            icon="mdi-file-download-outline"
+          ></v-btn>
+        </template>
+      </v-toolbar>
+
+      <!-- Packages del último WR -->
+      <PackagesByWRList
+        ref="packagesListRef"
+        v-if="client.lastWr && client.lastWr.availablePackageCount > 0"
+        :item="client.lastWr"
+        :itemId="client.lastWr._id"
+        v-model:model-value="selectedPackages"
+        class="mt-4"
+      />
     </div>
   </v-container>
 </template>

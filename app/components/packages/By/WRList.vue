@@ -10,22 +10,18 @@ const router = useRouter()
 interface Props {
   item: any
   itemId: string
+  modelValue: any[]
 }
 
 const props = defineProps<Props>()
-const { item, itemId } = toRefs(props)
-
-// const pageName = 'clients'
-// const pageTitle = t(`${ pageName }`)
+const emit = defineEmits(['update:modelValue'])
+const { item, itemId, modelValue } = toRefs(props)
 
 const title = ref('packageByWRList')
 const titleI18n = computed(() => t(title.value))
 const isLoading = ref(true)
 const showSearch = ref(false)
 const availableOnly = ref(false)
-const selected = ref<any[]>([])
-const createCRDialog = ref(false)
-const isCreatingCR = ref(false)
 
 const tableData = ref({ items: [], total: 0 })
 
@@ -37,15 +33,14 @@ const tableOptions = ref({
 })
 
 const { getPackagesByWR } = usePackage()
-const { createCR } = useCR()
 // const { packagesByWR, pending } = await getPackagesByWR(itemId.value)
 
 const headers = ref([
   { title: 'trkgNum', key: 'trkgNum' },
   { title: 'Package Date', key: 'createdAt' },
   { title: 'Weight', key: 'weight' },
-  { title: 'Client', key: 'wr.client.name' },
-  { title: 'WR', key: 'wr.wrId' },
+  // { title: 'Client', key: 'wr.client.name' },
+  // { title: 'WR', key: 'wr.wrId' },
   { title: 'Label', key: 'label' },
   { title: 'CR', key: 'cr.crId' },
   { title: 'Notes', key: 'notes' },
@@ -78,24 +73,6 @@ const loadItems = async (options:any) => {
   isLoading.value = false
 }
 
-const handleCreateCR = async () => {
-  if (selected.value.length === 0) return
-  isCreatingCR.value = true
-  try {
-    // The 'selected' ref contains the IDs of the items because of `item-value="_id"`
-    await createCR({ wr: itemId.value, packages: selected.value })
-    createCRDialog.value = false
-    selected.value = []
-    await loadItems(tableOptions.value)
-    // TODO: Implement success notification
-  } catch (error) {
-    console.error('Error creating CR:', error)
-    // TODO: Implement error notification
-  } finally {
-    isCreatingCR.value = false
-  }
-}
-
 const selectable = (item: any) => !item.cr
 
 const debouncedLoadItems = debounce(loadItems, 500)
@@ -108,6 +85,10 @@ watch(() => tableOptions.value.search, () => {
 watch(availableOnly, () => {
   tableOptions.value.page = 1 // Reset to the first page when filter changes
   loadItems(tableOptions.value)
+})
+
+defineExpose({
+  reload: () => loadItems(tableOptions.value)
 })
 
 onMounted(() => {
@@ -124,19 +105,9 @@ onMounted(() => {
       :indeterminate="isLoading"
       color="primary"
     ></v-progress-linear>
-    <v-toolbar density="compact">
+    <!-- <v-toolbar density="compact">
       <v-toolbar-title>{{ titleI18n }}</v-toolbar-title>
       <v-spacer></v-spacer>
-
-      <v-btn
-        v-if="selected.length > 0"
-        color="primary"
-        variant="tonal"
-        class="mr-2"
-        @click="createCRDialog = true"
-      >
-        {{ t('Create CR') }} ({{ selected.length }})
-      </v-btn>
 
       <v-switch
         v-model="availableOnly"
@@ -154,8 +125,7 @@ onMounted(() => {
           {{ tableOptions.search ? `Filtering by: "${tableOptions.search}"` : 'Search' }}
         </v-tooltip>
       </v-btn>
-      <!-- <PackagesBtnSubmit /> -->
-    </v-toolbar>
+    </v-toolbar> -->
 
     <!-- @vue-expect-error -->
     <v-data-table-server
@@ -167,7 +137,8 @@ onMounted(() => {
       :loading="isLoading"
       item-value="_id"
       @update:options="loadItems"
-      v-model:model-value="selected"
+      :model-value="modelValue"
+      @update:model-value="emit('update:modelValue', $event)"
       show-select
       item-selectable="selectable"
       select-strategy="all"
@@ -205,19 +176,6 @@ onMounted(() => {
       </template>
   
     </v-data-table-server>
-    <v-dialog v-model="createCRDialog" width="auto">
-      <v-card>
-        <v-card-title>{{ t('Create CR') }}</v-card-title>
-        <v-card-text>
-          {{ t(`Are you sure you want to create a CR with ${selected.length} packages?`) }}
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" @click="createCRDialog = false">{{ t('Cancel') }}</v-btn>
-          <v-btn color="success" @click="handleCreateCR" :loading="isCreatingCR">{{ t('Create') }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     
     <!-- @vue-expect-error -->
     <!-- <v-data-table density="compact" :headers="headers" :items="packagesByWR">

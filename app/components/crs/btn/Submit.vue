@@ -51,7 +51,7 @@ const { getCarrier } = useCarrier()
 
 const createItem = () => {
   loading.value = true
-  dataForm.value = { contacts: [] }
+  dataForm.value = {}
   action.value = 'create'
   isOpen.value = true
   setTimeout(() => {
@@ -79,7 +79,7 @@ const onClose = () => {
   isOpen.value = false
 }
 const onClear = () => {
-  dataForm.value = { contacts: [] }
+  dataForm.value = {}
 }
 
 // Function to handle click based on action

@@ -3,10 +3,17 @@
 interface Props {
   item: any
   itemId: string
+  variant?: string
+  size?: string
 }
 
-const props = defineProps<Props>()
-const { item, itemId } = toRefs(props)
+const props = withDefaults( defineProps<Props>(), {
+  variant: 'default',
+  size: 'default'
+})
+
+// const props = defineProps<Props>()
+const { item, itemId, variant, size } = toRefs(props)
 
 
 
@@ -41,17 +48,21 @@ const sendEmailProcess = async (id: string) => {
 </script>
 
 <template>
-  
-  <v-btn small
-    variant="tonal"
-    color="primary"
-    class="ml-2"
-    @click="sendEmailDialog = true"
+  <v-tooltip
+    location="top"
+    :text="$t('Send WR Email')"
   >
-    <v-icon class="mr-1">mdi-email-outline</v-icon>
-    {{ $t('Send WR Email') }}
-  </v-btn>
-
+    <template #activator="{ props }">
+      <!-- :size -->
+      <v-btn
+        v-bind="props"
+        color="primary"
+        icon="mdi-email-outline"
+        @click="sendEmailDialog = true"
+      ></v-btn>
+    <!-- <v-icon size="large" class="mr-1">mdi-email-outline</v-icon> -->
+    </template>
+  </v-tooltip>
 
   <v-dialog absolute
     transition="dialog-top-transition"
@@ -66,10 +77,11 @@ const sendEmailProcess = async (id: string) => {
       <v-card-text>Desea enviar un email a este cliente?</v-card-text>
 
       <v-row class="ml-2 mt-0 mb-4">
-            <v-btn class="mr-4 ml-4"
-            variant="tonal" color="success" @click="sendEmailProcess(itemId)" :disabled="isLoading">{{ $t('Submit') }}</v-btn>
-            <v-btn variant="tonal" color="error" @click="sendEmailDialog = false">{{ $t('Cancel') }}</v-btn>
-          </v-row>
+        <v-btn class="mr-4 ml-4"
+          variant="tonal" color="success" @click="sendEmailProcess(itemId)" :disabled="isLoading">{{ $t('Submit') }}</v-btn>
+            
+        <v-btn variant="tonal" color="error" @click="sendEmailDialog = false">{{ $t('Cancel') }}</v-btn>
+      </v-row>
     </v-card>
   </v-dialog>
 </template>
