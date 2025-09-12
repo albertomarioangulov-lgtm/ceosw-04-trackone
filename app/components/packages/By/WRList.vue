@@ -50,6 +50,9 @@ const headers = ref([
 const viewItem = async (item:any) => {
   router.push({ path: `/packages/wr/${ item._id }` })
 }
+// const viewItem = async (item:any) => {
+//   router.push({ path: `/packages/wr/${ item._id }` })
+// }
 
 const loadItems = async (options:any) => {
   isLoading.value = true
@@ -167,9 +170,10 @@ onMounted(() => {
       <template v-slot:[`item.actions`]="{ item }">
 
         <!-- <a-data-table-item-action-btn :item="item" :itemId="itemId"
-          icon="mdi-circle-outline"
-          @on-action="viewItem(item)"
+          icon="mdi-sticker-text-outline" color="gray-darken-1" tooltip="Download Sticker"
+          @on-action="downloadSticker(itemId)"
         /> -->
+        <PackagesBtnDownloadSticker :item-id="item._id" />
 
         <!-- <PackagesBtnSubmit action="edit" isIconBtn :textOnBtn="false" :itemData="item" /> -->
 
