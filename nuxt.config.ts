@@ -4,6 +4,18 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.4/vfs_fonts.js',
+          integrity: 'sha512-cktKDgjEiIkPVHYbn8bh/FEyYxmt4JDJJjOCu5/FQAkW4bc911XtKYValiyzBiJigjVEvrIAyQFEbRJZyDA1wQ==',
+          crossorigin: 'anonymous', referrerpolicy: 'no-referrer'
+        },
+      ]
+    },
+  },
+
   build: {
     transpile: ['vuetify'],
   },
