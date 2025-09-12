@@ -214,10 +214,7 @@ if (error.value?.statusCode === 404) {
         </template>
 
         <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
-          <v-btn
-            color="red-darken-1"
-            icon="mdi-file-download-outline"
-          ></v-btn>
+          <WrsBtnDownloadPDF :item-id="client.lastWr._id" />
         </template>
       </v-toolbar>
 
