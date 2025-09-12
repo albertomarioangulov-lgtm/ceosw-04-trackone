@@ -1,5 +1,7 @@
 import WR from "~~/server/models/WR"
+import Package from "~~/server/models/Package"
 import getUserId from "~~/server/libs/userData"
+import mongoose from "mongoose"
 
 export default defineEventHandler( async (event) => {
 
@@ -10,14 +12,44 @@ export default defineEventHandler( async (event) => {
   const userId = getUserId(event)
 
   const body = await readBody(event)
-  const { client } = body
+  const { _id, client, packages } = body
 
-  const newData = new WR({
-    client,
-    createdBy: userId
-  })
-  // @ts-expect-error
-  const savedData = await newData.save()
+  let wr
+
+  // If an _id is provided, we're adding packages to an existing WR.
+  if (_id && mongoose.Types.ObjectId.isValid(_id)) {
+    wr = await WR.findById(_id).exec()
+    if (!wr) {
+      throw createError({ statusCode: 404, statusMessage: 'WR no encontrado para actualizar' })
+    }
+    // Optionally update the client if it has changed
+    if (client && wr.client.toString() !== client) {
+      wr.client = client
+      await wr.save()
+    }
+  } else { // Otherwise, create a new WR.
+    const newWr = new WR({
+      client,
+      createdBy: userId
+    })
+    wr = await newWr.save()
+  }
+
+  // This logic handles adding ONLY new packages.
+  // It filters for packages sent from the form that do not have an _id.
+  if (packages && Array.isArray(packages) && packages.length > 0) {
+    const newPackages = packages.filter(pkg => !pkg._id)
+
+    if (newPackages.length > 0) {
+      const packagesToSave = newPackages.map((pkg: any) => ({
+        ...pkg,
+        client: wr.client, // Always use the client from the WR document
+        wr: wr._id,
+        createdBy: userId
+      }))
+      await Package.create(packagesToSave)
+    }
+  }
   
-  return savedData
+  return wr
 })
