@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
     const page = Number(query.page ?? 1)
     const itemsPerPage = Number(query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
-    const sortBy = (query.sortBy as string) || '_id'
+    const sortBy = (query.sortBy as string) ?? ''
     const sortDesc = query.sortDesc === 'true'
 
     // Construir el filtro de búsqueda
@@ -25,11 +25,15 @@ export default defineEventHandler(async (event) => {
     }
 
     // Construir el objeto de ordenamiento para el pipeline
-    const sort: { [key: string]: 1 | -1 } = {}
-    sort[sortBy] = sortDesc ? -1 : 1
+    const sort: { [key: string]: 1 | -1 } = {};
+    if (sortBy) {
+      sort[sortBy] = sortDesc ? -1 : 1;
+    } else {
+      sort.createdAt = -1; // Por defecto, ordenar por más reciente
+    }
 
     // Usamos un pipeline de agregación para obtener los datos y el conteo total en una sola consulta
-    const aggregationResult = await Package.aggregate([
+    const pipeline: any[] = [
       // Etapa 1: Realizar los "joins" (lookups) para obtener datos relacionados.
       // Esto es necesario antes de filtrar por campos de colecciones relacionadas.
       {
@@ -56,33 +60,33 @@ export default defineEventHandler(async (event) => {
       // Se aplica después de los lookups para poder filtrar por el nombre del cliente.
       { $match: filter },
 
-      {
-        $lookup: {
-          from: 'users', // Nombre de la colección para 'User'
-          localField: 'createdBy',
-          foreignField: '_id',
-          as: 'createdBy'
-        }
-      },
-      { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
-
       // Etapa 3: Usar $facet para obtener los datos paginados y el conteo total
       {
         $facet: {
           items: [
             { $sort: sort },
             { $skip: (page - 1) * itemsPerPage },
-            { $limit: itemsPerPage }
+            { $limit: itemsPerPage },
+            // Lookups adicionales solo para los items de la página actual
+            {
+              $lookup: {
+                from: 'users', // Nombre de la colección para 'User'
+                localField: 'createdBy',
+                foreignField: '_id',
+                as: 'createdBy'
+              }
+            },
+            { $unwind: { path: '$createdBy', preserveNullAndEmptyArrays: true } },
           ],
           total: [
             { $count: 'count' }
           ]
         }
       }
-    ])
+    ];
 
     // El resultado de $facet es un array con un único objeto
-    const result = aggregationResult[0]
+    const [result] = await Package.aggregate(pipeline);
     const items = result.items
     const total = result.total.length > 0 ? result.total[0].count : 0
 
