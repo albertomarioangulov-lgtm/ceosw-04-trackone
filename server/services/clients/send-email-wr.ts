@@ -34,13 +34,16 @@ const sendEmailWr = async(savedData:any) => {
   const formattedDate = now.toLocaleString()
 
 
-  const rawPackages = await Package.find()
+  const rawPackages = await Package.find({
+      wr,
+      cr: { $exists: false }
+    })
     .populate({ path: 'wr', select: 'wrId client',
       populate: { path: 'client', select: 'name' }
     })
     // .populate({ path: 'cr', select: 'crId' })
     .populate({ path: 'createdBy', select: 'name initials color' })
-    .where( 'wr' ).equals( wr )
+    // .where( 'wr' ).equals( wr )
     .lean()
     .exec()
 
