@@ -19,6 +19,7 @@ const sendEmailWr = async(savedData:any) => {
 
   const staticRecipients = [
     { email: "info@comprasyenviosonline.com", name: "Info CEO TrackOne" },
+    { email: "ceomiami@comprasyenviosonline.com", name: "CEO TrackOne Miami" },
     { email: "ceoswdev@gmail.com", name: "CEO TrackOne" }
   ];
 
@@ -203,8 +204,9 @@ const sendEmailWr = async(savedData:any) => {
   sendSmtpEmail.subject = `Paquetes de WR: ${savedData.wrId} . ${name}`;
   sendSmtpEmail.htmlContent = html;
   // sendSmtpEmail.templateId = 2; // ID de la plantilla
-  sendSmtpEmail.sender = { name: "CEOSW TrackOne", email: "ceoswdev@gmail.com" };
+  sendSmtpEmail.sender = { name: "CEO TrackOne", email: "ceoswdev@gmail.com" };
   sendSmtpEmail.to = [...staticRecipients, ...clientRecipients];
+  sendSmtpEmail.replyTo = { email: "ceomiami@comprasyenviosonline.com", name: "CEO TrackOne Miami" }
 
   sendSmtpEmail.params = {
     name: name,
