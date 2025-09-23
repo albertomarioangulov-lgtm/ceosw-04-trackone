@@ -24,8 +24,8 @@ importers:
         specifier: 0.11.2
         version: 0.11.2(magicast@0.3.5)(pinia@3.0.3(typescript@5.9.2)(vue@3.5.21(typescript@5.9.2)))
       '@sidebase/nuxt-auth':
-        specifier: 1.0.2
-        version: 1.0.2(@netlify/blobs@9.1.2)(magicast@0.3.5)(next-auth@4.21.1(next@13.5.11(@babel/core@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        specifier: 1.1.0
+        version: 1.1.0(@netlify/blobs@9.1.2)(magicast@0.3.5)(next-auth@4.21.1(next@13.5.11(@babel/core@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@vuelidate/core':
         specifier: ^2.0.3
         version: 2.0.3(vue@3.5.21(typescript@5.9.2))
@@ -54,11 +54,11 @@ importers:
         specifier: ^9.0.2
         version: 9.0.2
       mongoose:
-        specifier: ^8.18.1
-        version: 8.18.1(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)
+        specifier: ^8.18.2
+        version: 8.18.2(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)
       mongoose-sequence:
         specifier: ^6.0.1
-        version: 6.0.1(mongoose@8.18.1(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7))
+        version: 6.0.1(mongoose@8.18.2(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7))
       next-auth:
         specifier: ~4.21.1
         version: 4.21.1(next@13.5.11(@babel/core@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1368,8 +1368,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sidebase/nuxt-auth@1.0.2':
-    resolution: {integrity: sha512-L7q8XN9v/aseRXK2o5hJ9vuIzyutz1yryfZfLcAYheLOsDbCWCA86/sN/+mHZX6naSAOrm0hxeJnuSADaTMcIw==}
+  '@sidebase/nuxt-auth@1.1.0':
+    resolution: {integrity: sha512-2Lj8dmlWE1tIA2CdGlekQsVUpgy2W56jaN9WDukJWxmuSDZRNK+CqxSXReYEHF+gb2tDRLMdhmyk0JUPfnRANg==}
     engines: {node: '>=20', pnpm: '>=9.4.0'}
     peerDependencies:
       next-auth: ~4.21.1
@@ -3292,8 +3292,8 @@ packages:
     resolution: {integrity: sha512-JHKco/533CyVrqCbyQsnqMpLn8ZCiKrPDTd2mvo2W7ygIvhygWjX2wj+RPjn6upZZgw0jC6U51RD7kUsyK8NBg==}
     engines: {node: '>=12.0.0'}
 
-  mongoose@8.18.1:
-    resolution: {integrity: sha512-K0RfrUXXufqNRZZjvAGdyjydB91SnbWxlwFYi5t7zN2DxVWFD3c6puia0/7xfBwZm6RCpYOVdYFlRFpoDWiC+w==}
+  mongoose@8.18.2:
+    resolution: {integrity: sha512-gA6GFlshOHUdNyw9OQTmMLSGzVOPbcbjaSZ1dvR5iMp668N2UUznTuzgTY6V6Q41VtBc4kmL/qqML1RNgXB5Fg==}
     engines: {node: '>=16.20.1'}
 
   mpath@0.9.0:
@@ -6453,7 +6453,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.50.2':
     optional: true
 
-  '@sidebase/nuxt-auth@1.0.2(@netlify/blobs@9.1.2)(magicast@0.3.5)(next-auth@4.21.1(next@13.5.11(@babel/core@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@sidebase/nuxt-auth@1.1.0(@netlify/blobs@9.1.2)(magicast@0.3.5)(next-auth@4.21.1(next@13.5.11(@babel/core@7.28.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@nuxt/kit': 3.18.1(magicast@0.3.5)
       defu: 6.1.4
@@ -8680,11 +8680,11 @@ snapshots:
       '@aws-sdk/credential-providers': 3.864.0
       socks: 2.8.7
 
-  mongoose-sequence@6.0.1(mongoose@8.18.1(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)):
+  mongoose-sequence@6.0.1(mongoose@8.18.2(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)):
     dependencies:
       async: 3.2.6
       lodash: 4.17.21
-      mongoose: 8.18.1(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)
+      mongoose: 8.18.2(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7)
 
   mongoose@6.13.8:
     dependencies:
@@ -8699,7 +8699,7 @@ snapshots:
       - aws-crt
       - supports-color
 
-  mongoose@8.18.1(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7):
+  mongoose@8.18.2(@aws-sdk/credential-providers@3.864.0)(socks@2.8.7):
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
