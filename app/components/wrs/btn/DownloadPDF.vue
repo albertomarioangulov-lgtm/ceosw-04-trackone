@@ -36,7 +36,6 @@ const downloadPDF = async (payload:any) => {
       console.log('wrPackages: ', wrPackages);
       const packagesTable = []
       packagesTable.push([
-        //{text: 'ID', bold: true},
         { text: 'BOX', bold: true, alignment: 'center' },
         { text: 'TRACKING NUMBER', bold: true, alignment: 'center' },
         { text: 'MEASURES', bold: true, alignment: 'center' },
@@ -93,19 +92,25 @@ const downloadPDF = async (payload:any) => {
 
       packagesTable.push([
         '',
-        {text: 'TOTALS', alignment: 'center', bold: true},
-        '',
-        {text: totalWeight, alignment: 'center', bold: true},
-        {text: totalWeightKg.toFixed(2), alignment: 'center', bold: true},
-        {text: totalCft.toFixed(2), alignment: 'center', bold: true},
-        {text: totalVolKgs.toFixed(2), alignment: 'center', bold: true},
+        // {text: 'TOTALS', alignment: 'center', bold: true},
+        // '',
+        // {text: totalWeight, alignment: 'center', bold: true},
+        // {text: totalWeightKg.toFixed(2), alignment: 'center', bold: true},
+        // {text: totalCft.toFixed(2), alignment: 'center', bold: true},
+        // {text: totalVolKgs.toFixed(2), alignment: 'center', bold: true},
+        {text: 'TOTALS', colSpan: 2, alignment: 'right', bold: true, margin: [0, 2, 4, 2]},
+        {},
+        {text: totalWeight.toFixed(2), alignment: 'center', bold: true, margin: [0, 2, 0, 2]},
+        {text: totalWeightKg.toFixed(2), alignment: 'center', bold: true, margin: [0, 2, 0, 2]},
+        {text: totalCft.toFixed(2), alignment: 'center', bold: true, margin: [0, 2, 0, 2]},
+        {text: totalVolKgs.toFixed(2), alignment: 'center', bold: true, margin: [0, 2, 0, 2]},
         '','',
       ])
 
       // console.log('packagesTable: ', packagesTable);
       const docDefinition = {
         pageSize: 'LEGAL',
-        pageMargins: [ 30, 88, 30, 60 ],
+        pageMargins: [ 30, 92, 30, 60 ],
         header: [
           {
             fontSize: 8,
@@ -115,35 +120,63 @@ const downloadPDF = async (payload:any) => {
               body: [
                 [
                   { image: image, width: 145, alignment: 'center', margin: [0, 6, 0, 0] },
-                  { text: ['WAREHOUSE RECEIPT \n', 'WR No. '+ wrData.wrId], alignment: 'center', fontSize: 14},
+                  { text: ['WAREHOUSE RECEIPT \n', 'WR No. '+ wrData.wrId], alignment: 'center', fontSize: 16, bold: true},
                   { text: 'COMPRAS Y ENVIOS ONLINE.COM\n7168 NW 50 STREET\nMIAMI, FLORIDA 33166\nTEL: 786-9706581', alignment: 'center'}
                 ]
               ]
             },
+            layout: 'noBorders'
           },
           {
             fontSize: 8,
-            margin: [30, 0, 30, 50],
+            margin: [30, 5, 30, 50],
             table: {
-              widths: [60, '*', 130],
+              widths: ['auto', '*', 'auto', 'auto'],
               body: [
                 [
-                  {text: 'REMITENTE:\nDESTINATARIO:', border: [true, false, true, true]},
-                  {text: [wrData.client.name + '\n', wrData.client.name], border: [true, false, true, true]},
-                  {text: useDateFormat(wrData.createdAt, 'YYYY-MM-DD').value + '\n ', alignment: 'center', border: [true, false, true, true]}
+                  {text: 'REMITENTE:', bold: true},
+                  {text: wrData.client.name},
+                  {text: 'FECHA:', bold: true, alignment: 'right'},
+                  {text: useDateFormat(wrData.createdAt, 'YYYY-MM-DD').value, alignment: 'right'}
+                ],
+                [
+                  {text: 'DESTINATARIO:', bold: true},
+                  {text: wrData.client.name, colSpan: 3},
+                  null, null
                 ]
               ]
             },
+            layout: 'noBorders'
           }
         ],
+        // content: [
+        //   {
+        //     // layout: 'lightHorizontalLines',
+        //     fontSize: 8,
+        //     table: {
+        //       //widths: ['auto', 'auto', 90, 'auto', 'auto', 50, '*'],
+        //       widths: ['auto', 95, 'auto', 'auto', 'auto', 'auto', 'auto', 50, '*'],
+        //       body: packagesTable
+        //     }
+        //   }
+        // ],
         content: [
           {
+            // layout: 'lightHorizontalLines',
             fontSize: 8,
             table: {
               //widths: ['auto', 'auto', 90, 'auto', 'auto', 50, '*'],
-              widths: ['auto', 90, 'auto', 'auto', 'auto', 'auto', 'auto', 50, '*'],
+              widths: ['auto', 105, 'auto', 'auto', 30, 25, 25, 45, '*'],
               body: packagesTable
-            }
+            },
+            layout: {
+              hLineWidth: () => 0.5,
+              vLineWidth: (i, node) => (i === 0 || i === node.table.widths.length) ? 0.5 : 0,
+              hLineColor: () => 'grey',
+              vLineColor: () => 'grey',
+              paddingTop: () => 2,
+              paddingBottom: () => 2,
+            },
           }
         ],
         footer: [
