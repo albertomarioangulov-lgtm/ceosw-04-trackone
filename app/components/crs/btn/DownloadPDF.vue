@@ -108,6 +108,7 @@ const downloadPDF = async (payload:any) => {
         pageMargins: [ 30, 107, 30, 60 ],
         header: [
           {
+            layout: 'noBorders',
             fontSize: 8,
             margin: [30, 15, 30, 0],
             table: {
@@ -115,13 +116,14 @@ const downloadPDF = async (payload:any) => {
               body: [
                 [
                   { image: image, width: 145, alignment: 'center', margin: [0, 6, 0, 0] },
-                  { text: ['CARGO RELEASE \n', 'CR No. '+ crData.crId], alignment: 'center', fontSize: 14},
+                  { text: ['CARGO RELEASE \n', 'CR No. '+ crData.crId], alignment: 'center', fontSize: 16, bold: true},
                   { text: 'COMPRAS Y ENVIOS ONLINE.COM\n7168 NW 50 STREET\nMIAMI, FLORIDA 33166\nTEL: 786-9706581', alignment: 'center'}
                 ]
               ]
             },
           },
           {
+            layout: 'noBorders',
             fontSize: 8,
             margin: [30, 0, 30, 50],
             table: {
@@ -130,7 +132,7 @@ const downloadPDF = async (payload:any) => {
                 [
                   {text: [{text:'Release to:\n', bold: true}, crData.wr.client.name +'\nAddress:\nPhone:'], border: [true, false, true, true]},
                   {text: ['Warehouse Receipt:\n', 'Release Date/Time:\n', 'Release By:\n', 'Carrier Name:'], alignment: 'right', border: [true, false, true, true]},
-                  {text: [crData.wr.wrId + '\n', crData.createdAt + '\n', 'ComprasyEnviosOnline.com\n', crData.carrier?crData.carrier.name:''], border: [true, false, true, true]}
+                  {text: [crData.wr.wrId + '\n', useDateFormat(crData.createdAt, 'YYYY-MM-DD HH:mm').value + '\n', 'ComprasyEnviosOnline.com\n', crData.carrier?crData.carrier.name:''], border: [true, false, true, true]}
                   
                 ]
               ]
