@@ -56,8 +56,11 @@ const downloadPDF = async (payload:any) => {
         crPackages.forEach(e => {
           if(e.cr){
             const weightKg = (e.weight * 0.45359237).toFixed(2)
-            const cft = (e.measures.l * e.measures.w * e.measures.h / 1728).toFixed(2)
-            const volKgs = (e.measures.l * e.measures.w * e.measures.h / 366).toFixed(2)
+            const l = e.measures?.l ?? 0
+            const w = e.measures?.w ?? 0
+            const h = e.measures?.h ?? 0
+            const cft = (l * w * h / 1728).toFixed(2)
+            const volKgs = (l * w * h / 366).toFixed(2)
             totalWeight += Number.parseFloat(e.weight)
             totalWeightKg += Number.parseFloat(weightKg)
             totalCft += Number.parseFloat(cft)
