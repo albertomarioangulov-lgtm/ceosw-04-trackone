@@ -44,6 +44,7 @@ const items = [
       </div>
       <v-spacer />
       <!-- <CrsBtnSubmit action="edit" :itemData="clientData" /> -->
+       <CrsBtnDownloadPDF :item-id="dataId" />
        <CrsBtnSendEmail :item="itemData!" :itemId="dataId"  />
     </v-toolbar>
 
