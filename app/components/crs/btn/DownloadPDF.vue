@@ -36,14 +36,14 @@ const downloadPDF = async (payload:any) => {
       console.log('crPackages: ', crPackages);
       const packagesTable = []
       packagesTable.push([
-        //{text: 'ID', bold: true},
+        { text: 'ID', bold: true},
         { text: 'BOX', bold: true, alignment: 'center' },
         { text: 'TRACKING NUMBER', bold: true, alignment: 'center' },
         { text: 'MEASURES', bold: true, alignment: 'center' },
         { text:'WEIGHT', bold: true, alignment: 'center' },
-        { text:'WEIGHT (Kg)', bold: true, alignment: 'center' },
-        { text:'VOL (FT)', bold: true, alignment: 'center' },
-        { text:'VOL (Kgs)', bold: true, alignment: 'center' },
+        // { text:'WEIGHT (Kg)', bold: true, alignment: 'center' },
+        // { text:'VOL (FT)', bold: true, alignment: 'center' },
+        // { text:'VOL (Kgs)', bold: true, alignment: 'center' },
         { text:'DATE', bold: true, alignment: 'center' },
         { text:'NOTES', bold: true, alignment: 'center' }
       ])
@@ -67,7 +67,7 @@ const downloadPDF = async (payload:any) => {
             totalVolKgs += Number.parseFloat(volKgs)
 
             packagesTable.push([
-              // e.pkgId,
+              e.pkgId,
               // e.wr.wrId + '-' + e.label,
               // wrData.wrId + '-' + e.label,
               `${crData.wr.wrId}-${e.label}`,
@@ -80,9 +80,9 @@ const downloadPDF = async (payload:any) => {
                 alignment: 'center'
               },
               {text: e.weight, alignment: 'center'},
-              {text: weightKg, alignment: 'center'},
-              {text: cft, alignment: 'center'},
-              {text: volKgs, alignment: 'center'},
+              // {text: weightKg, alignment: 'center'},
+              // {text: cft, alignment: 'center'},
+              // {text: volKgs, alignment: 'center'},
               // formatDateTime(e.createdAt),
               useDateFormat(e.createdAt, 'YYYY-MM-DD').value,
               e.notes
@@ -91,21 +91,21 @@ const downloadPDF = async (payload:any) => {
         });
       }
 
-      packagesTable.push([
-        '',
-        {text: 'TOTALS', alignment: 'center', bold: true},
-        '',
-        {text: totalWeight, alignment: 'center', bold: true},
-        {text: totalWeightKg.toFixed(2), alignment: 'center', bold: true},
-        {text: totalCft.toFixed(2), alignment: 'center', bold: true},
-        {text: totalVolKgs.toFixed(2), alignment: 'center', bold: true},
-        '','',
-      ])
+      // packagesTable.push([
+      //   '',
+      //   {text: 'TOTALS', alignment: 'center', bold: true},
+      //   '',
+      //   {text: totalWeight, alignment: 'center', bold: true},
+      //   {text: totalWeightKg.toFixed(2), alignment: 'center', bold: true},
+      //   {text: totalCft.toFixed(2), alignment: 'center', bold: true},
+      //   {text: totalVolKgs.toFixed(2), alignment: 'center', bold: true},
+      //   '','',
+      // ])
 
       console.log('packagesTable: ', packagesTable);
       const docDefinition = {
         pageSize: 'LEGAL',
-        pageMargins: [ 30, 88, 30, 60 ],
+        pageMargins: [ 30, 107, 30, 60 ],
         header: [
           {
             fontSize: 8,
@@ -125,12 +125,13 @@ const downloadPDF = async (payload:any) => {
             fontSize: 8,
             margin: [30, 0, 30, 50],
             table: {
-              widths: [60, '*', 130],
+              widths: [320, '*', 130],
               body: [
                 [
-                  {text: 'REMITENTE:\nDESTINATARIO:', border: [true, false, true, true]},
-                  {text: [crData.wr.client.name + '\n', crData.wr.client.name], border: [true, false, true, true]},
-                  {text: useDateFormat(crData.createdAt, 'YYYY-MM-DD').value + '\n ', alignment: 'center', border: [true, false, true, true]}
+                  {text: [{text:'Release to:\n', bold: true}, crData.wr.client.name +'\nAddress:\nPhone:'], border: [true, false, true, true]},
+                  {text: ['Warehouse Receipt:\n', 'Release Date/Time:\n', 'Release By:\n', 'Carrier Name:'], alignment: 'right', border: [true, false, true, true]},
+                  {text: [crData.wr.wrId + '\n', crData.createdAt + '\n', 'ComprasyEnviosOnline.com\n', crData.carrier?crData.carrier.name:''], border: [true, false, true, true]}
+                  
                 ]
               ]
             },
@@ -141,7 +142,7 @@ const downloadPDF = async (payload:any) => {
             fontSize: 8,
             table: {
               //widths: ['auto', 'auto', 90, 'auto', 'auto', 50, '*'],
-              widths: ['auto', 90, 'auto', 'auto', 'auto', 'auto', 'auto', 50, '*'],
+              widths: ['auto', 'auto', 90, 'auto', 'auto', 50, '*'],
               body: packagesTable
             }
           }
