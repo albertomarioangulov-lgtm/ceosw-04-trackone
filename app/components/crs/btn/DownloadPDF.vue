@@ -115,7 +115,7 @@ const downloadPDF = async (payload:any) => {
               body: [
                 [
                   { image: image, width: 145, alignment: 'center', margin: [0, 6, 0, 0] },
-                  { text: ['WAREHOUSE RECEIPT \n', 'CR No. '+ crData.crId], alignment: 'center', fontSize: 14},
+                  { text: ['CARGO RELEASE \n', 'CR No. '+ crData.crId], alignment: 'center', fontSize: 14},
                   { text: 'COMPRAS Y ENVIOS ONLINE.COM\n7168 NW 50 STREET\nMIAMI, FLORIDA 33166\nTEL: 786-9706581', alignment: 'center'}
                 ]
               ]
