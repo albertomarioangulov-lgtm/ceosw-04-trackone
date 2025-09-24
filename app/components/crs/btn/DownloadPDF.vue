@@ -74,8 +74,8 @@ const downloadPDF = async (payload:any) => {
               e.trkgNum,
               // {text: e.measures.l ? e.measures.l : '' + (e.measures.h ? 'x' + e.measures.h : '') + (e.measures.w ? 'x' + e.measures.w : ''), alignment: 'center'},
               {
-                text: (e.measures.l !== null || e.measures.w !== null || e.measures.h !== null)
-                  ? `${e.measures.l}x${e.measures.w}x${e.measures.h}`
+                text: (l != null || w != null || h != null)
+                  ? `${l ?? ''}x${w ?? ''}x${h ?? ''}`
                   : '',
                 alignment: 'center'
               },
