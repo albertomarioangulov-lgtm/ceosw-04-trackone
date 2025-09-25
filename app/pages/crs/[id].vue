@@ -31,7 +31,6 @@ const items = [
 </script>
 
 <template>
-{{ dataId }}
 <v-container fluid class="pt-0 pl-0 pr-0">
     <v-toolbar flat color="transparent">
       <div>
