@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const route = useRoute();
+
+const { lastMessage } = useWebSocket()
+
 const clientId = route.params.id as string;
 const packagesListRef = ref<any>(null)
 
@@ -16,6 +19,22 @@ const getHeaders = () => ({
 const { data: client, pending, error, refresh: refreshClient } = await useFetch(`/api/clients/${clientId}`, { headers: getHeaders(), lazy: true });
 
 const selectedPackages = ref<string[]>([])
+
+watch(lastMessage, (newMessage) => {
+  if (!newMessage) return
+
+  // Evento para un CR creado
+  if (newMessage.type === 'CR_CREATED' && newMessage.payload?.wrId === client.value?.lastWr?._id) {
+    console.log('CR created event received, refreshing data...')
+    handleCRCreation()
+  }
+
+  // Evento para un WR creado
+  if (newMessage.type === 'WR_CREATED' && newMessage.payload?.clientId === clientId) {
+    console.log('WR created event received, refreshing data...')
+    handleWRCreation()
+  }
+})
 
 const handleCRCreation = async () => {
   selectedPackages.value = []

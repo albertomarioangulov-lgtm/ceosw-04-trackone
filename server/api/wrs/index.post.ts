@@ -3,6 +3,8 @@ import Package from "~~/server/models/Package"
 import getUserId from "~~/server/libs/userData"
 import mongoose from "mongoose"
 
+import { broadcast } from '~~/server/routes/ws'
+
 export default defineEventHandler( async (event) => {
 
   if (!await hasPermission(event, 'manage_wrs')) {
@@ -50,6 +52,15 @@ export default defineEventHandler( async (event) => {
       await Package.create(packagesToSave)
     }
   }
+
+  // Después de crear el WR exitosamente, emitimos un evento
+  broadcast({
+    type: 'WR_CREATED',
+    payload: {
+      clientId: wr.client, // El ID del cliente afectado
+      wrId: wr._id,
+    }
+  })
   
   return wr
 })

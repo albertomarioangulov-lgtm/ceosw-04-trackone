@@ -15,7 +15,7 @@ interface Props {
   btnColor?: string
 }
 
-const emit = defineEmits(['onWrCreated'])
+// const emit = defineEmits(['onWrCreated'])
 
 const props = withDefaults( defineProps<Props>(), {
   action: 'create',
@@ -83,7 +83,7 @@ const editItem = async (item:any) => {
 }
 
 const onWrCreated = () => {
-  emit('onWrCreated')
+  // emit('onWrCreated')
 }
 
 const onClose = () => {
@@ -141,7 +141,7 @@ const handleClick = (item?: WR) => {
     :action="action"
     @on-close="onClose"
     @on-clear="onClear"
-    @on-wr-created="onWrCreated"
     :data-form="dataForm"
-  />
+    />
+    <!-- @on-wr-created="onWrCreated" -->
 </template>

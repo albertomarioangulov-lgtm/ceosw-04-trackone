@@ -9,7 +9,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const emit = defineEmits(['onCrCreated'])
+// const emit = defineEmits(['onCrCreated']) // Ya no es necesario
 
 const { createCR } = useCR()
 
@@ -22,7 +22,7 @@ async function handleCreateCR() {
   try {
     await createCR({ wr: props.wrId, packages: props.selected })
     createCRDialog.value = false
-    emit('onCrCreated')
+    // emit('onCrCreated') // El servidor notificará a los clientes vía WebSocket
     // TODO: Implementar notificación de éxito
   }
   catch (error) {

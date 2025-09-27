@@ -2,6 +2,8 @@ import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
 import getUserId from "~~/server/libs/userData"
 
+import { broadcast } from '~~/server/routes/ws'
+
 export default defineEventHandler( async (event) => {
 
   if (!await hasPermission(event, 'manage_crs')) {
@@ -26,6 +28,15 @@ export default defineEventHandler( async (event) => {
       { $set: { cr: savedData._id } }
     )
   }
+
+  // Después de crear el CR exitosamente, emitimos un evento a todos los clientes
+  broadcast({
+    type: 'CR_CREATED',
+    payload: {
+      wrId: savedData.wr, // El ID del WR afectado
+      crId: savedData._id,
+    }
+  })
   
   return savedData
 })

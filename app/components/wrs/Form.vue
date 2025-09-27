@@ -16,7 +16,7 @@ interface Props {
 interface Emits {
   (e: 'onClose'):void
   (e: 'onClear'):void
-  (e: 'onWrCreated'):void
+  // (e: 'onWrCreated'):void
 }
 
 const props = withDefaults( defineProps<Props>(), {
@@ -117,7 +117,7 @@ const processForm = async () => {
     if (actionProcess) {
       emits('onClose')
       // Emit success event for both create and edit to trigger a refresh on the parent page.
-      emits('onWrCreated')
+      // emits('onWrCreated')
       clearForm()
     }
   } catch (error) {

@@ -1,0 +1,60 @@
+import { ref, onMounted, onUnmounted } from 'vue'
+
+export function useWebSocket() {
+  const ws = ref<WebSocket | null>(null)
+  const isConnected = ref(false)
+  const lastMessage = ref<any>(null)
+
+  const connect = () => {
+    if (ws.value && ws.value.readyState === WebSocket.OPEN) return
+
+    const protocol = window.location.protocol === 'https' ? 'wss' : 'ws'
+    const host = window.location.host
+    const wsUrl = `${protocol}://${host}/ws`
+
+    ws.value = new WebSocket(wsUrl)
+
+    ws.value.onopen = () => {
+      isConnected.value = true
+      console.log('WebSocket connection established.')
+    }
+
+    ws.value.onmessage = (event) => {
+      try {
+        lastMessage.value = JSON.parse(event.data)
+      }
+      catch (e) {
+        console.error('Error parsing WebSocket message:', e)
+        lastMessage.value = event.data
+      }
+    }
+
+    ws.value.onclose = () => {
+      isConnected.value = false
+      console.log('WebSocket connection closed.')
+      // Opcional: intentar reconectar
+      // setTimeout(connect, 5000)
+    }
+
+    ws.value.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+  }
+
+  const disconnect = () => {
+    if (ws.value) {
+      ws.value.close()
+    }
+  }
+
+  onMounted(connect)
+  onUnmounted(disconnect)
+
+  return {
+    ws,
+    isConnected,
+    lastMessage,
+    connect,
+    disconnect,
+  }
+}

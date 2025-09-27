@@ -13,6 +13,7 @@ definePageMeta({
 })
 
 const { token } = useAuth()
+const { lastMessage } = useWebSocket()
 
 // Helper for headers
 const getHeaders = () => ({
@@ -67,26 +68,24 @@ const { data, pending, error, refresh } = await useAsyncData(
   },
 )
 
-// --- Lógica de Auto-Refresh ---
 const lastRefreshed = ref(new Date())
 const lastRefreshedText = computed(() => `Actualizado ${formatDistanceToNow(lastRefreshed.value, { addSuffix: true, locale: es })}`)
-
-let refreshInterval: NodeJS.Timeout
 
 async function handleRefresh() {
   await refresh()
   lastRefreshed.value = new Date()
 }
 
-onMounted(() => {
-  // Actualiza cada 300 segundos
-  refreshInterval = setInterval(handleRefresh, 300000)
-})
+// --- Lógica de WebSocket ---
+watch(lastMessage, (newMessage) => {
+  if (!newMessage) return
 
-onUnmounted(() => {
-  clearInterval(refreshInterval)
+  // Si se crea un WR o un CR, refrescamos el dashboard
+  if (newMessage.type === 'WR_CREATED' || newMessage.type === 'CR_CREATED') {
+    console.log(`WebSocket event received: ${newMessage.type}. Refreshing dashboard...`)
+    handleRefresh()
+  }
 })
-// --- Fin de la lógica de Auto-Refresh ---
 
 const stats = computed(() => data.value?.stats)
 const wrsByMonthChartData = computed(() => data.value?.wrsByMonth ?? { labels: [], datasets: [] })
