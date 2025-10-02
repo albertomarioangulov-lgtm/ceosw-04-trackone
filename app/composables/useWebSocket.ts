@@ -10,6 +10,9 @@ export function useWebSocket() {
   const isConnected = ref(false)
   const lastMessage = ref<any>(null)
   const connectionError = ref<ConnectionError | null>(null)
+  
+  let reconnectTimer: NodeJS.Timeout | null = null;
+  let reconnectAttempts = 0;
 
   const connect = () => {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) return
@@ -26,6 +29,7 @@ export function useWebSocket() {
     ws.value.onopen = () => {
       isConnected.value = true
       connectionError.value = null // Limpiamos errores previos al conectar exitosamente
+      reconnectAttempts = 0; // Reseteamos los intentos al conectar
       console.log('WebSocket connection established.')
     }
 
@@ -44,14 +48,17 @@ export function useWebSocket() {
       console.log('WebSocket connection closed.', event)
       // Si la conexión no se cerró limpiamente, lo consideramos un error.
       if (!event.wasClean) {
-        let message = `Conexión perdida (Código: ${event.code})`;
+        let message = `Conexión en tiempo real perdida (Código: ${event.code}).`;
+        if (event.code === 1006) {
+          message = 'La conexión con el servidor se interrumpió. Intentando reconectar...';
+        }
         if (event.reason) {
           message += `: ${event.reason}`;
         }
         connectionError.value = { message, event };
+        // Iniciar el proceso de reconexión
+        scheduleReconnect();
       }
-      // Opcional: intentar reconectar
-      // setTimeout(connect, 5000)
     }
 
     ws.value.onerror = (error) => {
@@ -62,8 +69,26 @@ export function useWebSocket() {
 
   const disconnect = () => {
     if (ws.value) {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
+      }
       ws.value.close()
     }
+  }
+
+  const scheduleReconnect = () => {
+    if (reconnectTimer) return; // Ya hay una reconexión programada
+
+    reconnectAttempts++;
+    // Exponential backoff: 1s, 2s, 4s, 8s, 10s, 10s...
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts - 1), 10000);
+
+    console.log(`WebSocket reconnect attempt ${reconnectAttempts} in ${delay}ms`);
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      connect();
+    }, delay);
   }
 
   onMounted(connect)
