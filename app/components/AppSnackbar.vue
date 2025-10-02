@@ -18,7 +18,7 @@ watch(lastMessage, (newMessage) => {
 
 watch(connectionError, (newError) => {
   if (newError) {
-    message.value = 'Conexión en tiempo real perdida. Intentando reconectar...'
+    message.value = newError.message
     color.value = 'error'
     timeout.value = -1 // Mantenemos el snackbar visible hasta que la conexión se restablezca
     show.value = true
