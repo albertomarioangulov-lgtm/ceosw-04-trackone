@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, useAuth } from '#imports'
 
 export function useWebSocket() {
   const ws = ref<WebSocket | null>(null)
@@ -8,9 +8,12 @@ export function useWebSocket() {
   const connect = () => {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) return
 
-    const protocol = window.location.protocol === 'https' ? 'wss' : 'ws'
+    const { token } = useAuth()
+    if (!token.value) return // No conectar si no hay token
+
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const host = window.location.host
-    const wsUrl = `${protocol}://${host}/ws`
+    const wsUrl = `${protocol}://${host}/ws?token=${token.value}`
 
     ws.value = new WebSocket(wsUrl)
 
