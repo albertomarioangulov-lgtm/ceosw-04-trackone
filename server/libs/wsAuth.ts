@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken'
-import { useRuntimeConfig } from '#imports'
 
 interface PeerWithContext {
   request: { url: string }
 }
 
 interface DecodedToken {
-  id: string
+  id: string;
   [key: string]: any
 }
 
@@ -14,26 +13,30 @@ interface DecodedToken {
  * Verifica el token JWT de un query param y devuelve el payload.
  */
 export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
-  const config = useRuntimeConfig()
+  // Accede directamente a la variable de entorno para mayor fiabilidad en entornos de despliegue
+  const authSecret = process.env.NUXT_AUTH_SECRET;
+
+  if (!authSecret || typeof authSecret !== 'string') {
+    console.error('[ws-auth] FATAL: NUXT_AUTH_SECRET is not available on the server. Check deployment secrets.')
+    return null;
+  }
+
   let token = ''
   try {
     const url = new URL(peer.request.url, 'http://localhost')
     const rawToken = url.searchParams.get('token')
-    if (!rawToken || typeof rawToken !== 'string') return null
-
-    // Limpia el prefijo "Bearer " o "Bearer%20"
-    if (rawToken.startsWith('Bearer')) {
-      // Decodifica el token por si el espacio está como %20 y luego limpia
-      const decodedToken = decodeURIComponent(rawToken);
-      token = decodedToken.split(' ')[1] || '';
-    } else {
-      token = rawToken;
+    if (!rawToken || typeof rawToken !== 'string') {
+      return null;
     }
 
-    const decoded = jwt.verify(token, config.authSecret) as DecodedToken
-    return decoded?.id ? { userId: decoded.id } : null
+    // Limpia el prefijo "Bearer " o "Bearer%20"
+    token = rawToken.startsWith('Bearer') ? rawToken.split(/ |%20/)[1] || '' : rawToken;
+
+    const decoded = jwt.verify(token, authSecret) as DecodedToken
+    return decoded?.id ? { userId: decoded.id } : null;
   } catch (error) {
-    console.error('[ws-auth] Invalid token', error)
-    return null
+    // Este error es común si el token es inválido o ha expirado.
+    console.error('[ws-auth] Token verification failed:', (error as Error).message);
+    return null;
   }
 }
