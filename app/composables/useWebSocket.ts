@@ -4,6 +4,7 @@ export function useWebSocket() {
   const ws = ref<WebSocket | null>(null)
   const isConnected = ref(false)
   const lastMessage = ref<any>(null)
+  const connectionError = ref<Event | null>(null)
 
   const connect = () => {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) return
@@ -19,6 +20,7 @@ export function useWebSocket() {
 
     ws.value.onopen = () => {
       isConnected.value = true
+      connectionError.value = null // Limpiamos errores previos al conectar exitosamente
       console.log('WebSocket connection established.')
     }
 
@@ -32,15 +34,20 @@ export function useWebSocket() {
       }
     }
 
-    ws.value.onclose = () => {
+    ws.value.onclose = (event) => {
       isConnected.value = false
-      console.log('WebSocket connection closed.')
+      console.log('WebSocket connection closed.', event)
+      // Un código 1006 indica una desconexión anormal, a menudo por un fallo de red o servidor.
+      if (event.code === 1006) {
+        connectionError.value = event
+      }
       // Opcional: intentar reconectar
       // setTimeout(connect, 5000)
     }
 
     ws.value.onerror = (error) => {
       console.error('WebSocket error:', error)
+      connectionError.value = error
     }
   }
 
@@ -57,6 +64,7 @@ export function useWebSocket() {
     ws,
     isConnected,
     lastMessage,
+    connectionError,
     connect,
     disconnect,
   }

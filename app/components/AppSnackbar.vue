@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { lastMessage } = useWebSocket()
+const { lastMessage, connectionError } = useWebSocket()
 
 const show = ref(false)
 const message = ref('')
@@ -13,6 +13,20 @@ watch(lastMessage, (newMessage) => {
     color.value = payload.color || 'info'
     timeout.value = payload.timeout || 5000
     show.value = true
+  }
+})
+
+watch(connectionError, (newError) => {
+  if (newError) {
+    message.value = 'Conexión en tiempo real perdida. Intentando reconectar...'
+    color.value = 'error'
+    timeout.value = -1 // Mantenemos el snackbar visible hasta que la conexión se restablezca
+    show.value = true
+  } else {
+    // Si el error se resuelve (ej. la conexión se restablece), ocultamos el snackbar de error.
+    if (color.value === 'error') {
+      show.value = false
+    }
   }
 })
 </script>
