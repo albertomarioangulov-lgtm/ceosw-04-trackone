@@ -90,9 +90,9 @@ watch(() => tableOptions.value.search, () => {
 })
 
 watch(lastMessage, (newMessage) => {
-  if (newMessage?.type === 'CLIENT_CREATED') {
-    console.log('WebSocket event received: CLIENT_CREATED. Refreshing client list...')
-    // Llama a loadItems para recargar los datos de la tabla con las opciones actuales.
+  // Refresca la lista si se crea O actualiza un cliente
+  if (['CLIENT_CREATED', 'CLIENT_UPDATED', 'CLIENT_DELETED'].includes(newMessage?.type)) {
+    console.log(`WebSocket event received: ${newMessage.type}. Refreshing client list...`)
     loadItems(tableOptions.value)
   }
 })

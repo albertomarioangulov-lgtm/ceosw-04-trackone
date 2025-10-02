@@ -1,4 +1,5 @@
 import Client from "~~/server/models/Client"
+import { broadcast } from '~~/server/routes/ws'
 
 export default defineEventHandler(async (event) => {
 
@@ -11,8 +12,15 @@ export default defineEventHandler(async (event) => {
   const { name, code, seller, dateIn, country, zipCode, state, city, phone, address, email, emails, contacts } = body
   const editData = { name, code, seller, dateIn, country, zipCode, state, city, phone, address, email, emails, contacts }
   
-  const client = await Client.findByIdAndUpdate( id, editData, { new: true })
+  const updatedClient = await Client.findByIdAndUpdate( id, editData, { new: true })
     .exec()
 
-    return client
+  broadcast({
+    type: 'CLIENT_UPDATED',
+    payload: {
+      clientId: updatedClient._id
+    }
+  })
+
+  return updatedClient
 })

@@ -1,32 +1,56 @@
-import { defineWebSocketHandler } from 'h3'
+import { defineWebSocketHandler, H3Event } from 'h3'
+import { getWsAuth } from '~~/server/libs/wsAuth'
 
-const clients = new Map<string, { send: (data: any) => void }>()
+interface Peer {
+  id: string
+  send: (data: any) => void
+  [key: string]: any // Para añadir propiedades personalizadas como 'userId'
+}
+
+// Mapea userId a un Set de conexiones (un usuario puede tener múltiples pestañas)
+const userConnections = new Map<string, Set<Peer>>()
 
 export default defineWebSocketHandler({
   // Se llama cuando un cliente se conecta
-  open(peer) {
-    console.log('[ws] open', peer)
-    // Podrías implementar un sistema de autenticación y asociar el peer con un ID de usuario
-    // Por ahora, usaremos el ID del peer como identificador único.
-    const peerId = peer.id
-    clients.set(peerId, { send: (data) => peer.send(data) })
-    peer.send(JSON.stringify({ type: 'welcome', message: `Conectado! Tu ID es ${peerId}` }))
+  async open(peer: Peer) {
+    const auth = await getWsAuth(peer)
+    if (!auth) {
+      console.log('[ws] open: No auth, closing connection')
+      peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))
+      return peer.close(1008, 'Invalid credentials')
+    }
+
+    peer.userId = auth.userId // Asociamos el userId a la conexión
+    console.log(`[ws] open: User ${peer.userId} connected (peer: ${peer.id})`)
+
+    if (!userConnections.has(peer.userId)) {
+      userConnections.set(peer.userId, new Set())
+    }
+    userConnections.get(peer.userId)!.add(peer)
+
+    peer.send(JSON.stringify({ type: 'welcome', message: `Conectado como usuario ${peer.userId}` }))
   },
 
   // Se llama cuando se recibe un mensaje de un cliente
-  message(peer, message) {
+  message(peer: Peer, message) {
     console.log('[ws] message', peer, message)
     // Aquí puedes procesar mensajes entrantes si es necesario
   },
 
   // Se llama cuando un cliente se desconecta
-  close(peer, event) {
-    console.log('[ws] close', peer, event)
-    clients.delete(peer.id)
+  close(peer: Peer, event) {
+    console.log(`[ws] close: User ${peer.userId} disconnected (peer: ${peer.id})`)
+    const connections = userConnections.get(peer.userId)
+    if (connections) {
+      connections.delete(peer)
+      if (connections.size === 0) {
+        userConnections.delete(peer.userId)
+      }
+    }
   },
 
   // Se llama en caso de error
-  error(peer, error) {
+  error(peer: Peer, error) {
     console.log('[ws] error', peer, error)
   },
 })
@@ -37,21 +61,24 @@ export default defineWebSocketHandler({
  */
 export function broadcast(message: any) {
   const serializedMessage = JSON.stringify(message)
-  for (const client of clients.values()) {
-    client.send(serializedMessage)
+  for (const connections of userConnections.values()) {
+    for (const peer of connections) {
+      peer.send(serializedMessage)
+    }
   }
 }
 
 /**
- * Envía un mensaje a un cliente específico.
- * (Necesitarías un mapeo más robusto entre peer.id y tu ID de usuario/cliente)
- * @param clientId El ID del cliente al que enviar el mensaje.
+ * Envía un mensaje a todas las conexiones de un usuario específico.
+ * @param userId El ID del usuario al que enviar el mensaje.
  * @param message El mensaje a enviar.
  */
-export function unicast(clientId: string, message: any) {
-  const client = clients.get(clientId)
-  if (client) {
-    client.send(JSON.stringify(message))
+export function unicast(userId: string, message: any) {
+  const connections = userConnections.get(userId)
+  if (connections) {
+    const serializedMessage = JSON.stringify(message)
+    for (const peer of connections) {
+      peer.send(serializedMessage)
+    }
   }
 }
-

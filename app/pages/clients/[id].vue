@@ -34,6 +34,12 @@ watch(lastMessage, (newMessage) => {
     console.log('WR created event received, refreshing data...')
     handleWRCreation()
   }
+
+  // Evento para un Cliente actualizado
+  if (newMessage.type === 'CLIENT_UPDATED' && newMessage.payload?.clientId === clientId) {
+    console.log('Client updated event received, refreshing data...')
+    refreshClient()
+  }
 })
 
 const handleCRCreation = async () => {

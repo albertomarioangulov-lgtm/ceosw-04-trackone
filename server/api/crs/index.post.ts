@@ -2,7 +2,7 @@ import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
 import getUserId from "~~/server/libs/userData"
 
-import { broadcast } from '~~/server/routes/ws'
+import { broadcast, unicast } from '~~/server/routes/ws'
 
 export default defineEventHandler( async (event) => {
 
@@ -28,6 +28,15 @@ export default defineEventHandler( async (event) => {
       { $set: { cr: savedData._id } }
     )
   }
+
+  // Envía una notificación de éxito solo al usuario que realizó la acción
+  unicast(userId, {
+    type: 'SHOW_NOTIFICATION',
+    payload: {
+      message: `CR #${savedData.crId} creado con éxito.`,
+      color: 'success',
+    },
+  })
 
   // Después de crear el CR exitosamente, emitimos un evento a todos los clientes
   broadcast({
