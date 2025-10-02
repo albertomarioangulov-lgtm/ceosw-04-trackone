@@ -21,7 +21,10 @@ export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
     const rawToken = url.searchParams.get('token')
     if (!rawToken || typeof rawToken !== 'string') return null
     
-    token = rawToken.startsWith('Bearer ') ? rawToken.substring(7) : rawToken;
+    // Limpia el prefijo "Bearer " o "Bearer%20"
+    if (rawToken.startsWith('Bearer')) {
+      token = rawToken.split(' ')[1] || rawToken.split('%20')[1] || '';
+    }
 
     const decoded = jwt.verify(token, config.authSecret) as DecodedToken
     return decoded?.id ? { userId: decoded.id } : null
