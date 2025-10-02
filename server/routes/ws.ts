@@ -12,8 +12,8 @@ const userConnections = new Map<string, Set<Peer>>()
 
 export default defineWebSocketHandler({
   // Se llama cuando un cliente se conecta
-  async open(peer: Peer) {
-    const auth = await getWsAuth(peer)
+  open(peer: Peer) {
+    const auth = getWsAuth(peer)
     if (!auth) {
       console.log('[ws] open: No auth, closing connection')
       peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))

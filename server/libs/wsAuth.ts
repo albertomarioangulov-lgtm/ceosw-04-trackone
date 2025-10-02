@@ -20,10 +20,14 @@ export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
     const url = new URL(peer.request.url, 'http://localhost')
     const rawToken = url.searchParams.get('token')
     if (!rawToken || typeof rawToken !== 'string') return null
-    
+
     // Limpia el prefijo "Bearer " o "Bearer%20"
     if (rawToken.startsWith('Bearer')) {
-      token = rawToken.split(' ')[1] || rawToken.split('%20')[1] || '';
+      // Decodifica el token por si el espacio está como %20 y luego limpia
+      const decodedToken = decodeURIComponent(rawToken);
+      token = decodedToken.split(' ')[1] || '';
+    } else {
+      token = rawToken;
     }
 
     const decoded = jwt.verify(token, config.authSecret) as DecodedToken
