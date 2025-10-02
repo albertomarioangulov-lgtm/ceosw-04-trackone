@@ -1,6 +1,8 @@
 import Client from "~~/server/models/Client"
 import getUserId from "~~/server/libs/userData"
 
+import { broadcast } from '~~/server/routes/ws'
+
 export default defineEventHandler( async (event) => {
 
   if (!await hasPermission(event, 'manage_clients')) {
@@ -17,6 +19,14 @@ export default defineEventHandler( async (event) => {
     createdBy: userId
   })
   const savedData = await newData.save()
+
+  broadcast({
+    type: 'CLIENT_CREATED',
+    payload: {
+      clientId: savedData._id,
+      // Puedes incluir más datos si lo necesitas en el cliente
+    }
+  })
   
   return savedData
 })

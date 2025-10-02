@@ -80,8 +80,8 @@ async function handleRefresh() {
 watch(lastMessage, (newMessage) => {
   if (!newMessage) return
 
-  // Si se crea un WR o un CR, refrescamos el dashboard
-  if (newMessage.type === 'WR_CREATED' || newMessage.type === 'CR_CREATED') {
+  // Si se crea un WR, CR o Cliente, refrescamos el dashboard
+  if (['WR_CREATED', 'CR_CREATED', 'CLIENT_CREATED'].includes(newMessage.type)) {
     console.log(`WebSocket event received: ${newMessage.type}. Refreshing dashboard...`)
     handleRefresh()
   }

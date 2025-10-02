@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+const { lastMessage } = useWebSocket()
+
 const { t } = useI18n()
 
 const router = useRouter()
@@ -85,6 +87,14 @@ const debouncedLoadItems = debounce(loadItems, 500)
 watch(() => tableOptions.value.search, () => {
   tableOptions.value.page = 1 // Reset to the first page for a new search
   debouncedLoadItems(tableOptions.value)
+})
+
+watch(lastMessage, (newMessage) => {
+  if (newMessage?.type === 'CLIENT_CREATED') {
+    console.log('WebSocket event received: CLIENT_CREATED. Refreshing client list...')
+    // Llama a loadItems para recargar los datos de la tabla con las opciones actuales.
+    loadItems(tableOptions.value)
+  }
 })
 
 onMounted(() => {
