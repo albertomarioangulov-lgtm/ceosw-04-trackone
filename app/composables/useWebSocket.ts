@@ -46,16 +46,21 @@ export function useWebSocket() {
     ws.value.onclose = (event) => {
       isConnected.value = false
       console.log('WebSocket connection closed.', event)
-      // Si la conexión no se cerró limpiamente, lo consideramos un error.
-      if (!event.wasClean) {
+
+      // Un cierre normal (código 1000) no es un error.
+      // Cualquier otro cierre, incluso si es "limpio", debe ser tratado
+      // como un problema que requiere atención o un reintento.
+      if (event.code !== 1000) {
         let message = `Conexión en tiempo real perdida (Código: ${event.code}).`;
         if (event.code === 1006) {
           message = 'La conexión con el servidor se interrumpió. Intentando reconectar...';
+        } else if (event.code === 1008) {
+          message = `Autenticación fallida: ${event.reason || 'Credenciales inválidas'}.`;
         }
         if (event.reason) {
           message += `: ${event.reason}`;
         }
-        connectionError.value = { message, event };
+        connectionError.value = { message, event: event as unknown as Event };
         // Iniciar el proceso de reconexión
         scheduleReconnect();
       }
@@ -63,7 +68,7 @@ export function useWebSocket() {
 
     ws.value.onerror = (error) => {
       console.error('WebSocket error event:', error)
-      connectionError.value = { message: 'Error de conexión WebSocket.', event: error };
+      connectionError.value = { message: 'Error de conexión WebSocket.', event: error as unknown as Event };
     }
   }
 
