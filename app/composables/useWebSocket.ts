@@ -37,11 +37,17 @@ export function useWebSocket() {
 
     ws.value.onmessage = (event) => {
       try {
-        lastMessage.value = JSON.parse(event.data)
+        const message = JSON.parse(event.data)
+        // Si es un ping del servidor, respondemos con un pong y no lo procesamos más.
+        if (message.type === 'ping') {
+          ws.value?.send(JSON.stringify({ type: 'pong' }));
+          return;
+        }
+        lastMessage.value = message
       }
       catch (e) {
         console.error('Error parsing WebSocket message:', e)
-        lastMessage.value = event.data
+        lastMessage.value = event.data // Guardar el dato crudo si no es JSON
       }
     }
 

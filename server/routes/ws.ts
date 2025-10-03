@@ -9,6 +9,18 @@ interface Peer {
 // Mapea userId a un Set de conexiones (un usuario puede tener múltiples pestañas)
 const userConnections = new Map<string, Set<Peer>>()
 
+// --- Heartbeat ---
+// Envía un ping a todos los clientes cada 30 segundos para mantener la conexión viva
+// y evitar cierres por inactividad (error 1006).
+setInterval(() => {
+  const pingMessage = JSON.stringify({ type: 'ping' });
+  for (const connections of userConnections.values()) {
+    for (const peer of connections) {
+      peer.send(pingMessage);
+    }
+  }
+}, 30000);
+
 export default defineWebSocketHandler({
   // Se llama cuando un cliente se conecta
   open(peer: Peer) {
