@@ -1,4 +1,4 @@
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 export default defineEventHandler(async (event) => {
   // Aseguramos que solo un usuario autenticado pueda acceder

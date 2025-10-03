@@ -1,8 +1,9 @@
 import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 import { broadcast, unicast } from '~~/server/routes/ws'
+import getUserId from "~~/server/utils/userData"
 
 export default defineEventHandler( async (event) => {
 

@@ -1,6 +1,6 @@
 import User from "~~/server/models/User"
 import bcryptjs from 'bcryptjs'
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 const encryptPassword = async (password:any) => {
   const salt = await bcryptjs.genSalt(10)

@@ -1,5 +1,4 @@
 import { defineWebSocketHandler, H3Event } from 'h3'
-import { getWsAuth } from '~~/server/libs/wsAuth'
 
 interface Peer {
   id: string

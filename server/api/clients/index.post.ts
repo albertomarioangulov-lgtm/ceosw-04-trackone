@@ -1,5 +1,5 @@
 import Client from "~~/server/models/Client"
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 import { broadcast } from '~~/server/routes/ws'
 

@@ -1,5 +1,5 @@
 import Seller from "~~/server/models/Seller"
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 export default defineEventHandler( async (event) => {
 

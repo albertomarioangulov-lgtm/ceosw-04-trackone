@@ -1,5 +1,5 @@
 import Carrier from "~~/server/models/Carrier"
-import getUserId from "~~/server/libs/userData"
+// import getUserId from "~~/server/libs/userData"
 
 export default defineEventHandler( async (event) => {
 
