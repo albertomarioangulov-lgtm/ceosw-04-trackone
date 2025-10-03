@@ -9,12 +9,14 @@ interface DecodedToken {
   [key: string]: any
 }
 
+const config = useRuntimeConfig()
 /**
  * Verifica el token JWT de un query param y devuelve el payload.
  */
 export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
   // Accede directamente a la variable de entorno para mayor fiabilidad en entornos de despliegue
-  const authSecret = process.env.NUXT_AUTH_SECRET;
+  // const authSecret = process.env.NUXT_AUTH_SECRET;
+  const authSecret = config.authSecret;
 
   if (!authSecret || typeof authSecret !== 'string') {
     console.error('[ws-auth] FATAL: NUXT_AUTH_SECRET is not available on the server. Check deployment secrets.')
