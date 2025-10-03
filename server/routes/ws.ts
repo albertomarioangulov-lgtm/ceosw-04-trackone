@@ -12,14 +12,18 @@ const userConnections = new Map<string, Set<Peer>>()
 export default defineWebSocketHandler({
   // Se llama cuando un cliente se conecta
   open(peer: Peer) { // Removed async
-    const auth = getWsAuth(peer) // Removed await
-    if (!auth) {
-      console.log('[ws] open: No auth, closing connection')
-      peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))
-      return peer.close(1008, 'Invalid credentials')
-    }
+    // --- INICIO: Desactivación temporal de autenticación para depuración ---
+    // const auth = getWsAuth(peer) // Removed await
+    // if (!auth) {
+    //   console.log('[ws] open: No auth, closing connection')
+    //   peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))
+    //   return peer.close(1008, 'Invalid credentials')
+    // }
+    // peer.userId = auth.userId // Asociamos el userId a la conexión
+    const auth = { userId: 'test-user' }; // Asignamos un usuario de prueba
+    // --- FIN: Desactivación temporal de autenticación ---
 
-    peer.userId = auth.userId // Asociamos el userId a la conexión
+    peer.userId = auth.userId;
     console.log(`[ws] open: User ${peer.userId} connected (peer: ${peer.id})`)
 
     if (!userConnections.has(peer.userId)) {
@@ -73,11 +77,7 @@ export function broadcast(message: any) {
  * @param message El mensaje a enviar.
  */
 export function unicast(userId: string, message: any) {
-  const connections = userConnections.get(userId)
-  if (connections) {
-    const serializedMessage = JSON.stringify(message)
-    for (const peer of connections) {
-      peer.send(serializedMessage)
-    }
-  }
+  // --- INICIO: Desactivación temporal de unicast para depuración ---
+  console.log(`[ws] unicast disabled: Not sending message to user ${userId}`);
+  // --- FIN: Desactivación temporal de unicast ---
 }
