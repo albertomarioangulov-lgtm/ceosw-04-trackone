@@ -1,8 +1,9 @@
 // import getUserId from "~~/server/libs/userData"
 
 export default defineEventHandler(async (event) => {
-  // Aseguramos que solo un usuario autenticado pueda acceder a este endpoint
-  // getUserId(event)
+  // Aseguramos que solo un usuario autenticado pueda acceder a este endpoint.
+  // ¡Recuerda descomentar esto después de la prueba!
+  getUserId(event)
 
   // Usamos process.env para que la verificación sea idéntica a la lógica de wsAuth.ts
   const secret = process.env.NUXT_AUTH_SECRET;
