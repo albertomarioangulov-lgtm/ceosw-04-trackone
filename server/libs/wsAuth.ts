@@ -23,7 +23,7 @@ export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
     return null;
   }
 
-  let token = ''
+  // let token = ''
   try {
     const url = new URL(peer.request.url, 'http://localhost')
     const rawToken = url.searchParams.get('token')
@@ -32,9 +32,11 @@ export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
     }
 
     // Limpia el prefijo "Bearer " o "Bearer%20"
-    token = rawToken.startsWith('Bearer') ? rawToken.split(/ |%20/)[1] || '' : rawToken;
+    // token = rawToken.startsWith('Bearer') ? rawToken.split(/ |%20/)[1] || '' : rawToken;
 
-    const decoded = jwt.verify(token, authSecret) as DecodedToken
+    const token = rawToken.split(' '); // Asumimos que el token viene sin "Bearer "
+
+    const decoded = jwt.verify(token[1], authSecret) as DecodedToken
     return decoded?.id ? { userId: decoded.id } : null;
   } catch (error) {
     // Este error es común si el token es inválido o ha expirado.
