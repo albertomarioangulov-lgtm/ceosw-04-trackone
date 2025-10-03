@@ -14,9 +14,9 @@ interface DecodedToken {
 */
 export function getWsAuth(peer: PeerWithContext): { userId: string } | null {
   // Accede directamente a la variable de entorno para mayor fiabilidad en entornos de despliegue
-  // const authSecret = process.env.NUXT_AUTH_SECRET;
-  const config = useRuntimeConfig()
-  const authSecret = config.authSecret;
+  const authSecret = process.env.NUXT_AUTH_SECRET;
+  // const config = useRuntimeConfig()
+  // const authSecret = config.authSecret;
 
   if (!authSecret || typeof authSecret !== 'string') {
     console.error('[ws-auth] FATAL: NUXT_AUTH_SECRET is not available on the server. Check deployment secrets.')
