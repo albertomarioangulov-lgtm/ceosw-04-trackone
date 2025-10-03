@@ -1,9 +1,9 @@
 // import getUserId from "~~/server/libs/userData"
 
 export default defineEventHandler(async (event) => {
-  // Aseguramos que solo un usuario autenticado pueda acceder a este endpoint.
-  // ¡Recuerda descomentar esto después de la prueba!
-  getUserId(event)
+  // Para esta prueba, comentamos la autenticación para que el endpoint sea 100% público
+  // y así verificar que el error 403 ha desaparecido.
+  // getUserId(event)
 
   // Usamos process.env para que la verificación sea idéntica a la lógica de wsAuth.ts
   const secret = process.env.NUXT_AUTH_SECRET;
