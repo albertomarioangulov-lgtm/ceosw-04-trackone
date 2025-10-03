@@ -3,7 +3,6 @@
 runConfig:
   minInstances: 1
   sessionAffinity: true
-  
   # maxInstances: 100
   # concurrency: 80
   # cpu: 1
