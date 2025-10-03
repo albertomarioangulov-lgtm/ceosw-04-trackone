@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { H3Event } from 'h3'
 
-const getUserId = (event: H3Event): string | null => {
+export const getUserId = (event: H3Event): string | null => {
   try {
     const authSecret = process.env.NUXT_AUTH_SECRET
     if (!authSecret) {
@@ -21,4 +21,4 @@ const getUserId = (event: H3Event): string | null => {
   }
 }
 
-export default getUserId
+// export default getUserId
