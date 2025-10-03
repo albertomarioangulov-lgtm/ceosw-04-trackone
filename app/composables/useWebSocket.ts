@@ -24,6 +24,8 @@ export function useWebSocket() {
     const host = window.location.host
     const wsUrl = `${protocol}://${host}/ws?token=${token.value}`
 
+    console.log('Connecting to WebSocket at', wsUrl)
+
     ws.value = new WebSocket(wsUrl)
 
     ws.value.onopen = () => {
