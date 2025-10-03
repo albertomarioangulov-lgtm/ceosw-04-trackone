@@ -1,9 +1,9 @@
 import { defineWebSocketHandler, H3Event } from 'h3'
 
 interface Peer {
-  id: string
-  send: (data: any) => void
-  [key: string]: any // Para añadir propiedades personalizadas como 'userId'
+  id: string;
+  send: (data: any) => void;
+  userId?: string; // Hacemos userId una propiedad opcional pero explícita
 }
 
 // Mapea userId a un Set de conexiones (un usuario puede tener múltiples pestañas)
@@ -12,39 +12,54 @@ const userConnections = new Map<string, Set<Peer>>()
 export default defineWebSocketHandler({
   // Se llama cuando un cliente se conecta
   open(peer: Peer) {
-    const auth = getWsAuth(peer)
-    if (!auth) {
-      console.log('[ws] open: No auth, closing connection')
-      peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))
-      return peer.close(1008, 'Invalid credentials')
+    try {
+      const auth = getWsAuth(peer)
+      if (!auth) {
+        console.log('[ws] open: No auth, closing connection')
+        peer.send(JSON.stringify({ type: 'error', message: 'Authentication failed' }))
+        return peer.close(1008, 'Invalid credentials')
+      }
+
+      peer.userId = auth.userId
+      console.log(`[ws] open: User ${peer.userId} connected (peer: ${peer.id})`)
+
+      if (!userConnections.has(peer.userId)) {
+        userConnections.set(peer.userId, new Set())
+      }
+      userConnections.get(peer.userId)!.add(peer)
+
+      peer.send(JSON.stringify({ type: 'welcome', message: `Conectado como usuario ${peer.userId}` }))
+    } catch (error) {
+      console.error('[ws] Error in open handler:', error)
+      peer.close(1011, 'Internal Server Error')
     }
-
-    peer.userId = auth.userId
-    console.log(`[ws] open: User ${peer.userId} connected (peer: ${peer.id})`)
-
-    if (!userConnections.has(peer.userId)) {
-      userConnections.set(peer.userId, new Set())
-    }
-    userConnections.get(peer.userId)!.add(peer)
-
-    peer.send(JSON.stringify({ type: 'welcome', message: `Conectado como usuario ${peer.userId}` }))
   },
 
   // Se llama cuando se recibe un mensaje de un cliente
   message(peer: Peer, message) {
-    console.log('[ws] message', peer, message)
-    // Aquí puedes procesar mensajes entrantes si es necesario
+    try {
+      console.log(`[ws] message from ${peer.userId}:`, message)
+      // Aquí puedes procesar mensajes entrantes si es necesario
+    } catch (error) {
+      console.error('[ws] Error in message handler:', error)
+    }
   },
 
   // Se llama cuando un cliente se desconecta
   close(peer: Peer, event) {
-    console.log(`[ws] close: User ${peer.userId} disconnected (peer: ${peer.id}). Code: ${event.code}, Reason: ${event.reason}`)
-    const connections = userConnections.get(peer.userId)
-    if (connections) {
-      connections.delete(peer)
-      if (connections.size === 0) {
-        userConnections.delete(peer.userId)
+    try {
+      console.log(`[ws] close: User ${peer.userId} disconnected (peer: ${peer.id}). Code: ${event.code}, Reason: ${event.reason}`)
+      if (peer.userId) {
+        const connections = userConnections.get(peer.userId)
+        if (connections) {
+          connections.delete(peer)
+          if (connections.size === 0) {
+            userConnections.delete(peer.userId)
+          }
+        }
       }
+    } catch (error) {
+      console.error('[ws] Error in close handler:', error)
     }
   },
 
