@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   getUserId(event)
 
-  const config = useRuntimeConfig()
+  const config = useRuntimeConfig(event)
 
   // const secret = process.env.NUXT_AUTH_SECRET;
   const secret = config.authSecret
