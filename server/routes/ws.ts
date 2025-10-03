@@ -38,7 +38,7 @@ export default defineWebSocketHandler({
 
   // Se llama cuando un cliente se desconecta
   close(peer: Peer, event) {
-    console.log(`[ws] close: User ${peer.userId} disconnected (peer: ${peer.id})`)
+    console.log(`[ws] close: User ${peer.userId} disconnected (peer: ${peer.id}). Code: ${event.code}, Reason: ${event.reason}`)
     const connections = userConnections.get(peer.userId)
     if (connections) {
       connections.delete(peer)
@@ -50,7 +50,7 @@ export default defineWebSocketHandler({
 
   // Se llama en caso de error
   error(peer: Peer, error) {
-    console.log('[ws] error', peer, error)
+    console.error(`[ws] error: User ${peer.userId} (peer: ${peer.id}). Error:`, error)
   },
 })
 
