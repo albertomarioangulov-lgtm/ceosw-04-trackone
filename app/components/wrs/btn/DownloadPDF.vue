@@ -163,7 +163,7 @@ const downloadPDF = async (payload:any) => {
         content: [
           {
             // layout: 'lightHorizontalLines',
-            fontSize: 8,
+            fontSize: 9,
             table: {
               //widths: ['auto', 'auto', 90, 'auto', 'auto', 50, '*'],
               widths: ['auto', 105, 'auto', 'auto', 30, 25, 25, 45, '*'],
