@@ -84,7 +84,8 @@ const downloadPDF = async (payload:any) => {
               {text: volKgs, alignment: 'center'},
               // formatDateTime(e.createdAt),
               useDateFormat(e.createdAt, 'YYYY-MM-DD').value,
-              e.notes
+              {text: e.notes, alignment: 'center'}
+              // e.notes
             ])
           }
         });
