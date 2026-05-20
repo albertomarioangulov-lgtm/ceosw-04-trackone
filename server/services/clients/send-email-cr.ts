@@ -1,21 +1,12 @@
-import { SendSmtpEmail, TransactionalEmailsApi, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
+import { BrevoClient } from '@getbrevo/brevo';
 import Package from "~~/server/models/Package"
-// import type { Package as PackageType } from '~~/app/interfaces/Package';
 
 const config = useRuntimeConfig()
-
-// const wr = '6894e69e6bdb70de608e6b65'
 
 const sendEmailCr = async(savedData:any) => {
   const cr = savedData._id.toString()
   const name = savedData.client.name
   const clientEmails = savedData.client.emails
-  // const companion = savedData.companion
-  // const phone = savedData.phone
-  // const email = savedData.email
-  // const email = "almaanvi@gmail.com"
-
-  // console.log('savedData: ', savedData)
 
   const staticRecipients = [
     { email: "info@comprasyenviosonline.com", name: "Info CEO TrackOne" },
@@ -96,11 +87,16 @@ const sendEmailCr = async(savedData:any) => {
   let totalCft = 0
 
   rawPackages.forEach(pkg => {
-    const year = pkg.createdAt.getFullYear()
-    const month = pkg.createdAt.getMonth() + 1
-    const day = pkg.createdAt.getDate()
-    const hour = pkg.createdAt.getHours()
-    const mm = pkg.createdAt.getMinutes()
+    let creationDateStr = 'N/A'; // Valor por defecto si no hay fecha
+    if (pkg.createdAt) {
+      const date = new Date(pkg.createdAt); // Asegurarse de que es un objeto Date
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const hour = date.getHours().toString().padStart(2, '0');
+      const mm = date.getMinutes().toString().padStart(2, '0');
+      creationDateStr = `${year}-${month}-${day} ${hour}:${mm}`;
+    }
 
     const l = pkg.measures?.l ?? 0;
     const w = pkg.measures?.w ?? 0;
@@ -135,19 +131,11 @@ const sendEmailCr = async(savedData:any) => {
         <td ${tdStyle}>${cft}</td>
         <td ${tdStyle}>${volKgs}</td>
         <td ${tdStyle}>${pkg.notes}</td>
-        <td ${tdStyle}>${year}-${month}-${day} ${hour}:${mm}</td>
+        <td ${tdStyle}>${creationDateStr}</td>
       </tr>
     `
   });
 
-  // ${ packages.map(pkg => `
-  //       <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
-  //         <h3>Paquete: ${ pkg.trkgNum }</h3>
-          
-  //       </div>
-  //     `).join('')}
-
-      
   const html = `
   <html>
     <body>
@@ -188,32 +176,28 @@ const sendEmailCr = async(savedData:any) => {
   </html>
   `
 
-  const defaultClient = new TransactionalEmailsApi();
-    defaultClient.setApiKey(
-    TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey
-  );
+  // const defaultClient = new brevo.TransactionalEmailsApi();
+  //   defaultClient.setApiKey(
+  //   brevo.TransactionalEmailsApiApiKeys.apiKey, config.brevoApiKey
+  // );
 
+  const brevo = new BrevoClient({
+    apiKey: config.brevoApiKey
+  });
 
   // Prepare the email
-  // const sendSmtpEmail = new brevo.SendSmtpEmail();
-  const sendSmtpEmail = new SendSmtpEmail();
-  sendSmtpEmail.subject = `Paquetes de WR: ${savedData.wrId} . ${name}`;
-  sendSmtpEmail.htmlContent = html;
-  // sendSmtpEmail.templateId = 2; // ID de la plantilla
-  sendSmtpEmail.sender = { name: "CEOSW TrackOne", email: "ceoswdev@gmail.com" };
-  sendSmtpEmail.to = [...staticRecipients, ...clientRecipients];
-  sendSmtpEmail.replyTo = { email: "ceomiami@comprasyenviosonline.com", name: "CEO TrackOne Miami" }
-
-  sendSmtpEmail.params = {
-    name: name,
-    // imageUrl: imageBase64, // Replace with the actual URL of your image
-    // html: html,
+  const sendSmtpEmail = {
+    subject: `Paquetes de WR: ${savedData.wrId} . ${name}`,
+    htmlContent: html,
+    sender: { name: "CEOSW TrackOne", email: "ceoswdev@gmail.com" },
+    to: [...staticRecipients, ...clientRecipients],
+    replyTo: { email: "ceomiami@comprasyenviosonline.com", name: "CEO TrackOne Miami" },
+    params: { name: name }
   };
 
   // Send the email
   try {
-    // const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    const data = await defaultClient.sendTransacEmail(sendSmtpEmail);
+    const data = await brevo.transactionalEmails.sendTransacEmail(sendSmtpEmail);
     console.log('API called successfully. Returned data: ' + JSON.stringify(data));
     const resp = JSON.stringify(data)
     return {
