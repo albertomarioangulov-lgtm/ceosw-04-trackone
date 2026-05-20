@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useVuelidate } from '@vuelidate/core'
 import { email, required } from '@vuelidate/validators'
+import { nextTick } from 'vue'
 
 const { signIn, status: authStatus, getSession } = useAuth()
 
@@ -28,34 +29,33 @@ const rules = () => ({
 const v$ = useVuelidate(rules, state)
 
 const onSubmit = async () => {
-  v$.value.$touch()
+  const isFormValid = await v$.value.$validate()
 
-  const anyError = v$.value.$error
-
-  if (!anyError) {
-
+  if (isFormValid) {
     isLoading.value = true
 
     try {
-
-      await signIn({
+      const response = await signIn({
         email: state.email,
         password: state.password
-      }, { callbackUrl: '/' })
+      }, { redirect: false, callbackUrl: '/' })
       
-      if (!authStatus.value) {
-        console.log('error2: ', 'You have made a terrible mistake while entering your credentials')
-        // Do your custom error handling here
-        // alert('You have made a terrible mistake while entering your credentials')
-        isLoading.value = false
+      if (response?.error) {
         credentialsError.value = true
       } else {
+        isLoading.value = false
         credentialsError.value = false
+        
+        // Esperamos a que el DOM se estabilice antes de navegar
+        await nextTick() 
+        await navigateTo('/')
       }
     } catch (error) {
       isLoading.value = false
       credentialsError.value = true
-      console.log(error)
+      console.error('Login error:', error)
+    } finally {
+      isLoading.value = false
     }
   }
 }
@@ -82,7 +82,6 @@ const passwordErrors = computed(() => v$.value.password.$errors.map((e: any) => 
           v-model="state.email"
           label="Email"
           append-inner-icon="mdi-email-outline"
-          hide-details="auto"
           @input="v$.email.$touch()"
           @blur="v$.email.$touch()"
           :error-messages="emailErrors"
@@ -94,7 +93,6 @@ const passwordErrors = computed(() => v$.value.password.$errors.map((e: any) => 
           v-model="state.password"
           label="Password"
           append-inner-icon="mdi-lock-outline"
-          hide-details="auto"
           @input="v$.password.$touch()"
           @blur="v$.password.$touch()"
           :error-messages="passwordErrors"
@@ -109,6 +107,7 @@ const passwordErrors = computed(() => v$.value.password.$errors.map((e: any) => 
           color="blue-darken-3"
           variant="elevated"
           size="large"
+          :ripple="false"
         >Sign in
           <v-progress-circular :width="1" :size="20" class="ml-2" v-if="isLoading" indeterminate></v-progress-circular>
         </v-btn>
@@ -116,29 +115,32 @@ const passwordErrors = computed(() => v$.value.password.$errors.map((e: any) => 
     </v-container>
   </v-form>
 
-  <v-dialog absolute
-    transition="dialog-top-transition"
-    width="auto"
-    v-model="credentialsError"
-  >
-    <v-card>
-      
-      <v-alert absolute
-        density="compact"
-        variant="tonal"
-        border="top"
-        type="error"
-        title="Credentials Error"
-        text="You have made a terrible mistake while entering your credentials"
-      >
-      
-        <v-btn variant="plain" color="light" block @click="credentialsError = false"
-        >Close Dialog</v-btn>
-
-        <template v-slot:[`prepend`]>
-          <Icon size="2rem" name="line-md:close-circle" />
-        </template>
-      </v-alert>
-    </v-card>
-  </v-dialog>
+  <client-only>
+    <v-dialog
+      v-if="credentialsError"
+      attach
+      transition="dialog-top-transition"
+      width="auto"
+      v-model="credentialsError"
+    >
+      <v-card>
+        <v-alert
+          density="compact"
+          variant="tonal"
+          border="top"
+          type="error"
+          title="Credentials Error"
+          text="You have made a terrible mistake while entering your credentials"
+        >
+        
+          <v-btn variant="plain" color="light" block @click="credentialsError = false"
+          >Close Dialog</v-btn>
+  
+          <template #prepend>
+            <Icon size="2rem" name="line-md:close-circle" />
+          </template>
+        </v-alert>
+      </v-card>
+    </v-dialog>
+  </client-only>
 </template>

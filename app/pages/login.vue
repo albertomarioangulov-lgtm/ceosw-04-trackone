@@ -22,14 +22,17 @@ const { backgroundStyle } = useBackground()
 <template>
 
   <v-container class="fill-height" fluid :style="[backgroundStyle]">
-    <v-row>
+    <v-row align="center" justify="center" class="h-100">
       <v-col align="center" justify="center">
         
         <v-card theme="light" elevation="24" max-width="420">
           <!-- <DevOnly>
               <h1>Dev Mode</h1>
           </DevOnly> -->
-          <v-col cols="12" class="mt-4">
+          <div class="text-center pa-4 pt-12">
+
+          
+          <!-- <v-col cols="12" class="mt-4"> -->
               <!-- <img src="../assets/logo-min.png" height="100" class="mt-2"/> -->
               <!-- <NuxtImg src="/images/ceosw-s-logo.svg" height="100" quality="80" class="logo-anim"/> -->
               <SharedLogo height="100" />
@@ -50,7 +53,8 @@ const { backgroundStyle } = useBackground()
                 </v-sheet>
               </v-card>
             </template>
-          </v-col>
+          <!-- </v-col> -->
+          </div>
           
           <v-card-text>
             <login-form />

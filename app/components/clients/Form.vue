@@ -258,17 +258,17 @@ onBeforeUpdate(() => {
                 @update:modelValue="onChangeCountry"
               >
                 <template v-slot:selection="{ item }">
-                  <Icon class="mr-2" size="1.0em" :name="`flagpack:${item.raw.isoCode.toLowerCase()}`"></Icon>
-                  {{ item.raw.name }}
+                  <Icon class="mr-2" size="1.0em" :name="`flagpack:${item.isoCode.toLowerCase()}`"></Icon>
+                  {{ item.name }}
                 </template>
                 
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props"
-                    :title="item.raw.name"
-                    :subtitle="item.raw.isoCode"
+                    :title="item.name"
+                    :subtitle="item.isoCode"
                   >
                     <template v-slot:append>
-                      <Icon size="1.0em" :name="`flagpack:${item.raw.isoCode.toLowerCase()}`"></Icon>
+                      <Icon size="1.0em" :name="`flagpack:${item.isoCode.toLowerCase()}`"></Icon>
                     </template>
                   </v-list-item>
                 </template>
@@ -287,14 +287,14 @@ onBeforeUpdate(() => {
               >
                 <template v-slot:chip="{ props, item }">
                   <v-chip v-bind="props"
-                    :text="`${item.raw.name} - ${item.raw.isoCode}`"
+                    :text="`${item.name} - ${item.isoCode}`"
                   ></v-chip>
                 </template>
 
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props"
-                    :title="item.raw.name"
-                    :subtitle="item.raw.isoCode"
+                    :title="item.name"
+                    :subtitle="item.isoCode"
                   ></v-list-item>
                 </template>
               </v-autocomplete>

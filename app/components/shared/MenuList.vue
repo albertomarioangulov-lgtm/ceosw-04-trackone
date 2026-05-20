@@ -59,7 +59,7 @@ function toggleGroup(i: number) {
         <template #activator="{ props }">
           <v-list-item v-bind="props" @click="toggleGroup(i)">
             <template #prepend>
-              <Icon v-if="item.nuxtIcon" size="1.5em" :name="item.nuxtIcon" class="mr-6" />
+              <Icon v-if="item.nuxtIcon" size="1.5em" :name="item.nuxtIcon" class="mr-2" />
               <v-icon v-else-if="item.icon">{{ item.icon }}</v-icon>
             </template>
             <v-list-item-title class="text-capitalize">{{ t(item.title) }}</v-list-item-title>
@@ -75,7 +75,7 @@ function toggleGroup(i: number) {
             color="primary"
           >
             <template #prepend>
-              <Icon v-if="child.nuxtIcon" size="1.5em" :name="child.nuxtIcon" class="mr-6" />
+              <Icon v-if="child.nuxtIcon" size="1.5em" :name="child.nuxtIcon" class="mr-2" />
               <v-icon v-else-if="child.icon">{{ child.icon }}</v-icon>
             </template>
             <v-list-item-title class="text-capitalize">{{ t(child.title) }}</v-list-item-title>
@@ -91,7 +91,7 @@ function toggleGroup(i: number) {
         color="primary"
       >
         <template #prepend>
-          <Icon v-if="item.nuxtIcon" size="1.5em" :name="item.nuxtIcon" class="mr-6" />
+          <Icon v-if="item.nuxtIcon" size="1.5em" :name="item.nuxtIcon" class="mr-2" />
           <v-icon v-else-if="item.icon">{{ item.icon }}</v-icon>
         </template>
         <v-list-item-title class="text-capitalize">{{ t(item.title) }}</v-list-item-title>
