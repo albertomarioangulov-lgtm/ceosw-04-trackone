@@ -1,12 +1,9 @@
 import mongoose from 'mongoose'
-import AutoIncrement from 'mongoose-sequence'
+import autoIncrement from '../utils/autoincrement'
 
 import './Carrier';
 import './WR';
 import './User';
-
-// @ts-expect-error
-const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const crSchema = new mongoose.Schema({
   crId: Number,
@@ -24,8 +21,7 @@ const crSchema = new mongoose.Schema({
   toJSON: { virtuals: true }
 })
 
-// @ts-expect-error
-crSchema.plugin(AutoIncrementPlugin, { inc_field: 'crId', start_seq: 12001 })
+crSchema.plugin(autoIncrement({ inc_field: 'crId', start_seq: 12001 }))
 
 crSchema.virtual('packageCount', {
   ref: 'Package',

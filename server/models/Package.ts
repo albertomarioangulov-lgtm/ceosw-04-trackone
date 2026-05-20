@@ -1,12 +1,9 @@
 import mongoose from 'mongoose';
-import AutoIncrement from 'mongoose-sequence'
+import autoIncrement from '../utils/autoincrement'
 
 import './WR';
 import './CR';
 import './User';
-
-// @ts-expect-error
-const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const packageSchema = new mongoose.Schema({
   pkgId: Number,
@@ -38,10 +35,8 @@ const packageSchema = new mongoose.Schema({
   versionKey: false
 })
 
-// @ts-expect-error
-packageSchema.plugin(AutoIncrementPlugin, { inc_field: 'pkgId', start_seq: 1 })
-// @ts-expect-error
-packageSchema.plugin(AutoIncrementPlugin, { id: 'label_seq', inc_field: 'label', start_seq: 1, reference_fields: ['wr'] })
+packageSchema.plugin(autoIncrement({ inc_field: 'pkgId', start_seq: 1 }))
+packageSchema.plugin(autoIncrement({ id: 'label_seq', inc_field: 'label', start_seq: 1, reference_fields: ['wr'] }))
 
 const Package = mongoose.models.Package || mongoose.model( 'Package', packageSchema )
 export default Package

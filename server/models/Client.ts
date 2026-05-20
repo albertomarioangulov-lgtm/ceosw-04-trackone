@@ -1,12 +1,12 @@
 import mongoose from 'mongoose'
-import AutoIncrement from 'mongoose-sequence'
+// import AutoIncrement from 'mongoose-sequence'
+import autoIncrement from '../utils/autoincrement'
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
 
 import './Seller';
 import './User';
 
-// @ts-expect-error
-const AutoIncrementPlugin = AutoIncrement(mongoose);
+// const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const clientSchema = new mongoose.Schema({
   name: { 
@@ -52,12 +52,12 @@ const clientSchema = new mongoose.Schema({
   versionKey: false
 });
 
-// @ts-expect-error
-clientSchema.plugin(AutoIncrementPlugin, {
+// clientSchema.plugin(AutoIncrementPlugin, {
+clientSchema.plugin(autoIncrement({
     id: 'poboxid_seq',
     inc_field: 'poboxid',
     reference_fields: ['seller']
-});
+}));
 
 // Índice para asegurar unicidad y mejorar rendimiento en búsquedas
 // clientSchema.index({ seller: 1, poboxid: 1 }, { unique: true });

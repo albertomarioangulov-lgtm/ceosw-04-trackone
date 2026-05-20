@@ -1,13 +1,10 @@
 import mongoose from 'mongoose'
-import AutoIncrement from 'mongoose-sequence'
+import autoIncrement from '../utils/autoincrement'
 
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
 import './Client'
 import './WRStatus'
 import './User'
-
-// @ts-expect-error
-const AutoIncrementPlugin = AutoIncrement(mongoose);
 
 const wrSchema = new mongoose.Schema({
   wrId: Number,
@@ -23,8 +20,7 @@ const wrSchema = new mongoose.Schema({
   toJSON: { virtuals: true }
 })
 
-// @ts-expect-error
-wrSchema.plugin(AutoIncrementPlugin, { inc_field: 'wrId', start_seq: 11001 })
+wrSchema.plugin(autoIncrement({ inc_field: 'wrId', start_seq: 11001 }))
 
 // wrSchema.virtual('packageCount', {
 //   ref: 'Package',
