@@ -7,11 +7,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       script: [
-        {
-          src: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.4/vfs_fonts.js',
-          integrity: 'sha512-cktKDgjEiIkPVHYbn8bh/FEyYxmt4JDJJjOCu5/FQAkW4bc911XtKYValiyzBiJigjVEvrIAyQFEbRJZyDA1wQ==',
-          crossorigin: 'anonymous', referrerpolicy: 'no-referrer'
-        },
+        // {
+        //   src: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.4/vfs_fonts.js',
+        //   integrity: 'sha512-cktKDgjEiIkPVHYbn8bh/FEyYxmt4JDJJjOCu5/FQAkW4bc911XtKYValiyzBiJigjVEvrIAyQFEbRJZyDA1wQ==',
+        //   crossorigin: 'anonymous', referrerpolicy: 'no-referrer'
+        // },
       ]
     },
   },
@@ -26,27 +26,24 @@ export default defineNuxtConfig({
     transpile: ['vuetify'],
   },
 
-  modules: [
-    (_options, nuxt) => {
-      nuxt.hooks.hook('vite:extendConfig', (config) => {
-        // @ts-expect-error
-        config.plugins.push(vuetify({ autoImport: true }))
-      })
-    },
-    '@nuxt/icon',
-    '@nuxt/image',
-    '@sidebase/nuxt-auth',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-  ],
-
   vite: {
+    plugins: [
+      vuetify({ autoImport: true }),
+    ],
     vue: {
       template: {
         transformAssetUrls,
       },
     },
   },
+
+  modules: [
+    '@nuxt/icon',
+    '@nuxt/image',
+    '@sidebase/nuxt-auth',
+    '@pinia/nuxt',
+    '@vueuse/nuxt',
+  ],
 
   auth: {
     // baseURL: process.env.NUXT_AUTH_ORIGIN,
