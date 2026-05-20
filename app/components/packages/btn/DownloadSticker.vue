@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 // import 'pdfmake/build/vfs_fonts'
-import pdfMake from 'pdfmake/build/pdfmake'
+// import pdfMake from 'pdfmake/build/pdfmake'
 // import pdfMake from 'pdfmake'
 import { DOMImplementation, XMLSerializer } from 'xmldom'
 import JsBarcode from 'jsbarcode'
@@ -34,6 +34,9 @@ const downloadSticker = async (payload:any) => {
         return
       }
 
+      const pdfMakeLib = await loadPdfMake()
+
+
       const text = packageInfo.wr.wrId + ' ' + packageInfo.label
       const document = new DOMImplementation().createDocument('http://www.w3.org/1999/xhtml', 'html', null);
       const svgNode = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -44,6 +47,9 @@ const downloadSticker = async (payload:any) => {
         fontSize: 40,
         fontOptions: 'bold'
       });
+      
+      const xmlSerializer = new XMLSerializer();
+      const svgString = xmlSerializer.serializeToString(svgNode);
 
       const docDefinition = {
         pageSize: {
@@ -58,7 +64,7 @@ const downloadSticker = async (payload:any) => {
           {text: packageInfo.client.country + ' ' + packageInfo.client.state + ' ' + packageInfo.client.city, fontSize: 14, bold: true},
           {text: packageInfo.client.address, fontSize: 14, bold: true},
           // '.',
-          { svg : svgNode },
+          { svg : svgString },
           {text: packageInfo.trkgNum, fontSize: 14, bold: true}
         ],
         footer: [
@@ -66,7 +72,8 @@ const downloadSticker = async (payload:any) => {
         ]
       }
       
-      pdfMake.createPdf(docDefinition).open()
+      // pdfMakeLib.createPdf(docDefinition).open()
+      pdfMakeLib.createPdf(docDefinition).open()
     } catch (error) {
       console.log(error)
     } finally {
