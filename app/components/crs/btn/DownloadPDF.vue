@@ -89,7 +89,7 @@ const downloadPDF = async (payload:any) => {
               // formatDateTime(e.createdAt),
               // useDateFormat(e.createdAt, 'YYYY-MM-DD').value,
               {text: useDateFormat(e.createdAt, 'YYYY-MM-DD').value, alignment: 'center', fontSize: 8},
-              e.notes
+              {text: e.notes, alignment: 'center'},
             ])
           }
         });
