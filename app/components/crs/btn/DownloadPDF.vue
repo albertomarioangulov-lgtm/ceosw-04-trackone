@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import 'pdfmake/build/vfs_fonts'
-import pdfMake from 'pdfmake/build/pdfmake'
+// import 'pdfmake/build/vfs_fonts'
+// import pdfMake from 'pdfmake/build/pdfmake'
 import { logoB64 } from '~~/app/assets/functions'
 const image = logoB64()
 
@@ -24,6 +24,9 @@ const downloadPDF = async (payload:any) => {
     console.log('crData: ', data.value);
     
     try {
+      const pdfMakeLib = await loadPdfMake()
+
+
       // const wrData = await dispatch('getWRById', wrId)
       // const wrPackages = await dispatch('packages/getWRPackages', wrId, {root: true})
       const crData = data.value
@@ -84,7 +87,8 @@ const downloadPDF = async (payload:any) => {
               // {text: cft, alignment: 'center'},
               // {text: volKgs, alignment: 'center'},
               // formatDateTime(e.createdAt),
-              useDateFormat(e.createdAt, 'YYYY-MM-DD').value,
+              // useDateFormat(e.createdAt, 'YYYY-MM-DD').value,
+              {text: useDateFormat(e.createdAt, 'YYYY-MM-DD').value, alignment: 'center', fontSize: 8},
               e.notes
             ])
           }
@@ -161,7 +165,7 @@ const downloadPDF = async (payload:any) => {
           }
         ]
       }
-      pdfMake.createPdf(docDefinition).open()
+      pdfMakeLib.createPdf(docDefinition).open()
     } catch (error) {
       console.log(error)
     } finally {
