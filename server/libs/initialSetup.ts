@@ -23,7 +23,7 @@ export const createRoles = async () => {
 export const createUsers = async () => {
     try {
         const count = await User.estimatedDocumentCount()
-        if (count > 3) return
+        // if (count > 0) return
 
         const values = await Promise.all([
             new User({
