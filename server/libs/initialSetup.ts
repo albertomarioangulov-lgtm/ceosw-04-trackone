@@ -23,13 +23,13 @@ export const createRoles = async () => {
 export const createUsers = async () => {
     try {
         const count = await User.estimatedDocumentCount()
-        if (count > 0) return
+        if (count > 3) return
 
         const values = await Promise.all([
             new User({
               name: 'Admin Principal',
-              username: 'admin1',
-              email: 'admin1@gmail.com',
+              username: 'admin2',
+              email: 'admin2@gmail.com',
               // @ts-expect-error
               password: await User.encryptPassword('123123')
             }).save()
