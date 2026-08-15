@@ -28,6 +28,8 @@ const handleView = (client: Record<string, any>) => {
   navigateTo(`/clients/${client.id ?? client._id}`)
 }
 
+useRefreshOnFocus(fetchClients)
+
 // View mode: 'table' | 'cards'
 const viewMode = ref<'table' | 'cards'>('table')
 

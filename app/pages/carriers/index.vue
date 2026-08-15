@@ -24,6 +24,8 @@ const handleSaved = () => {
   fetchCarriers()
 }
 
+useRefreshOnFocus(fetchCarriers)
+
 onMounted(() => {
   if (can(PERMISSIONS.CARRIERS_VIEW)) {
     fetchCarriers()

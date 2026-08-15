@@ -17,6 +17,9 @@ export function useWebSocket<T = any>() {
   const connect = () => {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) return
 
+    const runConfig = useRuntimeConfig().public
+    if (runConfig.enableWebSocket === false) return // WS desactivado por entorno
+
     const { user } = useUserSession()
     const wsToken = user.value?.wsToken
     if (!wsToken) return // No conectar si no hay sesión

@@ -24,6 +24,8 @@ const handleSaved = () => {
   fetchSellers()
 }
 
+useRefreshOnFocus(fetchSellers)
+
 onMounted(() => {
   if (can(PERMISSIONS.SELLERS_VIEW)) {
     fetchSellers()

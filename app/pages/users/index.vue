@@ -24,6 +24,8 @@ const handleSaved = () => {
   fetchUsers()
 }
 
+useRefreshOnFocus(fetchUsers)
+
 onMounted(() => {
   if (can(PERMISSIONS.USERS_MANAGE)) {
     fetchUsers()

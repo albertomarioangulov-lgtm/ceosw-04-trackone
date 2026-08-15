@@ -53,6 +53,8 @@ export default defineNuxtConfig({
 
     public: {
       clientLogo: process.env.CLIENT_LOGO,
+      // Desactivar en producción (App Hosting) con NUXT_PUBLIC_ENABLE_WS=false
+      enableWebSocket: process.env.NUXT_PUBLIC_ENABLE_WS !== 'false',
     }
   },
 

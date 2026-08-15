@@ -24,6 +24,8 @@ const handleView = (cr: Record<string, any>) => {
   navigateTo(`/crs/${cr.id ?? cr._id}`)
 }
 
+useRefreshOnFocus(fetchCRs)
+
 onMounted(() => {
   if (can(PERMISSIONS.CRS_VIEW)) {
     fetchCRs()
