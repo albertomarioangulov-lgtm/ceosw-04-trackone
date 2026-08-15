@@ -10,10 +10,11 @@ export default defineEventHandler(async (event) => {
     // Recibe parámetros de paginación, búsqueda y ordenamiento
     const query = getQuery(event)
     const page = Number(query.page ?? 1)
-    const itemsPerPage = Number(query.itemsPerPage ?? 25)
+    const limit = Number(query.limit ?? query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
     const sortBy = (query.sortBy as string) ?? ''
-    const sortDesc = query.sortDesc === 'true'
+    const sortOrder = (query.sortOrder as string) || (query.sortDesc === 'true' ? 'desc' : 'asc')
+    const sortDesc = sortOrder !== 'asc'
 
     // Filtro de búsqueda mejorado para múltiples campos
     const filter: FilterQuery<any> = {}
@@ -54,9 +55,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Añadir etapas de paginación si es necesario
-    if (itemsPerPage > 0) {
-      facet.data.push({ $skip: (page - 1) * itemsPerPage })
-      facet.data.push({ $limit: itemsPerPage })
+    if (limit > 0) {
+      facet.data.push({ $skip: (page - 1) * limit })
+      facet.data.push({ $limit: limit })
     }
 
     // Añadir lookups para emular populate y $project para emular select
@@ -89,12 +90,18 @@ export default defineEventHandler(async (event) => {
     // Ejecutar la agregación
     const result = await Client.aggregate(pipeline).exec()
 
-    const items = result[0]?.data ?? []
+    const items = (result[0]?.data ?? []).map((item: any) => ({
+      ...item,
+      id: item._id?.toString?.() ?? item._id,
+    }))
     const total = result[0]?.metadata[0]?.total ?? 0
 
     return {
       items,
-      total
+      total,
+      page,
+      limit,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 1,
     }
   } catch (error) {
     console.error(error)

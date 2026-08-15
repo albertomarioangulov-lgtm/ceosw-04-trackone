@@ -4,7 +4,7 @@ export interface Client {
   id?: string,
   name?: string,
   code?: string,
-  seller?: string,
+  seller?: string | { _id: string; name: string; code?: string } | null,
   docTyp?: string,
   docNum?: string,
   dateIn?: string,
@@ -12,13 +12,16 @@ export interface Client {
   country?: string,
   state?: string,
   city?: string,
-  phone?: string,
+  phone?: string[],
   address?: string,
   email?: string,
-  emails?: string[],
+  emails?: Array<{ email?: string }>,
   contacts?: Contact[],
   status?: string,
   color?: string,
+  createdBy?: { _id: string; name: string; initials?: string; color?: string; avatar?: { icon?: string } | null } | null,
+  createdAt?: string,
+  updatedAt?: string,
 }
 
 export interface Contact {

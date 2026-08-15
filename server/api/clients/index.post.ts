@@ -1,6 +1,6 @@
 import { PERMISSIONS } from '~~/shared/permissions'
+import { clientFormSchema } from '~~/shared/client'
 import Client from "~~/server/models/Client"
-// import getUserId from "~~/server/libs/userData"
 
 import { broadcast } from '~~/server/routes/ws'
 
@@ -9,15 +9,18 @@ export default defineEventHandler( async (event) => {
   await requirePermission(event, PERMISSIONS.CLIENTS_MANAGE)
 
   const userId = await getUserId(event)
-
   const body = await readBody(event)
-  const { name, code, seller, docTyp, docNum, dateIn, zipCode, country, state, city, phone, address, email, emails, contacts } = body
+  const result = clientFormSchema.safeParse(body)
 
-  const newData = new Client({
-    name, code, seller, docTyp, docNum, dateIn, zipCode, country, state, city, phone, address, email, emails, contacts,
-    createdBy: userId
-  })
-  const savedData = await newData.save()
+  if (!result.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validación de cliente fallida',
+      data: result.error.flatten().fieldErrors,
+    })
+  }
+
+  const savedData = await Client.create({ ...result.data, createdBy: userId })
 
   broadcast({
     type: 'CLIENT_CREATED',
@@ -27,5 +30,8 @@ export default defineEventHandler( async (event) => {
     }
   })
   
-  return savedData
+  return {
+    ...savedData.toObject(),
+    id: savedData._id.toString(),
+  }
 })

@@ -138,5 +138,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Cliente no encontrado' })
   }
 
-  return client
+  return {
+    ...client,
+    id: client._id.toString(),
+  }
 })

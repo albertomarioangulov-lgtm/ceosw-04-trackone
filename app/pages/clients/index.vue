@@ -1,43 +1,88 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+definePageMeta({
+  middleware: 'auth',
+})
 
-  definePageMeta({
-    middleware: 'auth'
-  })
+const { can, PERMISSIONS } = usePermissions()
 
-  const { t } = useI18n()
+const {
+  items,
+  total,
+  loading,
+  error,
+  search,
+  page,
+  itemsPerPage,
+  sortBy,
+  sortOrder,
+  fetchClients,
+  handleUpdateOptions,
+  clearFilters,
+} = useClientList()
 
-  const pageName = 'clients'
-  const pageTitle = t(`${ pageName }`)
-  const isLoading = ref(true)
+const handleSaved = () => {
+  fetchClients()
+}
 
-  const items = [
-    { title: t('home'), to: '/' },
-    { title: pageTitle, to: `/${ pageName }` }
-  ]
+const handleView = (client: Record<string, any>) => {
+  navigateTo(`/clients/${client.id ?? client._id}`)
+}
 
-  onMounted(() => {
-    setTimeout(() => {
-      isLoading.value = false
-    }, 1000)
-  })
+onMounted(() => {
+  if (can(PERMISSIONS.CLIENTS_VIEW)) {
+    fetchClients()
+  }
+})
 </script>
 
 <template>
-  <v-container class="pt-0 pl-0 pr-0" fluid>
-    
-    <!-- Toolbar -->
-    <v-toolbar flat color="transparent">
-      <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
-      <v-spacer></v-spacer>
-      
-      <!-- Breadcrumb -->
-      <v-breadcrumbs :items="items"/>
-      
-    </v-toolbar>
-    
-    <!-- Clients List -->
-    <ClientsList />
+  <template v-if="can(PERMISSIONS.CLIENTS_VIEW)">
+    <h2 class="text-h6 font-weight-bold mb-2 mt-0">
+      Clientes
+    </h2>
 
-  </v-container>
+    <v-toolbar>
+      <v-text-field
+        flat
+        class="ml-1"
+        v-model="search"
+        prepend-inner-icon="mdi-magnify"
+        density="compact"
+        variant="solo"
+        hide-details
+        clearable
+        placeholder="Buscar por nombre, teléfono, email o ciudad"
+      />
+      <v-btn
+        variant="text"
+        prepend-icon="mdi-filter-remove-outline"
+        @click="clearFilters"
+      >
+        Limpiar
+      </v-btn>
+      <v-spacer />
+      <ClientsBtnCreate />
+    </v-toolbar>
+
+    <v-alert v-if="error" type="error" class="mb-4" closable @click:close="error = ''">
+      {{ error }}
+    </v-alert>
+
+    <ClientsTable
+      :items="items"
+      :loading="loading"
+      :total="total"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      :sort-by="sortBy"
+      :sort-order="sortOrder"
+      @view="handleView"
+      @update:options="handleUpdateOptions"
+    />
+
+    <ClientsForm @saved="handleSaved" />
+  </template>
+  <template v-else>
+    <v-alert type="warning" title="Acceso denegado" text="No tienes permisos para acceder a esta página." />
+  </template>
 </template>

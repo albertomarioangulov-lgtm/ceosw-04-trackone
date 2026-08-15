@@ -10,8 +10,9 @@ definePageMeta({
 const route = useRoute()
 const dataId = route.params.id?.toString() || '0'
 
-const { getClient } = useClient()
-const { data:clientData, refresh } = await getClient( dataId )
+const { data: clientData, refresh } = await useFetch(`/api/clients/${dataId}`, {
+  headers: useRequestHeaders(['cookie']),
+})
 
 const title = ref('Client Details')
 
