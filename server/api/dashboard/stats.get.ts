@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import WR from '~~/server/models/WR'
 import Client from '~~/server/models/Client'
 import Package from '~~/server/models/Package'
 
 export default defineEventHandler(async (event) => {
-  if (!await hasPermission(event, ['manage_wrs', 'view_wrs'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.WRS_MANAGE, PERMISSIONS.WRS_VIEW])
 
   const { startDate, endDate } = getQuery(event)
 

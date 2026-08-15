@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
 // import getUserId from "~~/server/libs/userData"
@@ -7,11 +8,9 @@ import { broadcast, unicast } from '~~/server/routes/ws'
 
 export default defineEventHandler( async (event) => {
 
-  if (!await hasPermission(event, 'manage_crs')) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, PERMISSIONS.CRS_MANAGE)
 
-  const userId = getUserId(event)
+  const userId = await getUserId(event)
 
   const body = await readBody(event)
   const { wr, packages: packageIds } = body

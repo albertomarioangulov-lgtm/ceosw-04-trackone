@@ -71,7 +71,7 @@ onMounted(() => {
       <template v-slot:[`item.roles`]="{ item }">
         <!-- @vue-expect-error -->
         <v-chip size="small" color="warning" v-for="(rol, index) in item.roles" :key="index" class="mr-1">
-          {{ rol.name }}
+          {{ rol.name ?? rol }}
         </v-chip>
       </template>
 

@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { Package } from '~~/app/interfaces/Package';
 
 const { t } = useI18n()
-const { hasPermission } = usePermission()
+const { can, PERMISSIONS } = usePermissions()
 
 interface Props {
   action?: 'create' | 'edit' | ''
@@ -95,7 +95,7 @@ const handleClick = (item?: Package) => {
 </script>
 
 <template>
-  <template v-if="hasPermission('manage_packages')">
+  <template v-if="can(PERMISSIONS.PACKAGES_MANAGE)">
     <!-- <template v-if="!(isLoading && itemId === props.itemData?._id)"> -->
       <!-- @vue-expect-error -->
       <v-btn class="ml-1"

@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 // import { getServerSession, getToken } from '#auth'
 import Seller from "~~/server/models/Seller"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_sellers', 'view_sellers'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.SELLERS_MANAGE, PERMISSIONS.SELLERS_VIEW])
 
   const id = event.context.params!.id
   

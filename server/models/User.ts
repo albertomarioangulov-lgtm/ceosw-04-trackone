@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     icon: { type: String, default: 'account' },
   },
   color: { type: String, default: 'blue' },
-  roles: [{ ref: 'Role', type: mongoose.Schema.Types.ObjectId }],
+  roles: { type: [String], default: [] },
   permissions: [ String ],
   createdBy: { ref: "User", type: mongoose.Schema.Types.ObjectId }
 }, {

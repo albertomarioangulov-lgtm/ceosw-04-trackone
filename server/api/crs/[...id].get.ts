@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import mongoose from 'mongoose'
 import CR from "~~/server/models/CR"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_crs', 'view_crs'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.CRS_MANAGE, PERMISSIONS.CRS_VIEW])
 
   const id = event.context.params!.id
 

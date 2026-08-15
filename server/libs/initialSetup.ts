@@ -1,5 +1,6 @@
 import Role from '../models/Role'
 import User from '../models/User'
+import { PERMISSIONS } from '~~/shared/permissions'
 // import Seller from '../models/Seller'
 // import WRStatus from '../models/WRStatus'
 
@@ -31,7 +32,9 @@ export const createUsers = async () => {
               username: 'admin2',
               email: 'admin2@gmail.com',
               // @ts-expect-error
-              password: await User.encryptPassword('123123')
+              password: await User.encryptPassword('123123'),
+              roles: ['admin'],
+              permissions: Object.values(PERMISSIONS)
             }).save()
         ])
         console.log(values);

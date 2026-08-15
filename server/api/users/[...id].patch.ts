@@ -1,4 +1,4 @@
-import { getServerSession, getToken } from '#auth'
+import { PERMISSIONS } from '~~/shared/permissions'
 import User from "~~/server/models/User"
 import bcryptjs from 'bcryptjs'
 
@@ -20,9 +20,7 @@ interface UserData {
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, 'manage_users')) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, PERMISSIONS.USERS_MANAGE)
 
   const id = event.context.params!.id
   const body = await readBody(event)
@@ -33,7 +31,7 @@ export default defineEventHandler(async (event) => {
     editData.password = await encryptPassword(password)
   }
   
-  const savedData = await User.findByIdAndUpdate( id, editData, { new: true })
+  const savedData = await User.findByIdAndUpdate( id, editData, { returnDocument: 'after' })
     .exec()
 
     return savedData

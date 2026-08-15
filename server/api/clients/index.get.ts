@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import Client from "~~/server/models/Client"
 import { FilterQuery } from "mongoose"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_clients', 'view_clients'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.CLIENTS_MANAGE, PERMISSIONS.CLIENTS_VIEW])
 
   try {
     // Recibe parámetros de paginación, búsqueda y ordenamiento

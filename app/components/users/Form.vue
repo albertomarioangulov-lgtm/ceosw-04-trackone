@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, sameAs } from '@vuelidate/validators'
 import { useI18n } from 'vue-i18n';
+import { AVAILABLE_ROLES } from '~~/shared/permissions'
 
 import type { User } from '~~/app/interfaces/User';
 
@@ -195,9 +196,14 @@ const clearForm = () => {
             </v-col>
 
             <v-col cols="12" sm="12">
-              <v-text-field density="compact"
+              <v-select density="compact"
                 label="Roles"
-              ></v-text-field>
+                v-model="state.roles"
+                :items="AVAILABLE_ROLES"
+                multiple
+                chips
+                clearable
+              ></v-select>
             </v-col>
 
             <v-col cols="12" sm="12">

@@ -1,12 +1,11 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 // import { getServerSession, getToken } from '#auth'
 import mongoose from 'mongoose'
 import WR from "~~/server/models/WR"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_wrs', 'view_wrs'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.WRS_MANAGE, PERMISSIONS.WRS_VIEW])
 
   const id = event.context.params!.id
   

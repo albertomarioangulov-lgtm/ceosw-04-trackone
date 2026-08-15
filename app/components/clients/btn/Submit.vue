@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { Client } from '~~/app/interfaces/Client';
 
 const { t } = useI18n()
-const { hasPermission } = usePermission()
+const { can, PERMISSIONS } = usePermissions()
 
 const emit = defineEmits(['onSuccess'])
 
@@ -100,7 +100,7 @@ const handleClick = (item?: Client) => {
 </script>
 
 <template>
-  <template v-if="hasPermission('manage_clients')">
+  <template v-if="can(PERMISSIONS.CLIENTS_MANAGE)">
     <!-- <template v-if="!(isLoading && itemId === props.itemData?._id)"> -->
       <!-- @vue-expect-error -->
       <v-btn class="ml-1"

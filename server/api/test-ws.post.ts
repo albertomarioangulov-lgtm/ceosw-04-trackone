@@ -19,6 +19,8 @@ import { broadcast, unicast } from '~~/server/routes/ws'
  * }
  */
 export default defineEventHandler(async (event) => {
+  await requireUserSession(event)
+
   const body = await readBody(event)
 
   const { userId, message, isBroadcast } = body
@@ -37,4 +39,3 @@ export default defineEventHandler(async (event) => {
   unicast(userId, { type: 'test', ...message })
   return { status: 'ok', action: 'unicasted', target: userId, message }
 })
-

@@ -41,7 +41,7 @@ const { getUser } = useUser()
 
 const createItem = () => {
   loading.value = true
-  dataForm.value = {}
+  dataForm.value = { roles: [] }
   action.value = 'create'
   isOpen.value = true
   setTimeout(() => {
@@ -69,7 +69,7 @@ const onClose = () => {
   isOpen.value = false
 }
 const onClear = () => {
-  dataForm.value = {}
+  dataForm.value = { roles: [] }
 }
 
 // Function to handle click based on action

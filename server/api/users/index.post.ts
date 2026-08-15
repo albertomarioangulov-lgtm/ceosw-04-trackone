@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import User from "~~/server/models/User"
 import bcryptjs from 'bcryptjs'
 // import getUserId from "~~/server/libs/userData"
@@ -9,9 +10,7 @@ const encryptPassword = async (password:any) => {
 
 export default defineEventHandler( async (event) => {
 
-  if (!await hasPermission(event, 'manage_users')) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, PERMISSIONS.USERS_MANAGE)
 
   const userId = await getUserId(event)
 

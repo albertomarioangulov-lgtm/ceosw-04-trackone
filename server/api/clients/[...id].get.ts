@@ -1,10 +1,9 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import mongoose from 'mongoose'
 import Client from "~~/server/models/Client"
 
 export default defineEventHandler(async (event) => {
-  if (!await hasPermission(event, ['manage_clients', 'view_clients'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.CLIENTS_MANAGE, PERMISSIONS.CLIENTS_VIEW])
 
   const id = event.context.params!.id
 

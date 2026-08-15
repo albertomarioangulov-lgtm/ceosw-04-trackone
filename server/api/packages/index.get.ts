@@ -1,10 +1,9 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import Package from "~~/server/models/Package"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_packages', 'view_packages'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.PACKAGES_MANAGE, PERMISSIONS.PACKAGES_VIEW])
 
   try {
     // Obtener parámetros de paginación, búsqueda y ordenamiento del query

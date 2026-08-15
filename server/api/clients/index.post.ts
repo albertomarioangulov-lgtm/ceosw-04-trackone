@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import Client from "~~/server/models/Client"
 // import getUserId from "~~/server/libs/userData"
 
@@ -5,11 +6,9 @@ import { broadcast } from '~~/server/routes/ws'
 
 export default defineEventHandler( async (event) => {
 
-  if (!await hasPermission(event, 'manage_clients')) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, PERMISSIONS.CLIENTS_MANAGE)
 
-  const userId = getUserId(event)
+  const userId = await getUserId(event)
 
   const body = await readBody(event)
   const { name, code, seller, docTyp, docNum, dateIn, zipCode, country, state, city, phone, address, email, emails, contacts } = body

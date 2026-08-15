@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
-const { hasPermission } = usePermission()
+const { hasPermission } = usePermissions()
 
 interface Emits {
   ( e: 'closeDrawer' ):void

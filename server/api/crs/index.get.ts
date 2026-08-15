@@ -1,10 +1,9 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import CR from "~~/server/models/CR"
 
 export default defineEventHandler(async (event) => {
   
-  if (!await hasPermission(event, ['manage_crs', 'view_crs'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.CRS_MANAGE, PERMISSIONS.CRS_VIEW])
   
   try {
     // Obtener parámetros de paginación, búsqueda y ordenamiento del query

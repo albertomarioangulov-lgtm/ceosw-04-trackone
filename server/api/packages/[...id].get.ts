@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import mongoose from "mongoose"
 import Package from "~~/server/models/Package"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_packages', 'view_packages'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.PACKAGES_MANAGE, PERMISSIONS.PACKAGES_VIEW])
 
   const id = event.context.params!.id
 

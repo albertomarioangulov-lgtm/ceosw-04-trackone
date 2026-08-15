@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import CR from "~~/server/models/CR"
 import Client from "~~/server/models/Client"
 // import getUserId from "~~/server/libs/userData"
@@ -7,8 +8,9 @@ import sendEmailCr from "~~/server/services/clients/send-email-cr"
 const config = useRuntimeConfig()
 
 export default defineEventHandler( async (event) => {
+  await requirePermission(event, PERMISSIONS.CRS_MANAGE)
 
-  const userId = getUserId(event)
+  const userId = await getUserId(event)
 
   const id = event.context.params!.id
 

@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { WR } from '~~/app/interfaces/WR';
 
 const { t } = useI18n()
-const { hasPermission } = usePermission()
+const { can, PERMISSIONS } = usePermissions()
 
 interface Props {
   action?: 'create' | 'edit' | 'addPackages' | ''
@@ -105,7 +105,7 @@ const handleClick = (item?: WR) => {
 </script>
 
 <template>
-  <template v-if="hasPermission('manage_wrs')">
+  <template v-if="can(PERMISSIONS.WRS_MANAGE)">
     <!-- <template v-if="!(isLoading && itemId === props.itemData?._id)"> -->
       <!-- :size="size" -->
       <!-- :variant="variant" -->

@@ -1,11 +1,10 @@
+import { PERMISSIONS } from '~~/shared/permissions'
 import Package from "~~/server/models/Package"
 import mongoose, { FilterQuery } from "mongoose"
 
 export default defineEventHandler(async (event) => {
 
-  if (!await hasPermission(event, ['manage_packages', 'view_packages'])) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
-  }
+  await requirePermission(event, [PERMISSIONS.PACKAGES_MANAGE, PERMISSIONS.PACKAGES_VIEW])
   
   try {
     // Obtener ID del Cargo Release desde los parámetros de la ruta

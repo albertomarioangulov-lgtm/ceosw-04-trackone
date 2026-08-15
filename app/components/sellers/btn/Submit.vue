@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 import type { Seller } from '~~/app/interfaces/Seller';
 
 const { t } = useI18n()
-const { hasPermission } = usePermission()
+const { can, PERMISSIONS } = usePermissions()
 
 interface Props {
   action?: 'create' | 'edit' | ''
@@ -94,7 +94,7 @@ const handleClick = (item?: Seller) => {
 </script>
 
 <template>
-  <template v-if="hasPermission('manage_sellers')">
+  <template v-if="can(PERMISSIONS.SELLERS_MANAGE)">
     <!-- <template v-if="!(isLoading && itemId === props.itemData?._id)"> -->
       <!-- @vue-expect-error -->
       <v-btn class="ml-1"
