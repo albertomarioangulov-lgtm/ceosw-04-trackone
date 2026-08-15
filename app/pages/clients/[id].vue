@@ -258,8 +258,14 @@ if (error.value?.statusCode === 404) {
       </v-row>
 
       <v-toolbar class="mt-4 mb-0" rounded="lg">
-        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+        <template v-if="client.lastWr && ['pending', 'opened'].includes(client.lastWr.status)">
           <v-toolbar-title>WR: {{ client.lastWr.wrId }}</v-toolbar-title>
+        </template>
+        <template v-else-if="client.lastWr">
+          <v-toolbar-title class="text-medium-emphasis">
+            WR #{{ client.lastWr.wrId }} finalizado
+            <v-chip size="small" color="grey" variant="tonal" class="ml-2">finalizado</v-chip>
+          </v-toolbar-title>
         </template>
 
         <v-spacer />
@@ -294,7 +300,7 @@ if (error.value?.statusCode === 404) {
       <!-- Packages del último WR -->
       <PackagesByWRList
         ref="packagesListRef"
-        v-if="client.lastWr && client.lastWr.availablePackageCount > 0"
+        v-if="client.lastWr && ['pending', 'opened'].includes(client.lastWr.status)"
         :item="client.lastWr"
         :itemId="client.lastWr._id"
         v-model:model-value="selectedPackages"
