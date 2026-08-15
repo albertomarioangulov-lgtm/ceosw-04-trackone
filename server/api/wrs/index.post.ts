@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '~~/shared/permissions'
+import { wrCreateSchema } from '~~/shared/wr'
 import WR from "~~/server/models/WR"
 import Package from "~~/server/models/Package"
-// import getUserId from "~~/server/libs/userData"
 import mongoose from "mongoose"
 
 import { broadcast } from '~~/server/routes/ws'
@@ -11,9 +11,18 @@ export default defineEventHandler( async (event) => {
   await requirePermission(event, PERMISSIONS.WRS_MANAGE)
 
   const userId = await getUserId(event)
-
   const body = await readBody(event)
-  const { _id, client, packages } = body
+  const result = wrCreateSchema.safeParse(body)
+
+  if (!result.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validación de WR fallida',
+      data: result.error.flatten().fieldErrors,
+    })
+  }
+
+  const { _id, client, packages } = result.data
 
   let wr
 
@@ -61,5 +70,8 @@ export default defineEventHandler( async (event) => {
     }
   })
   
-  return wr
+  return {
+    ...wr.toObject(),
+    id: wr._id.toString(),
+  }
 })

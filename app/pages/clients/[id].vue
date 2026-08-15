@@ -206,7 +206,7 @@ if (error.value?.statusCode === 404) {
         <v-spacer />
 
         <template v-if="(client.lastWr && client.lastWr.availablePackageCount == 0) || !client.lastWr">
-          <WrsBtnSubmit :item-data="{client: client._id}" @on-wr-created="handleWRCreation" />
+          <WrsBtnCreate :client-id="client._id" />
         </template>
 
         <template v-if="client.lastWr">
@@ -218,13 +218,7 @@ if (error.value?.statusCode === 404) {
         </template>
         
         <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
-          <WrsBtnSubmit isIconBtn
-            action="addPackages"
-            :item-data="client.lastWr"
-            @on-wr-created="handleWRCreation"
-            btn-icon="mdi-package-variant-plus"
-            btn-color="info"
-          />
+          <WrsBtnAddPackages :wr="client.lastWr" />
         </template>
 
         <!-- <v-spacer /> -->
@@ -247,6 +241,8 @@ if (error.value?.statusCode === 404) {
         v-model:model-value="selectedPackages"
         class="mt-4"
       />
+
+      <WrsForm @saved="handleWRCreation" />
     </div>
   </v-container>
 </template>

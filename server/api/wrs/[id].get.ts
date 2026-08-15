@@ -54,5 +54,12 @@ export default defineEventHandler(async (event) => {
 
   const [data] = await WR.aggregate(aggregationPipeline).exec()
 
-  return data
+  if (!data) {
+    throw createError({ statusCode: 404, statusMessage: 'WR no encontrado' })
+  }
+
+  return {
+    ...data,
+    id: data._id.toString(),
+  }
 })

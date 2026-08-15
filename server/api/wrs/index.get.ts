@@ -10,10 +10,11 @@ export default defineEventHandler(async (event) => {
     // Obtener parámetros de paginación, búsqueda y ordenamiento del query
     const query = getQuery(event)
     const page = Number(query.page ?? 1)
-    const itemsPerPage = Number(query.itemsPerPage ?? 25)
+    const limit = Number(query.limit ?? query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
     const sortBy = (query.sortBy as string) ?? ''
-    const sortDesc = query.sortDesc === 'true'
+    const sortOrder = (query.sortOrder as string) || (query.sortDesc === 'true' ? 'desc' : 'asc')
+    const sortDesc = sortOrder !== 'asc'
 
     // Filtro de búsqueda
     const filter: FilterQuery<any> = {}
@@ -99,6 +100,33 @@ export default defineEventHandler(async (event) => {
         }
       },
 
+      // Etapa 4b: Marcar el WR activo de cada cliente
+      // (el más reciente del cliente con paquetes disponibles).
+      {
+        $lookup: {
+          from: 'wrs',
+          let: { cid: '$client._id' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$client', '$$cid'] } } },
+            { $sort: { createdAt: -1 } },
+            { $limit: 1 },
+            { $project: { _id: 1 } }
+          ],
+          as: 'clientLatestWr'
+        }
+      },
+      {
+        $addFields: {
+          isActive: {
+            $and: [
+              { $gt: ['$availablePackageCount', 0] },
+              { $eq: ['$_id', { $arrayElemAt: ['$clientLatestWr._id', 0] }] }
+            ]
+          }
+        }
+      },
+      { $project: { clientLatestWr: 0 } },
+
       // Etapa 5: Ordenar la lista completa de resultados
       { $sort: finalSort },
 
@@ -107,9 +135,9 @@ export default defineEventHandler(async (event) => {
         $facet: {
           paginatedData: [
             // Aplicar paginación
-            ...(itemsPerPage > 0 ? [
-              { $skip: (page - 1) * itemsPerPage },
-              { $limit: itemsPerPage }
+            ...(limit > 0 ? [
+              { $skip: (page - 1) * limit },
+              { $limit: limit }
             ] : []),
             // Aplicar lookups finales (baratos) solo a los datos de la página actual
             { $lookup: { from: 'users', localField: 'createdBy', foreignField: '_id', as: 'createdBy' } },
@@ -131,7 +159,16 @@ export default defineEventHandler(async (event) => {
     const items = result[0]?.paginatedData ?? []
     const total = result[0]?.totalCount[0]?.count ?? 0
 
-    return { items, total }
+    return {
+      items: items.map((item: any) => ({
+        ...item,
+        id: item._id?.toString?.() ?? item._id,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 1,
+    }
   } catch (error) {
     console.error('Error fetching WRs:', error)
     throw createError({ statusCode: 500, statusMessage: 'Error fetching Warehouse Receipts' })

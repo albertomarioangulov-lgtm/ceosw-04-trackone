@@ -15,10 +15,13 @@ const itemData = ref<WR | undefined>(undefined)
 const loadingData = ref(true)
 const fetchWR = async () => {
   loadingData.value = true
-  const { getWR } = useWR()
-  const { data, refresh } = await getWR(dataId)
-  itemData.value = data.value as WR
-  loadingData.value = false
+  try {
+    itemData.value = await $fetch(`/api/wrs/${dataId}`) as WR
+  } catch (error) {
+    console.error('Error cargando WR:', error)
+  } finally {
+    loadingData.value = false
+  }
 }
 
 
@@ -48,7 +51,7 @@ const items = [
       </div>
       <v-spacer />
       <!-- <WrsBtnSubmit action="edit" :itemData="clientData" /> -->
-       <WrsBtnSendEmail :item="itemData!" :itemId="dataId"  />
+       <WrsBtnSendEmail :item="itemData!" :itemId="dataId" @sent="fetchWR"  />
     </v-toolbar>
 
     <PackagesByWRList :item="itemData!" :itemId="dataId" />

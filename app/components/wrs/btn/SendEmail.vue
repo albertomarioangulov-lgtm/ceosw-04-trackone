@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 interface Props {
   item: any
   itemId: string
@@ -12,39 +11,26 @@ const props = withDefaults( defineProps<Props>(), {
   size: 'default'
 })
 
-// const props = defineProps<Props>()
-const { item, itemId, variant, size } = toRefs(props)
-
-
+const emit = defineEmits<{
+  (e: 'sent'): void
+}>()
 
 const isLoading = ref<boolean>(false)
 const title = ref<string>('Send Email')
 const sendEmailDialog = ref<boolean>(false)
 
-const { sendEmailWr } = useWR()
-// const { getClient, getClients } = useClient()
-
-const sendEmailProcess = async (id: string) => {
+const sendEmailProcess = async () => {
   isLoading.value = true
   try {
-    const { data}  = await sendEmailWr(id)
-    if (data) {
-      // console.log('response', response)
-      // emit('onRefresh')
-      sendEmailDialog.value = false
-      // const { refresh } = await getClient(id)
-      // refresh()
-      // const { refresh:refreshClients} = await getClients()
-      // refreshClients()
-    }
+    await $fetch(`/api/wrs/send-email/${props.itemId}`)
+    sendEmailDialog.value = false
+    emit('sent')
   } catch (error) {
     console.error('Error sending email:', error)
   } finally {
     isLoading.value = false
   }
 }
-
-
 </script>
 
 <template>
@@ -78,7 +64,7 @@ const sendEmailProcess = async (id: string) => {
 
       <v-row class="ml-2 mt-0 mb-4">
         <v-btn class="mr-4 ml-4"
-          variant="tonal" color="success" @click="sendEmailProcess(itemId)" :disabled="isLoading">{{ $t('Submit') }}</v-btn>
+          variant="tonal" color="success" @click="sendEmailProcess" :disabled="isLoading">{{ $t('Submit') }}</v-btn>
             
         <v-btn variant="tonal" color="error" @click="sendEmailDialog = false">{{ $t('Cancel') }}</v-btn>
       </v-row>
