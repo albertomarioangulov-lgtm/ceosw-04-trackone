@@ -39,7 +39,7 @@ export default (options: AutoIncrementOptions) => {
         let counter = await Counter.findOneAndUpdate(
           query,
           { $inc: { seq: 1 } },
-          { new: true, upsert: true, setDefaultsOnInsert: true }
+          { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
         );
 
         // Manejo de secuencia inicial (start_seq)
@@ -47,7 +47,7 @@ export default (options: AutoIncrementOptions) => {
           counter = await Counter.findOneAndUpdate(
             query,
             { $set: { seq: options.start_seq } },
-            { new: true }
+            { returnDocument: 'after' }
           );
         }
 
