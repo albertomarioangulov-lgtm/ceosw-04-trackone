@@ -47,6 +47,8 @@ export default defineEventHandler( async (event) => {
 
   // This logic handles adding ONLY new packages.
   // It filters for packages sent from the form that do not have an _id.
+  let createdPackages: any[] = []
+
   if (packages && Array.isArray(packages) && packages.length > 0) {
     const newPackages = packages.filter(pkg => !pkg._id)
 
@@ -57,7 +59,7 @@ export default defineEventHandler( async (event) => {
         wr: wr._id,
         createdBy: userId
       }))
-      await Package.create(packagesToSave)
+      createdPackages = await Package.create(packagesToSave)
     }
   }
 
@@ -78,5 +80,11 @@ export default defineEventHandler( async (event) => {
   return {
     ...wr.toObject(),
     id: wr._id.toString(),
+    packages: createdPackages.map((p: any) => ({
+      _id: p._id,
+      trkgNum: p.trkgNum,
+      notes: p.notes,
+      createdAt: p.createdAt,
+    })),
   }
 })

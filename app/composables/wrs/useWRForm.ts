@@ -53,8 +53,8 @@ export const useWRForm = () => {
 
     try {
       // El server distingue crear vs. agregar paquetes por la presencia de `_id`.
-      await $fetch('/api/wrs', { method: 'POST', body: payload })
-      return true
+      const data = await $fetch('/api/wrs', { method: 'POST', body: payload })
+      return data
     } catch (err: any) {
       submitError.value = await handleApiError(err)
       return false

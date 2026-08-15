@@ -21,13 +21,13 @@ watch(lastMessage, (newMessage) => {
   // Evento para un CR creado
   if (newMessage.type === 'CR_CREATED' && newMessage.payload?.wrId === client.value?.lastWr?._id) {
     console.log('CR created event received, refreshing data...')
-    handleCRCreation()
+    handleCrCreated()
   }
 
   // Evento para un WR creado
   if (newMessage.type === 'WR_CREATED' && newMessage.payload?.clientId === clientId) {
     console.log('WR created event received, refreshing data...')
-    handleWRCreation()
+    refreshWrState()
   }
 
   // Evento para un Cliente actualizado
@@ -37,50 +37,76 @@ watch(lastMessage, (newMessage) => {
   }
 })
 
-const handleCRCreation = async () => {
-  selectedPackages.value = []
-  await refreshClient()
-  await nextTick()
-  if (packagesListRef.value) {
-    packagesListRef.value.reload()
-  }
-}
-
-const handleWRCreation = async () => {
-  await refreshClient()
-  // After refreshing the client, the `lastWr` might have changed.
-  // We need to wait for the DOM to update and then tell the package list to reload.
-  await nextTick()
-  if (packagesListRef.value) {
-    packagesListRef.value.reload()
-  }
-}
-
-const handleWrSaved = async (mode: 'create' | 'addPackages') => {
-  if (mode === 'create') {
-    await handleWRCreation()
-    return
-  }
-
-  // addPackages: solo la lista de paquetes y los contadores del WR activo
+const refreshWrState = async (payload?: {
+  wr?: Record<string, any>
+  packages?: Array<Record<string, any>>
+  cr?: Record<string, any>
+}) => {
   await nextTick()
   if (packagesListRef.value) {
     packagesListRef.value.reload()
   }
 
-  const lastWr = client.value?.lastWr
-  if (!lastWr?._id) return
-  try {
-    const summary = await $fetch(`/api/wrs/${lastWr._id}/summary`)
-    if (client.value?.lastWr) {
-      client.value.lastWr.packageCount = summary.packageCount
-      client.value.lastWr.availablePackageCount = summary.availablePackageCount
-      client.value.lastWr.status = summary.status
+  // Si se creó un WR nuevo, reemplaza el lastWr local
+  if (payload?.wr && client.value) {
+    client.value.lastWr = {
+      _id: payload.wr.id ?? payload.wr._id,
+      wrId: payload.wr.wrId,
+      status: payload.wr.status ?? 'pending',
+      packageCount: 0,
+      availablePackageCount: 0,
     }
-  } catch (error) {
-    console.error('Error actualizando resumen del WR:', error)
+  }
+
+  // Contadores y estado frescos del server (sin recargar la página)
+  const wrId = payload?.wr ? (payload.wr.id ?? payload.wr._id) : client.value?.lastWr?._id
+  if (wrId) {
+    try {
+      const summary = await $fetch(`/api/wrs/${wrId}/summary`)
+      if (client.value?.lastWr) {
+        client.value.lastWr.packageCount = summary.packageCount
+        client.value.lastWr.availablePackageCount = summary.availablePackageCount
+        client.value.lastWr.status = summary.status
+      }
+    } catch (error) {
+      console.error('Error actualizando resumen del WR:', error)
+    }
+  }
+
+  // Último paquete (si la acción creó paquetes)
+  if (payload?.packages?.length && client.value) {
+    const last = payload.packages[payload.packages.length - 1]
+    client.value.lastPackage = {
+      _id: last._id ?? last.id,
+      trkgNum: last.trkgNum,
+      notes: last.notes,
+      createdAt: last.createdAt,
+    }
+  }
+
+  // Último CR (si la acción creó un CR)
+  if (payload?.cr && client.value) {
+    client.value.lastCr = {
+      _id: payload.cr.id ?? payload.cr._id,
+      crId: payload.cr.crId,
+      createdAt: payload.cr.createdAt,
+    }
   }
 }
+
+const handleCrCreated = async (crData?: Record<string, any>) => {
+  selectedPackages.value = []
+  await refreshWrState(crData ? { cr: crData } : undefined)
+}
+
+const handleWrSaved = async (mode: 'create' | 'addPackages', wrResponse?: Record<string, any>) => {
+  await refreshWrState({
+    wr: mode === 'create' ? wrResponse : undefined,
+    packages: wrResponse?.packages,
+  })
+}
+
+useRefreshOnFocus(() => refreshClient())
 
 // Función de utilidad para formatear fechas
 const formatDate = (dateString: string) => {
@@ -239,7 +265,7 @@ if (error.value?.statusCode === 404) {
           <CrsBtnCreateCR
             :selected="selectedPackages"
             :wr-id="client.lastWr._id"
-            @created="handleCRCreation"
+            @created="handleCrCreated"
           />
         </template>
         

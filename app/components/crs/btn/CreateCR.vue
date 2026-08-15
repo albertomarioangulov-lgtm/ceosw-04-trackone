@@ -11,7 +11,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'created'): void
+  (e: 'created', cr: Record<string, any>): void
 }>()
 
 const createCRDialog = ref(false)
@@ -21,12 +21,12 @@ async function handleCreateCR() {
   if (props.selected.length === 0) return
   isCreatingCR.value = true
   try {
-    await $fetch('/api/crs', {
+    const cr = await $fetch('/api/crs', {
       method: 'POST',
       body: { wr: props.wrId, packages: props.selected },
     })
     createCRDialog.value = false
-    emit('created')
+    emit('created', cr)
     // TODO: Implementar notificación de éxito
   }
   catch (error) {
