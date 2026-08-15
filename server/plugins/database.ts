@@ -3,6 +3,11 @@ import mongoose from 'mongoose'
 import { consola } from 'consola'
 import chalk from 'chalk'
 
+// Importar todos los modelos de Mongoose para que se registren
+// al iniciar la aplicación. Esto es crítico para evitar el error
+// "MissingSchemaError: Schema hasn't been registered for model..."
+// en entornos serverless (App Hosting / Cloud Run) con cold starts.
+import '~~/server/models/index'
 
 const dbLog = consola.withTag('database')
 
