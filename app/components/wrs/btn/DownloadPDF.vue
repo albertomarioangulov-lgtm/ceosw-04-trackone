@@ -21,10 +21,8 @@ const isLoading = ref(false)
 const downloadPDF = async (payload:any) => {
     isLoading.value = true
 
-    const { getWR } = useWR()
     const wrId = payload
-    const { data } = await getWR(wrId)
-    console.log('wrData: ', data.value);
+    const wrData = await $fetch(`/api/wrs/${wrId}`)
     
     try {
       const pdfMakeLib = await loadPdfMake()
@@ -32,14 +30,14 @@ const downloadPDF = async (payload:any) => {
 
       // const wrData = await dispatch('getWRById', wrId)
       // const wrPackages = await dispatch('packages/getWRPackages', wrId, {root: true})
-      const wrData = data.value
       if (!wrData) {
         console.error('No se pudo obtener la información del WR para generar el PDF.')
         // Aquí podrías mostrar una notificación al usuario.
         return
       }
-      const wrPackages = data.value?.packages
-      console.log('wrPackages: ', wrPackages);
+      // Los paquetes se traen de su propio endpoint (fuente confiable),
+      // no de la cache del WR (que puede no incluir `packages`).
+      const { items: wrPackages } = await $fetch(`/api/packages/wr/${wrId}?itemsPerPage=1000`)
       const packagesTable = []
       packagesTable.push([
         { text: 'BOX', bold: true, alignment: 'center' },
@@ -75,8 +73,8 @@ const downloadPDF = async (payload:any) => {
               // e.pkgId,
               // e.wr.wrId + '-' + e.label,
               // wrData.wrId + '-' + e.label,
-              `${wrData.wrId}-${e.label}`,
-              e.trkgNum,
+              { text: `${wrData.wrId}-${e.label}`, alignment: 'center' },
+              { text: e.trkgNum, alignment: 'center' },
               // {text: e.measures.l ? e.measures.l : '' + (e.measures.h ? 'x' + e.measures.h : '') + (e.measures.w ? 'x' + e.measures.w : ''), alignment: 'center'},
               {
                 text: (e.measures?.l != null || e.measures?.w != null || e.measures?.h != null)
