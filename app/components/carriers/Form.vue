@@ -1,159 +1,137 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useVuelidate } from '@vuelidate/core'
-import { required, email, minLength, alphaNum, helpers } from '@vuelidate/validators'
-import { useI18n } from 'vue-i18n';
-import type { Carrier } from '~~/app/interfaces/Carrier';
+// Modal de formulario de carrier (crear/editar)
+// Patrón casaroca: lee el estado global de useCarrierUI (useState) y emite 'saved'.
+import { carrierFormSchema } from '~~/shared/carrier'
 
-const { t } = useI18n()
+const { isFormOpen, selectedCarrier, closeForm } = useCarrierUI()
+const { saving, submitError, fieldErrors, saveCarrier } = useCarrierForm()
 
-interface Props {
-  isOpen: boolean
-  action?: 'create' | 'edit' | ''
-  dataForm: Carrier
-}
-interface Emits {
-  (e: 'onClose'):void
-  (e: 'onClear'):void
-}
+const emit = defineEmits<{
+  (e: 'saved'): void
+}>()
 
-const props = withDefaults( defineProps<Props>(), {
-  isOpen: true,
-  action: 'create'
-})
-const emits = defineEmits<Emits>()
+const isEditing = computed(() => !!selectedCarrier.value)
 
-const state = ref<Carrier>({ ...props.dataForm })
+const formRef = ref<any>(null)
 
-// Sincroniza state con dataForm al editar
-watch( () => props.dataForm,
-  (newVal) => {
-    state.value = { ...newVal,
-      // contacts: newVal.contacts ? [...newVal.contacts] : []
-    }
-  }, { deep: true, immediate: true }
-)
-
-// const state = ref<User>({ ...props.dataForm })
-const isLoading = ref(false)
-
-// Computed properties for dynamic values
-const title = computed(() => (props.action === 'create' ? 'New Carrier' : 'Edit Carrier'))
-const color = computed(() => (props.action === 'create' ? 'blue-darken-3' : 'warning'))
-
-// Validation rules
-const rules = () => ({
-  name: { required },
-  code: { required, alphaNum, minLength: minLength(2) },
-  // fee: { required },
-  // email: { email },
+const form = ref<Record<string, any>>({
+  name: '',
+  code: '',
 })
 
-const v$ = useVuelidate(rules, state)
+type VuetifyRule = (v: any) => string | boolean
 
-// Error messages
-const getFieldErrors = (field: keyof Carrier) =>
-  v$.value[field]?.$errors.map((e: any) => e.$message) || []
+// Reglas Vuetify derivadas del esquema zod
+const rules: Record<string, VuetifyRule[]> = {
+  name: [
+    (v: string) => {
+      const result = carrierFormSchema.shape.name.safeParse(v)
+      return result.success || result.error.issues[0]?.message || true
+    },
+  ],
+  code: [
+    (v: string) => {
+      const result = carrierFormSchema.shape.code.safeParse(v)
+      return result.success || result.error.issues[0]?.message || true
+    },
+  ],
+}
 
-// const getContactFieldErrors = (index: number, field: 'name' | 'position' | 'phone' | 'email') =>
-//   v$.value.contacts.$errors.map((e: any) => e.$response.$errors[index]?.[field]?.map((e: any) => e.$message))
+const resetForm = () => {
+  form.value = { name: '', code: '' }
+}
 
-const { createCarrier, updateCarrier } = useCarrier()
-
-const processForm = async () => {
-  v$.value.$touch()
-  if (v$.value.$error) return
-
-  try {
-    isLoading.value = true
-    let actionProcess
-    if( props.action === 'create' ) {
-      const { data } = await createCarrier(state.value)
-      actionProcess = data
-    } else if ( props.action === 'edit' ) {
-      const dataId = state.value._id
-      const { data:updatedData } = await updateCarrier(dataId!, state.value)
-      actionProcess = updatedData
-      await refreshNuxtData([`carrier-${dataId}`])
+// Cuando se abre el modal: copiar los datos de la fila seleccionada o resetear.
+watch(isFormOpen, (open) => {
+  if (!open) return
+  submitError.value = ''
+  fieldErrors.value = {}
+  resetForm()
+  const c = selectedCarrier.value
+  if (c) {
+    form.value = {
+      name: c.name ?? '',
+      code: c.code ?? '',
     }
+  }
+})
 
-    if (actionProcess) {
-      emits('onClose')
-      clearForm()
-    }
-  } catch (error) {
-    console.error('Error processing form:', error)
-  } finally {
-    await refreshNuxtData(['carrier-list'])
-    isLoading.value = false
+const save = async () => {
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate()
+    if (!valid) return
+  }
+
+  const success = await saveCarrier(form.value, selectedCarrier.value?.id ?? undefined)
+  if (success) {
+    emit('saved')
+    closeForm()
   }
 }
-
-// Cancel form
-const cancel = () => {
-  clearForm()
-  emits('onClose')
-  isLoading.value = false
-}
-
-// Clear form and reset validation
-const clearForm = () => {
-  v$.value.$reset()
-  emits('onClear')
-}
-
-
 </script>
 
 <template>
-  <v-dialog max-width="800"
-    v-model="props.isOpen"
+  <v-dialog
+    :model-value="isFormOpen"
+    max-width="520"
+    @update:model-value="(v: boolean) => { if (!v) closeForm() }"
   >
-    <v-progress-linear absolute bottom
-      model-value="100"
-      :color="color"
-      :indeterminate="isLoading"
-    ></v-progress-linear>
-    
     <v-card>
-      <v-toolbar density="compact">
-        <v-toolbar-title>{{ t(`${title}`) }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-      </v-toolbar>
-      <form @submit.prevent="processForm">
-        <v-container fluid>
-          <v-row>
-            <v-col cols="12" sm="8">
-              <v-text-field density="compact"
-                :label="t('name')"
-                v-model="state.name"
-                @input="v$.name.$touch()"
-                @blur="v$.name.$touch()"
-                :error-messages="getFieldErrors('name')"
-              />
-            </v-col>
-
-            
-
-            <v-col cols="12" sm="3">
-              <v-text-field
-                :label="t('code')"
-                v-model="state.code"
-                @input="v$.code.$touch()"
-                @blur="v$.code.$touch()"
-                :error-messages="getFieldErrors('code')"
-              />
-            </v-col>
-            
-          </v-row>
-
-          
-          <v-row class="mb-1 mt-6">
-            <v-btn class="mr-4 ml-4" color="success" type="submit" :disabled="isLoading">Submit</v-btn>
-            <v-btn color="error" @click="cancel">Cancel</v-btn>
-          </v-row>
-        </v-container>
-      </form>
+      <v-progress-linear
+        :indeterminate="saving"
+        :model-value="saving ? undefined : 100"
+      />
+      <v-card-title>
+        {{ isEditing ? 'Editar Carrier' : 'Nuevo Carrier' }}
+      </v-card-title>
+      <v-card-text>
+        <v-form ref="formRef" @submit.prevent="save">
+          <v-container fluid>
+            <v-row>
+              <v-col cols="12" sm="4">
+                <v-text-field
+                  v-model="form.code"
+                  label="Código"
+                  density="compact"
+                  :rules="rules.code"
+                  :error-messages="fieldErrors.code"
+                  :disabled="saving"
+                  @input="fieldErrors.code = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="8">
+                <v-text-field
+                  v-model="form.name"
+                  label="Nombre"
+                  density="compact"
+                  :rules="rules.name"
+                  :error-messages="fieldErrors.name"
+                  :disabled="saving"
+                  @input="fieldErrors.name = undefined"
+                />
+              </v-col>
+            </v-row>
+            <v-alert
+              v-if="submitError"
+              type="error"
+              class="mt-2"
+              closable
+              @click:close="submitError = ''"
+            >
+              {{ submitError }}
+            </v-alert>
+          </v-container>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="error" variant="text" :disabled="saving" @click="closeForm">
+          Cancelar
+        </v-btn>
+        <v-btn color="primary" :loading="saving" @click="save">
+          Guardar
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
