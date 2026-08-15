@@ -47,9 +47,14 @@ const refreshWrState = async (payload?: {
     packagesListRef.value.reload()
   }
 
+  if (!client.value) return
+
+  // Reemplazamos el objeto completo para garantizar la reactividad.
+  const next: Record<string, any> = { ...client.value }
+
   // Si se creó un WR nuevo, reemplaza el lastWr local
-  if (payload?.wr && client.value) {
-    client.value.lastWr = {
+  if (payload?.wr) {
+    next.lastWr = {
       _id: payload.wr.id ?? payload.wr._id,
       wrId: payload.wr.wrId,
       status: payload.wr.status ?? 'pending',
@@ -59,14 +64,14 @@ const refreshWrState = async (payload?: {
   }
 
   // Contadores y estado frescos del server (sin recargar la página)
-  const wrId = payload?.wr ? (payload.wr.id ?? payload.wr._id) : client.value?.lastWr?._id
+  const wrId = payload?.wr ? (payload.wr.id ?? payload.wr._id) : next.lastWr?._id
   if (wrId) {
     try {
       const summary = await $fetch(`/api/wrs/${wrId}/summary`)
-      if (client.value?.lastWr) {
-        client.value.lastWr.packageCount = summary.packageCount
-        client.value.lastWr.availablePackageCount = summary.availablePackageCount
-        client.value.lastWr.status = summary.status
+      if (next.lastWr) {
+        next.lastWr.packageCount = summary.packageCount
+        next.lastWr.availablePackageCount = summary.availablePackageCount
+        next.lastWr.status = summary.status
       }
     } catch (error) {
       console.error('Error actualizando resumen del WR:', error)
@@ -74,9 +79,9 @@ const refreshWrState = async (payload?: {
   }
 
   // Último paquete (si la acción creó paquetes)
-  if (payload?.packages?.length && client.value) {
+  if (payload?.packages?.length) {
     const last = payload.packages[payload.packages.length - 1]
-    client.value.lastPackage = {
+    next.lastPackage = {
       _id: last._id ?? last.id,
       trkgNum: last.trkgNum,
       notes: last.notes,
@@ -85,13 +90,15 @@ const refreshWrState = async (payload?: {
   }
 
   // Último CR (si la acción creó un CR)
-  if (payload?.cr && client.value) {
-    client.value.lastCr = {
+  if (payload?.cr) {
+    next.lastCr = {
       _id: payload.cr.id ?? payload.cr._id,
       crId: payload.cr.crId,
       createdAt: payload.cr.createdAt,
     }
   }
+
+  client.value = next
 }
 
 const handleCrCreated = async (crData?: Record<string, any>) => {
