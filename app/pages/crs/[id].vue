@@ -2,6 +2,10 @@
 import { useI18n } from 'vue-i18n'
 import type { CR } from '~/interfaces/CR'
 
+definePageMeta({
+  middleware: 'auth',
+})
+
 const { t } = useI18n()
 const route = useRoute()
 const dataId = route.params.id?.toString() || '0'

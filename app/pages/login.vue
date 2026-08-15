@@ -9,10 +9,7 @@ const title = ref<string>('')
 
 definePageMeta({
   layout: 'login',
-  auth: {
-    unauthenticatedOnly: true,
-    navigateAuthenticatedTo: '/',
-  }
+  middleware: 'not-authenticated',
 })
 
 const { backgroundStyle } = useBackground()

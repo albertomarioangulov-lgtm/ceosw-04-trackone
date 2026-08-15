@@ -10,6 +10,10 @@ export async function fetchResource(
     method,
     headers: getHeaders(),
   }
+  // En SSR reenviamos la cookie de sesión; en el cliente viaja automáticamente.
+  if (import.meta.server) {
+    options.headers = { ...options.headers, ...useRequestHeaders(['cookie']) }
+  }
   if (body) options.body = body
   if (cacheKey) {
     options.key = cacheKey

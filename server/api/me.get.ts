@@ -1,7 +1,5 @@
 import User from '~~/server/models/User'
 
-// Endpoint de compatibilidad: devuelve el usuario con la misma forma
-// que usaba la UI (`{ userData }`), pero leyendo la sesión.
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event)
   const userId = session.user.id
@@ -16,10 +14,10 @@ export default defineEventHandler(async (event) => {
   }
 
   return {
-    userData: {
-      _id: String(user._id),
-      name: user.name,
+    user: {
+      id: String(user._id),
       email: user.email,
+      name: user.name,
       initials: user.initials,
       color: user.color,
       avatar: user.avatar,

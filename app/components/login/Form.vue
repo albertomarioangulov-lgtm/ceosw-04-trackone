@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { useVuelidate } from '@vuelidate/core'
 import { email, required } from '@vuelidate/validators'
-import { nextTick } from 'vue'
 
-const { signIn, status: authStatus, getSession } = useAuth()
-
-interface Emits {
-  (e: 'onClose'):void
-}
+const { login } = useAuthentication()
 
 const isLoading = ref<boolean>(false)
 const credentialsError = ref<boolean>(false)
@@ -30,34 +25,17 @@ const v$ = useVuelidate(rules, state)
 
 const onSubmit = async () => {
   const isFormValid = await v$.value.$validate()
+  if (!isFormValid) return
 
-  if (isFormValid) {
-    isLoading.value = true
+  isLoading.value = true
+  credentialsError.value = false
 
-    try {
-      const response = await signIn({
-        email: state.email,
-        password: state.password
-      }, { redirect: false, callbackUrl: '/' })
-      
-      if (response?.error) {
-        credentialsError.value = true
-      } else {
-        isLoading.value = false
-        credentialsError.value = false
-        
-        // Esperamos a que el DOM se estabilice antes de navegar
-        await nextTick() 
-        await navigateTo('/')
-      }
-    } catch (error) {
-      isLoading.value = false
-      credentialsError.value = true
-      console.error('Login error:', error)
-    } finally {
-      isLoading.value = false
-    }
+  const success = await login(state.email, state.password)
+  if (!success) {
+    credentialsError.value = true
   }
+
+  isLoading.value = false
 }
 
 const emailErrors = computed(() => v$.value.email.$errors.map((e: any) => e.$message))

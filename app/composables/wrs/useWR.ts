@@ -1,16 +1,13 @@
 import { useWrsStore } from "~/store/wrs"
 
 const resourceName = 'wr'
-const store = useWrsStore()
-// const { clients } = storeToRefs(store)
 
 const useWR = () => {
-  const { token } = useAuth()
+  const store = useWrsStore()
   const API_URL = `/api/${resourceName}s`
 
   // Helper for headers
   const getHeaders = () => ({
-    Authorization: `${token.value}`,
     'Content-Type': 'application/json',
   })
 

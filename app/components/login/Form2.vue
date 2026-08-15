@@ -28,9 +28,9 @@
               Entrar con Google
             </v-btn>
             <v-alert v-if="error" type="error" class="mt-4">{{ error }}</v-alert>
-            <v-alert v-if="status === 'authenticated'" type="success" class="mt-4">
-              Bienvenido, {{ data?.user?.name || data?.user?.email }}
-              <v-btn size="small" @click="signOut" class="ml-2">Cerrar sesión</v-btn>
+            <v-alert v-if="isLoggedIn" type="success" class="mt-4">
+              Bienvenido, {{ user?.name || user?.email }}
+              <v-btn size="small" @click="logout" class="ml-2">Cerrar sesión</v-btn>
             </v-alert>
           </v-card-text>
         </v-card>
@@ -41,27 +41,22 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-// import { useAuth } from '#auth'
-// import { useAuth } from 'next-auth'
 
-const { signIn, status, data, signOut } = useAuth()
+const { login, logout, isLoggedIn, user } = useAuthentication()
 const email = ref('')
 const password = ref('')
 const error = ref('')
 
 const loginWithCredentials = async () => {
   error.value = ''
-  const result = await signIn('credentials', {
-    email: email.value,
-    password: password.value,
-    redirect: false
-  })
-  if (result?.error) {
+  const success = await login(email.value, password.value)
+  if (!success) {
     error.value = 'Credenciales incorrectas'
   }
 }
 
 const loginWithGoogle = () => {
-  signIn('google')
+  // Google OAuth se integrará en una fase posterior (como en casaroca-01)
+  error.value = 'Google OAuth aún no está configurado'
 }
 </script>

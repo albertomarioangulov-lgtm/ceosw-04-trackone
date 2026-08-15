@@ -40,44 +40,15 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/icon',
     '@nuxt/image',
-    '@sidebase/nuxt-auth',
+    'nuxt-auth-utils',
     '@pinia/nuxt',
     '@vueuse/nuxt',
   ],
-
-  auth: {
-    // baseURL: process.env.NUXT_AUTH_ORIGIN,
-    isEnabled: true,
-    provider: {
-      type: 'local',
-      endpoints: {
-        signIn: { path: '/login', method: 'post' },
-        // signOut: false,
-        // signUp: { path: '/registration', method: 'post' },
-        getSession: { path: '/user', method: 'get' }
-      },
-      pages: {
-        login: '/login',    // page where unauthorized user will be redirect if it will try to access protected page
-      },
-      token: {
-        maxAgeInSeconds: 60 * 60 * 24,    // token expiration 1d
-        signInResponseTokenPointer: '/token/accessToken',
-      },
-      sessionDataType: {
-        id: 'string',
-        email: 'string',
-        role: 'string',
-        permissions: 'array'
-      },
-    },
-    globalAppMiddleware: true
-  },
 
   runtimeConfig: {
     mongodbUri: process.env.MONGODB_URI_CEOSW,
     mongodbName: process.env.MONGODB_NAME,
     authSecret: process.env.NUXT_AUTH_SECRET,
-    authOrigin: process.env.NUXT_AUTH_ORIGIN,
     brevoApiKey: process.env.BREVO_API_KEY_CEOSW,
 
     public: {

@@ -1,16 +1,12 @@
 import { useUsersStore } from "~/store/users"
 
-const store = useUsersStore()
-const { users } = storeToRefs(store)
-
 const useUser = () => {
-  const { token } = useAuth()
+  const store = useUsersStore()
+  const { users } = storeToRefs(store)
   const API_URL = '/api/users'
 
   // Helper function to generate headers dynamically
   const getHeaders = () => ({
-    Authorization: `${token.value}`,
-    // Authorization: `Bearer ${token.value}`,
     'Content-Type': 'application/json',
   })
 

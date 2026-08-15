@@ -3,9 +3,13 @@ import { useTheme } from 'vuetify';
 
 const themeCookie = useCookie<string>('theme');
 
-const { signOut, data } = useAuth()
-// @ts-expect-error
-const { name, email, color, initials, roles, avatar } = data.value!.userData
+const { user, logout } = useAuthentication()
+
+const name = computed(() => user.value?.name ?? '')
+const email = computed(() => user.value?.email ?? '')
+const color = computed(() => user.value?.color ?? 'blue')
+const avatar = computed(() => user.value?.avatar ?? null)
+const roles = computed(() => user.value?.roles ?? [])
 
 const iconSize = ref('x-large')
 
@@ -51,8 +55,8 @@ const toggleTheme = () => {
           </v-list-item-title>
           <v-list-item-subtitle class="font-italic text-caption">{{ email }}</v-list-item-subtitle>
           <v-list-item-subtitle class="font-italic text-caption">
-            <template v-for="role in roles">
-              <v-chip size="x-small" :color="role.color" variant="tonal">{{ role.name }}</v-chip>
+            <template v-for="role in roles" :key="role">
+              <v-chip size="x-small" color="primary" variant="tonal">{{ role }}</v-chip>
             </template>
           </v-list-item-subtitle>
         </div>
@@ -76,14 +80,14 @@ const toggleTheme = () => {
                 <span class="text-button">Toggle Theme</span>
               </template>
             </v-list-item>
-            <v-list-item @click="signOut({ callbackUrl: '/login' })">
+            <v-list-item @click="logout">
               <template v-slot:prepend>
                 <Icon size="1.5em" name="mdi:logout" class="mr-3" />
                 <span class="text-button">Logout</span>
               </template>
             </v-list-item>
             <!-- <v-list-item>
-              <v-btn rounded variant="text" icon="mdi-logout" @click="signOut({ callbackUrl: '/login' })">
+              <v-btn rounded variant="text" icon="mdi-logout" @click="logout">
                 Logout
               </v-btn>
             </v-list-item> -->

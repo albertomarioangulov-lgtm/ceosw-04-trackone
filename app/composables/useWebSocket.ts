@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, useAuth } from '#imports'
+import { ref, onMounted, onUnmounted } from '#imports'
 
 interface ConnectionError {
   message: string
@@ -16,13 +16,14 @@ export function useWebSocket<T = any>() {
 
   const connect = () => {
     if (ws.value && ws.value.readyState === WebSocket.OPEN) return
-    
-    const { token } = useAuth()
-    if (!token.value) return // No conectar si no hay token
+
+    const { user } = useUserSession()
+    const wsToken = user.value?.wsToken
+    if (!wsToken) return // No conectar si no hay sesión
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const host = window.location.host
-    const wsUrl = `${protocol}://${host}/ws?token=${token.value}`
+    const wsUrl = `${protocol}://${host}/ws?token=${wsToken}`
 
     // console.log('Connecting to WebSocket at', wsUrl)
 

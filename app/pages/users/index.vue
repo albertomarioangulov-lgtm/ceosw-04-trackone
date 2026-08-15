@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 
   definePageMeta({
-    middleware: 'sidebase-auth'
+    middleware: 'auth'
   })
 
   const { t } = useI18n()

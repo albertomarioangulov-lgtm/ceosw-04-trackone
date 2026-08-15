@@ -1,16 +1,13 @@
 import { useClientsStore } from "~/store/clients"
 
 const resourceName = 'client'
-const store = useClientsStore()
-// const { clients } = storeToRefs(store)
 
 const useClient = () => {
-  const { token } = useAuth()
+  const store = useClientsStore()
   const API_URL = `/api/${resourceName}s`
 
   // Helper for headers
   const getHeaders = () => ({
-    Authorization: `${token.value}`,
     'Content-Type': 'application/json',
   })
 

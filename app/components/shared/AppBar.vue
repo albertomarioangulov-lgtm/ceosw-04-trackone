@@ -4,11 +4,6 @@ import { useTheme } from 'vuetify';
 const runConfig  = useRuntimeConfig().public
 const clientLogo = ref<any>(runConfig.clientLogo)
 
-const { signOut, data } = useAuth()
-
-// const { name, email, color, initials, roles, avatar } = data.value!.userData
-// const { name, email, color, initials, roles, avatar } = data.value!.userData
-
 const title = ref('APM')
 const iconSize = ref('x-large')
 

@@ -1,16 +1,13 @@
 import { usePackagesStore } from "~/store/packages"
 
 const resourceName = 'package'
-const store = usePackagesStore()
-// const { clients } = storeToRefs(store)
 
 const usePackage = () => {
-  const { token } = useAuth()
+  const store = usePackagesStore()
   const API_URL = `/api/${resourceName}s`
 
   // Helper for headers
   const getHeaders = () => ({
-    Authorization: `${token.value}`,
     'Content-Type': 'application/json',
   })
 

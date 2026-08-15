@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useAuth } from '#imports'
 import { subMonths, startOfMonth, endOfMonth, formatISO, parseISO, formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import StatsCard from '~~/app/components/dashboard/StatsCard.vue'
@@ -9,17 +8,16 @@ import RecentWrsTable from '~~/app/components/dashboard/RecentWrsTable.vue'
 import TopClientsTable from '~~/app/components/dashboard/TopClientsTable.vue'
 
 definePageMeta({
-  middleware: 'sidebase-auth',
+  middleware: 'auth',
 })
 
-const { token } = useAuth()
 const { lastMessage } = useWebSocket()
 
-// Helper for headers
-const getHeaders = () => ({
-  Authorization: `${token.value}`,
+// Headers para llamadas al API (la sesión viaja en cookie; en SSR se reenvía)
+const requestHeaders = {
   'Content-Type': 'application/json',
-})
+  ...useRequestHeaders(['cookie']),
+}
 
 // --- Filtro de Rango de Fechas ---
 const today = new Date()
@@ -55,11 +53,11 @@ const { data, pending, error, refresh } = await useAsyncData(
     })
 
     const [stats, wrsByMonth, packageStatus, recentWrs, topClients] = await Promise.all([
-      $fetch(`/api/dashboard/stats?${params.toString()}`, { headers: getHeaders() }),
-      $fetch(`/api/dashboard/wrs-by-month?${params.toString()}`, { headers: getHeaders() }),
-      $fetch(`/api/dashboard/package-status?${params.toString()}`, { headers: getHeaders() }),
-      $fetch('/api/dashboard/recent-wrs', { headers: getHeaders() }),
-      $fetch(`/api/dashboard/top-clients?${params.toString()}`, { headers: getHeaders() }),
+      $fetch(`/api/dashboard/stats?${params.toString()}`, { headers: requestHeaders }),
+      $fetch(`/api/dashboard/wrs-by-month?${params.toString()}`, { headers: requestHeaders }),
+      $fetch(`/api/dashboard/package-status?${params.toString()}`, { headers: requestHeaders }),
+      $fetch('/api/dashboard/recent-wrs', { headers: requestHeaders }),
+      $fetch(`/api/dashboard/top-clients?${params.toString()}`, { headers: requestHeaders }),
     ])
     return { stats, wrsByMonth, packageStatus, recentWrs, topClients }
   },

@@ -1,16 +1,13 @@
 import { useCrsStore } from "~/store/crs"
 
 const resourceName = 'cr'
-const store = useCrsStore()
-// const { clients } = storeToRefs(store)
 
 const useCR = () => {
-  const { token } = useAuth()
+  const store = useCrsStore()
   const API_URL = `/api/${resourceName}s`
 
   // Helper for headers
   const getHeaders = () => ({
-    Authorization: `${token.value}`,
     'Content-Type': 'application/json',
   })
 

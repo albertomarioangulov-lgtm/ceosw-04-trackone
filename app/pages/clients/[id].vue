@@ -1,4 +1,8 @@
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth',
+})
+
 const route = useRoute();
 
 const { lastMessage } = useWebSocket()
@@ -6,17 +10,8 @@ const { lastMessage } = useWebSocket()
 const clientId = route.params.id as string;
 const packagesListRef = ref<any>(null)
 
-const { token } = useAuth()
-
-// Helper for headers
-const getHeaders = () => ({
-  Authorization: `${token.value}`,
-  'Content-Type': 'application/json',
-})
-
-
 // `useFetch` obtiene los datos del lado del servidor (o cliente) y maneja los estados de carga y error.
-const { data: client, pending, error, refresh: refreshClient } = await useFetch(`/api/clients/${clientId}`, { headers: getHeaders(), lazy: true });
+const { data: client, pending, error, refresh: refreshClient } = await useFetch(`/api/clients/${clientId}`, { headers: useRequestHeaders(['cookie']), lazy: true });
 
 const selectedPackages = ref<string[]>([])
 
