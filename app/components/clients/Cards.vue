@@ -24,6 +24,7 @@ const emit = defineEmits<{
     :page="page"
     :items-per-page="itemsPerPage"
     :sort-by="[{ key: sortBy, order: sortOrder }]"
+    :hide-default-footer="total <= itemsPerPage"
     @update:options="emit('update:options', $event)"
   >
     <template #default="{ items: iteratorItems }">

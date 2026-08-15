@@ -34,6 +34,7 @@ const headers = [
     :page="page"
     :items-per-page="itemsPerPage"
     :sort-by="[{ key: sortBy, order: sortOrder }]"
+    :hide-default-footer="total <= itemsPerPage"
     density="comfortable"
     @update:options="emit('update:options', $event)"
   >
