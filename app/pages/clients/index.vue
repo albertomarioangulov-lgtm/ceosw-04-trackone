@@ -28,7 +28,40 @@ const handleView = (client: Record<string, any>) => {
   navigateTo(`/clients/${client.id ?? client._id}`)
 }
 
+// View mode: 'table' | 'cards'
+const viewMode = ref<'table' | 'cards'>('table')
+
+const initializeViewMode = () => {
+  let stored: string | null = null
+  try {
+    stored = localStorage.getItem('clients-view-mode')
+  } catch {}
+  if (stored === 'table' || stored === 'cards') {
+    viewMode.value = stored
+  } else {
+    viewMode.value = window.innerWidth < 768 ? 'cards' : 'table'
+  }
+}
+
+const toggleView = () => {
+  viewMode.value = viewMode.value === 'table' ? 'cards' : 'table'
+  try {
+    localStorage.setItem('clients-view-mode', viewMode.value)
+  } catch {}
+}
+
 onMounted(() => {
+  initializeViewMode()
+
+  window.addEventListener('resize', () => {
+    try {
+      const stored = localStorage.getItem('clients-view-mode')
+      if (!stored) {
+        viewMode.value = window.innerWidth < 768 ? 'cards' : 'table'
+      }
+    } catch {}
+  })
+
   if (can(PERMISSIONS.CLIENTS_VIEW)) {
     fetchClients()
   }
@@ -60,6 +93,13 @@ onMounted(() => {
       >
         Limpiar
       </v-btn>
+      <v-btn
+        variant="text"
+        :icon="viewMode === 'table' ? 'mdi-view-grid-outline' : 'mdi-view-list-outline'"
+        :title="viewMode === 'table' ? 'Vista tarjetas' : 'Vista tabla'"
+        @click="toggleView"
+        class="mr-2"
+      />
       <v-spacer />
       <ClientsBtnCreate />
     </v-toolbar>
@@ -69,6 +109,20 @@ onMounted(() => {
     </v-alert>
 
     <ClientsTable
+      v-if="viewMode === 'table'"
+      :items="items"
+      :loading="loading"
+      :total="total"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      :sort-by="sortBy"
+      :sort-order="sortOrder"
+      @view="handleView"
+      @update:options="handleUpdateOptions"
+    />
+
+    <ClientsCards
+      v-else
       :items="items"
       :loading="loading"
       :total="total"
