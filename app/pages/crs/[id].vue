@@ -15,10 +15,13 @@ const itemData = ref<CR | undefined>(undefined)
 const loadingData = ref(true)
 const fetchCR = async () => {
   loadingData.value = true
-  const { getCR } = useCR()
-  const { data, refresh } = await getCR(dataId)
-  itemData.value = data.value as CR
-  loadingData.value = false
+  try {
+    itemData.value = await $fetch(`/api/crs/${dataId}`) as CR
+  } catch (error) {
+    console.error('Error cargando CR:', error)
+  } finally {
+    loadingData.value = false
+  }
 }
 
 
@@ -48,7 +51,7 @@ const items = [
       <v-spacer />
       <!-- <CrsBtnSubmit action="edit" :itemData="clientData" /> -->
        <CrsBtnDownloadPDF :item-id="dataId" />
-       <CrsBtnSendEmail :item="itemData!" :itemId="dataId"  />
+       <CrsBtnSendEmail :item="itemData!" :itemId="dataId" @sent="fetchCR" />
     </v-toolbar>
 
     <PackagesByCRList :item="itemData!" :itemId="dataId" />

@@ -11,8 +11,6 @@ interface Props {
 const props = defineProps<Props>()
 // const emit = defineEmits(['onCrCreated']) // Ya no es necesario
 
-const { createCR } = useCR()
-
 const createCRDialog = ref(false)
 const isCreatingCR = ref(false)
 
@@ -20,7 +18,10 @@ async function handleCreateCR() {
   if (props.selected.length === 0) return
   isCreatingCR.value = true
   try {
-    await createCR({ wr: props.wrId, packages: props.selected })
+    await $fetch('/api/crs', {
+      method: 'POST',
+      body: { wr: props.wrId, packages: props.selected },
+    })
     createCRDialog.value = false
     // emit('onCrCreated') // El servidor notificará a los clientes vía WebSocket
     // TODO: Implementar notificación de éxito

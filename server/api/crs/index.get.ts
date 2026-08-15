@@ -9,10 +9,11 @@ export default defineEventHandler(async (event) => {
     // Obtener parámetros de paginación, búsqueda y ordenamiento del query
     const query = getQuery(event)
     const page = Number(query.page ?? 1)
-    const itemsPerPage = Number(query.itemsPerPage ?? 25)
+    const limit = Number(query.limit ?? query.itemsPerPage ?? 25)
     const search = (query.search as string) ?? ''
     const sortBy = (query.sortBy as string) ?? ''
-    const sortDesc = query.sortDesc === 'true'
+    const sortOrder = (query.sortOrder as string) || (query.sortDesc === 'true' ? 'desc' : 'asc')
+    const sortDesc = sortOrder !== 'asc'
 
     const filter: any = {}
     if (search) {
@@ -86,9 +87,9 @@ export default defineEventHandler(async (event) => {
           items: [
             { $sort: sort },
             // Aplicar paginación
-            ...(itemsPerPage > 0 ? [
-              { $skip: (page - 1) * itemsPerPage },
-              { $limit: itemsPerPage }
+            ...(limit > 0 ? [
+              { $skip: (page - 1) * limit },
+              { $limit: limit }
             ] : []),
             // Aplicar lookup de 'createdBy' solo a los datos de la página
             {
@@ -115,7 +116,16 @@ export default defineEventHandler(async (event) => {
     const items = result.items
     const total = result.total.length > 0 ? result.total[0].count : 0
 
-    return { items, total }
+    return {
+      items: items.map((item: any) => ({
+        ...item,
+        id: item._id?.toString?.() ?? item._id,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 1,
+    }
   } catch (error) {
     console.error('Error fetching CRs:', error)
     throw createError({ statusCode: 500, statusMessage: 'An internal server error occurred.' })

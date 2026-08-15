@@ -18,10 +18,8 @@ const isLoading = ref(false)
 const downloadPDF = async (payload:any) => {
     isLoading.value = true
 
-    const { getCR } = useCR()
     const crId = payload
-    const { data } = await getCR(crId)
-    console.log('crData: ', data.value);
+    const crData = await $fetch(`/api/crs/${crId}`)
     
     try {
       const pdfMakeLib = await loadPdfMake()
@@ -29,14 +27,12 @@ const downloadPDF = async (payload:any) => {
 
       // const wrData = await dispatch('getWRById', wrId)
       // const wrPackages = await dispatch('packages/getWRPackages', wrId, {root: true})
-      const crData = data.value
       if (!crData) {
         console.error('No se pudo obtener la información del CR para generar el PDF.')
         // Aquí podrías mostrar una notificación al usuario.
         return
       }
-      const crPackages = data.value?.packages
-      console.log('crPackages: ', crPackages);
+      const crPackages = crData.packages
       const packagesTable = []
       packagesTable.push([
         { text: 'ID', bold: true},

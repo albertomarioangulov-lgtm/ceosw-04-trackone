@@ -1,4 +1,5 @@
 import { PERMISSIONS } from '~~/shared/permissions'
+import { crCreateSchema } from '~~/shared/cr'
 import { WR_STATUS } from '~~/shared/wr'
 import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
@@ -13,12 +14,22 @@ export default defineEventHandler( async (event) => {
   await requirePermission(event, PERMISSIONS.CRS_MANAGE)
 
   const userId = await getUserId(event)
-
   const body = await readBody(event)
-  const { wr, packages: packageIds } = body
+  const result = crCreateSchema.safeParse(body)
+
+  if (!result.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validación de CR fallida',
+      data: result.error.flatten().fieldErrors,
+    })
+  }
+
+  const { wr, packages: packageIds, carrier } = result.data
 
   const newData = new CR({
     wr,
+    carrier,
     createdBy: userId
   })
   const savedData = await newData.save()
@@ -58,5 +69,8 @@ export default defineEventHandler( async (event) => {
     }
   })
   
-  return savedData
+  return {
+    ...savedData.toObject(),
+    id: savedData._id.toString(),
+  }
 })
