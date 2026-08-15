@@ -1,15 +1,15 @@
 import { PERMISSIONS } from '~~/shared/permissions'
-import { userCreateSchema } from '~~/shared/user'
-import User from "~~/server/models/User"
+import { PERMISSIONS } from '~~/shared/permissions'
+import { userUpdateSchema } from '~~/shared/user'
+import User from '~~/server/models/User'
 import bcryptjs from 'bcryptjs'
 
-export default defineEventHandler( async (event) => {
-
+export default defineEventHandler(async (event) => {
   await requirePermission(event, PERMISSIONS.USERS_MANAGE)
 
-  const userId = await getUserId(event)
+  const id = getRouterParam(event, 'id')
   const body = await readBody(event)
-  const result = userCreateSchema.safeParse(body)
+  const result = userUpdateSchema.safeParse(body)
 
   if (!result.success) {
     throw createError({
@@ -19,12 +19,23 @@ export default defineEventHandler( async (event) => {
     })
   }
 
-  const { password, ...data } = result.data
-  const salt = await bcryptjs.genSalt(10)
-  const hash = await bcryptjs.hash(password, salt)
+  const updateData: Record<string, any> = { ...result.data }
+  if (updateData.password) {
+    const salt = await bcryptjs.genSalt(10)
+    updateData.password = await bcryptjs.hash(updateData.password, salt)
+  } else {
+    delete updateData.password
+  }
 
   try {
-    const user = await User.create({ ...data, password: hash, createdBy: userId })
+    const user = await User.findByIdAndUpdate(id, updateData, { returnDocument: 'after', runValidators: true })
+      .select('-password')
+      .lean()
+
+    if (!user) {
+      throw createError({ statusCode: 404, statusMessage: 'Usuario no encontrado' })
+    }
+
     return {
       id: user._id.toString(),
       name: user.name,

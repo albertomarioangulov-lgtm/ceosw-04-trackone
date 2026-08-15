@@ -1,43 +1,83 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+definePageMeta({
+  middleware: 'auth',
+})
 
-  definePageMeta({
-    middleware: 'auth'
-  })
+const { can, PERMISSIONS } = usePermissions()
 
-  const { t } = useI18n()
+const {
+  items,
+  total,
+  loading,
+  error,
+  search,
+  page,
+  itemsPerPage,
+  sortBy,
+  sortOrder,
+  fetchUsers,
+  handleUpdateOptions,
+  clearFilters,
+} = useUserList()
 
-  const pageName = 'users'
-  const pageTitle = t(`${ pageName }`)
-  const isLoading = ref(true)
+const handleSaved = () => {
+  fetchUsers()
+}
 
-  const items = [
-    { title: t('home'), href: '/' },
-    { title: pageTitle, href: `/${ pageName }` }
-  ]
-
-  onMounted(() => {
-    setTimeout(() => {
-      isLoading.value = false
-    }, 1000)
-  })
+onMounted(() => {
+  if (can(PERMISSIONS.USERS_MANAGE)) {
+    fetchUsers()
+  }
+})
 </script>
 
 <template>
-  <v-container class="pt-0 pl-0 pr-0" fluid>
-    
-    <!-- Toolbar -->
-    <v-toolbar flat color="transparent">
-      <v-toolbar-title>{{ pageTitle }}</v-toolbar-title>
-      <v-spacer></v-spacer>
-      
-      <!-- Breadcrumb -->
-      <v-breadcrumbs :items="items"/>
-      
-    </v-toolbar>
-    
-    <!-- Users List -->
-    <UsersList />
+  <template v-if="can(PERMISSIONS.USERS_MANAGE)">
+    <h2 class="text-h6 font-weight-bold mb-2 mt-0">
+      Usuarios
+    </h2>
 
-  </v-container>
+    <v-toolbar>
+      <v-text-field
+        flat
+        class="ml-1"
+        v-model="search"
+        prepend-inner-icon="mdi-magnify"
+        density="compact"
+        variant="solo"
+        hide-details
+        clearable
+        placeholder="Buscar por nombre, usuario o email"
+      />
+      <v-btn
+        variant="text"
+        prepend-icon="mdi-filter-remove-outline"
+        @click="clearFilters"
+      >
+        Limpiar
+      </v-btn>
+      <v-spacer />
+      <UsersBtnCreate />
+    </v-toolbar>
+
+    <v-alert v-if="error" type="error" class="mb-4" closable @click:close="error = ''">
+      {{ error }}
+    </v-alert>
+
+    <UsersTable
+      :items="items"
+      :loading="loading"
+      :total="total"
+      :page="page"
+      :items-per-page="itemsPerPage"
+      :sort-by="sortBy"
+      :sort-order="sortOrder"
+      @update:options="handleUpdateOptions"
+    />
+
+    <UsersForm @saved="handleSaved" />
+  </template>
+  <template v-else>
+    <v-alert type="warning" title="Acceso denegado" text="No tienes permisos para acceder a esta página." />
+  </template>
 </template>

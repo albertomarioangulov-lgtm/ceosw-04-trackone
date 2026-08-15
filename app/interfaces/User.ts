@@ -2,21 +2,25 @@ export interface UserAvatar {
   icon?: string
 }
 
+export interface UserCreatedBy {
+  _id: string
+  name: string
+  initials?: string
+  color?: string
+  avatar?: UserAvatar | null
+}
+
 export interface User {
-  _id?: string
+  id?: string
   name?: string
   username?: string
   initials?: string
   password?: string
   confirmPassword?: string
-  phone?: string
   email?: string
-  emails?: string[]
-  avatar?: UserAvatar
   color?: string
   roles?: string[] // User roles
-  isActive?: boolean // User status
+  createdBy?: UserCreatedBy | null
   createdAt?: string // ISO date
   updatedAt?: string // ISO date
-  createdBy?: string // User ID of creator
 }

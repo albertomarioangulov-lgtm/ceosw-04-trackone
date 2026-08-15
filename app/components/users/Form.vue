@@ -1,231 +1,230 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useVuelidate } from '@vuelidate/core'
-import { required, email, sameAs } from '@vuelidate/validators'
-import { useI18n } from 'vue-i18n';
+// Modal de formulario de usuario (crear/editar)
+// Patrón casaroca: lee el estado global de useUserUI (useState) y emite 'saved'.
+import { userCreateSchema, userUpdateSchema } from '~~/shared/user'
 import { AVAILABLE_ROLES } from '~~/shared/permissions'
 
-import type { User } from '~~/app/interfaces/User';
+const { isFormOpen, selectedUser, closeForm } = useUserUI()
+const { saving, submitError, fieldErrors, saveUser } = useUserForm()
 
-const { t } = useI18n()
+const emit = defineEmits<{
+  (e: 'saved'): void
+}>()
 
-interface Props {
-  isOpen: boolean
-  action?: 'create' | 'edit' | ''
-  dataForm: User
-}
-interface Emits {
-  (e: 'onClose'):void
-  (e: 'onClear'):void
-}
+const isEditing = computed(() => !!selectedUser.value)
 
-const props = withDefaults( defineProps<Props>(), {
-  isOpen: true,
-  action: 'create'
-})
-const emits = defineEmits<Emits>()
+const formRef = ref<any>(null)
 
-const { dataForm: state } = toRefs(props)
-// const { dataForm } = toRefs(props)
-// const isLoading = ref<boolean>(false)
-
-// const state = ref<User>({ ...props.dataForm })
-
-// Sincroniza state con dataForm al editar
-// watch( () => props.dataForm,
-//   (newVal) => {
-//     state.value = { ...newVal }
-//   }, { deep: true, immediate: true }
-// )
-
-const isLoading = ref(false)
-
-// Computed properties for dynamic values
-const title = computed(() => (props.action === 'create' ? 'New User' : 'Edit User'))
-const color = computed(() => (props.action === 'create' ? 'blue-darken-3' : 'warning'))
-
-const passRule = computed(() => {
-  switch (props.action) {
-    case 'create': return { required }
-    case 'edit': return {}
-  }
+const form = ref<Record<string, any>>({
+  name: '',
+  username: '',
+  initials: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  roles: [],
+  color: 'blue',
 })
 
-// Validation rules
-const rules = () => ({
-  name: { required },
-  username: { required },
-  initials: { required },
-  email: { required, email },
-  password: passRule.value,
-  confirmPassword: {
-    sameAsPassword: sameAs(state.value.password),
-  },
-})
+type VuetifyRule = (v: any) => string | boolean
 
-const v$ = useVuelidate(rules, state)
-
-// Error messages
-const getFieldErrors = (field: keyof User) =>
-  v$.value[field]?.$errors.map((e: any) => e.$message) || []
-
-const { createUser, updateUser, getUser } = useUser()
-
-const processForm = async () => {
-  v$.value.$touch()
-  if (v$.value.$error) return
-
-  try {
-    isLoading.value = true
-    let actionProcess
-    if( props.action === 'create' ) {
-      const { data } = await createUser(state.value)
-      actionProcess = data
-    } else if ( props.action === 'edit' ) {
-      const dataId = state.value._id
-      const { data:updatedData } = await updateUser(dataId, state.value)
-      actionProcess = updatedData
-      // const { data:userData } = await getUser(dataId!)
-      await refreshNuxtData([`user-${dataId}`])
-      // refresh()
-    }
-
-    if (actionProcess) {
-      emits('onClose')
-      clearForm()
-    }
-  } catch (error) {
-    console.error('Error processing form:', error)
-  } finally {
-    await refreshNuxtData(['users-list'])
-    isLoading.value = false
+const zodRule = (schema: any): VuetifyRule => {
+  return (v: any) => {
+    const result = schema.safeParse(v)
+    return result.success || result.error.issues[0]?.message || true
   }
 }
 
-// Cancel form
-const cancel = () => {
-  clearForm()
-  emits('onClose')
-  isLoading.value = false
+// Reglas Vuetify derivadas de los esquemas zod
+const rules: Record<string, VuetifyRule[]> = {
+  name: [zodRule(userCreateSchema.shape.name)],
+  username: [zodRule(userCreateSchema.shape.username)],
+  initials: [zodRule(userCreateSchema.shape.initials)],
+  email: [zodRule(userCreateSchema.shape.email)],
+  password: isEditing.value
+    ? [zodRule(userUpdateSchema.shape.password)]
+    : [zodRule(userCreateSchema.shape.password)],
+  confirmPassword: [
+    (v: string) => v === form.value.password || 'Las contraseñas no coinciden',
+  ],
 }
 
-// Clear form and reset validation
-const clearForm = () => {
-  v$.value.$reset()
-  emits('onClear')
+const resetForm = () => {
+  form.value = {
+    name: '',
+    username: '',
+    initials: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    roles: [],
+    color: 'blue',
+  }
 }
 
+// Cuando se abre el modal: copiar los datos de la fila seleccionada o resetear.
+watch(isFormOpen, (open) => {
+  if (!open) return
+  submitError.value = ''
+  fieldErrors.value = {}
+  resetForm()
+  const u = selectedUser.value
+  if (u) {
+    form.value = {
+      name: u.name ?? '',
+      username: u.username ?? '',
+      initials: u.initials ?? '',
+      email: u.email ?? '',
+      password: '',
+      confirmPassword: '',
+      roles: u.roles ?? [],
+      color: u.color ?? 'blue',
+    }
+  }
+})
+
+const save = async () => {
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate()
+    if (!valid) return
+  }
+
+  const success = await saveUser(form.value, selectedUser.value?.id ?? undefined)
+  if (success) {
+    emit('saved')
+    closeForm()
+  }
+}
 </script>
 
 <template>
-  <v-dialog max-width="800"
-    v-model="props.isOpen"
+  <v-dialog
+    :model-value="isFormOpen"
+    max-width="640"
+    @update:model-value="(v: boolean) => { if (!v) closeForm() }"
   >
-    <v-progress-linear absolute bottom
-      model-value="100"
-      :color="color"
-      :indeterminate="isLoading"
-    ></v-progress-linear>
-    
     <v-card>
-      <v-toolbar density="compact">
-        <v-toolbar-title>{{ t(`${title}`) }}</v-toolbar-title>
-        <v-spacer></v-spacer>
-      </v-toolbar>
-      <form @submit.prevent="processForm">
-        <v-container fluid>
-          <v-row>
-            <v-col cols="12" sm="5">
-              <v-text-field density="compact"
-                label="Name"
-                v-model="state.name"
-                @input="v$.name.$touch()"
-                @blur="v$.name.$touch()"
-                :error-messages="getFieldErrors('name')"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="5">
-              <v-text-field density="compact"
-                label="Username"
-                v-model="state.username"
-                @input="v$.username.$touch()"
-                @blur="v$.username.$touch()"
-                :error-messages="getFieldErrors('username')"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="2">
-              <v-text-field density="compact"
-                label="Initials"
-                v-model="state.initials"
-                @input="v$.initials.$touch()"
-                @blur="v$.initials.$touch()"
-                :error-messages="getFieldErrors('initials')"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6">
-              <v-text-field density="compact" type="password"
-                label="Password"
-                v-model="state.password"
-                @input="v$.password.$touch()"
-                @blur="v$.password.$touch()"
-                :error-messages="getFieldErrors('password')"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6">
-              <v-text-field density="compact" type="password"
-                label="Confirm Password"
-                v-model="state.confirmPassword"
-                @input="v$.confirmPassword.$touch()"
-                @blur="v$.confirmPassword.$touch()"
-                :error-messages="getFieldErrors('confirmPassword')"
-                ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="12">
-              <v-text-field density="compact"
-                label="E-mail"
-                v-model="state.email"
-                @input="v$.email.$touch()"
-                @blur="v$.email.$touch()"
-                :error-messages="getFieldErrors('email')"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="12">
-              <v-select density="compact"
-                label="Roles"
-                v-model="state.roles"
-                :items="AVAILABLE_ROLES"
-                multiple
-                chips
-                clearable
-              ></v-select>
-            </v-col>
-
-            <v-col cols="12" sm="12">
-              <v-color-input
-                label="Color"
-                v-model="state.color"
-                mode="hexa"
-                :base-color="state.color"
-                :color="state.color"
-                :icon-color="true"
-                append-inner-icon="mdi-palette"
-                ></v-color-input>
-            </v-col>
-
-          </v-row>
-
-          <v-row class="mb-1 mt-6">
-            <v-btn class="mr-4 ml-4" color="success" type="submit" :disabled="isLoading">Submit</v-btn>
-            <v-btn color="error" @click="cancel">Cancel</v-btn>
-          </v-row>
-        </v-container>
-      </form>
+      <v-progress-linear
+        :indeterminate="saving"
+        :model-value="saving ? undefined : 100"
+      />
+      <v-card-title>
+        {{ isEditing ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </v-card-title>
+      <v-card-text>
+        <v-form ref="formRef" @submit.prevent="save">
+          <v-container fluid>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="form.name"
+                  label="Nombre"
+                  density="compact"
+                  :rules="rules.name"
+                  :error-messages="fieldErrors.name"
+                  :disabled="saving"
+                  @input="fieldErrors.name = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="3">
+                <v-text-field
+                  v-model="form.username"
+                  label="Usuario"
+                  density="compact"
+                  :rules="rules.username"
+                  :error-messages="fieldErrors.username"
+                  :disabled="saving"
+                  @input="fieldErrors.username = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="3">
+                <v-text-field
+                  v-model="form.initials"
+                  label="Iniciales"
+                  density="compact"
+                  :rules="rules.initials"
+                  :error-messages="fieldErrors.initials"
+                  :disabled="saving"
+                  @input="fieldErrors.initials = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model="form.email"
+                  label="E-mail"
+                  type="email"
+                  density="compact"
+                  :rules="rules.email"
+                  :error-messages="fieldErrors.email"
+                  :disabled="saving"
+                  @input="fieldErrors.email = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="3">
+                <v-text-field
+                  v-model="form.password"
+                  :label="isEditing ? 'Contraseña (opcional)' : 'Contraseña'"
+                  type="password"
+                  density="compact"
+                  :rules="rules.password"
+                  :error-messages="fieldErrors.password"
+                  :disabled="saving"
+                  @input="fieldErrors.password = undefined"
+                />
+              </v-col>
+              <v-col cols="12" sm="3">
+                <v-text-field
+                  v-model="form.confirmPassword"
+                  label="Confirmar contraseña"
+                  type="password"
+                  density="compact"
+                  :rules="rules.confirmPassword"
+                  :disabled="saving"
+                />
+              </v-col>
+              <v-col cols="12" sm="8">
+                <v-select
+                  v-model="form.roles"
+                  label="Roles"
+                  density="compact"
+                  :items="AVAILABLE_ROLES"
+                  multiple
+                  chips
+                  clearable
+                  :disabled="saving"
+                />
+              </v-col>
+              <v-col cols="12" sm="4">
+                <v-color-input
+                  v-model="form.color"
+                  label="Color"
+                  density="compact"
+                  mode="hexa"
+                  :disabled="saving"
+                />
+              </v-col>
+            </v-row>
+            <v-alert
+              v-if="submitError"
+              type="error"
+              class="mt-2"
+              closable
+              @click:close="submitError = ''"
+            >
+              {{ submitError }}
+            </v-alert>
+          </v-container>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="error" variant="text" :disabled="saving" @click="closeForm">
+          Cancelar
+        </v-btn>
+        <v-btn color="primary" :loading="saving" @click="save">
+          Guardar
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
