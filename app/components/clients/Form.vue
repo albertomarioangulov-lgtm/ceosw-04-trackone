@@ -34,7 +34,8 @@ const sellers = ref<Array<Record<string, any>>>([])
 
 const loadSellers = async () => {
   try {
-    sellers.value = await $fetch('/api/sellers') as any[]
+    const res = await $fetch('/api/sellers', { params: { limit: 100 } }) as any
+    sellers.value = Array.isArray(res) ? res : (res.items ?? [])
   } catch (error) {
     console.error('Error cargando sellers:', error)
   }

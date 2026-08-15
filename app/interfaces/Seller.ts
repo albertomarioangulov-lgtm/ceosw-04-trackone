@@ -2,7 +2,7 @@ export interface Seller {
   _id?: string,
   id?: string,
   name?: string,
-  phone?: string[],
+  phone?: string,
   email?: string,
   emails?: string[],
   address?: string,
@@ -12,4 +12,7 @@ export interface Seller {
   country?: string,
   state?: string,
   city?: string,
+  createdBy?: { _id: string; name: string; initials?: string; color?: string; avatar?: { icon?: string } | null } | null,
+  createdAt?: string,
+  updatedAt?: string,
 }
