@@ -16,6 +16,9 @@
     "migrate:roles": "node scripts/migrate-roles.mjs",
     "migrate:roles:test": "node scripts/migrate-roles.mjs .env.test",
     "migrate:roles:prod": "node scripts/migrate-roles.mjs .env.prod",
+    "migrate:wr-status": "node scripts/migrate-wr-status.mjs",
+    "migrate:wr-status:test": "node scripts/migrate-wr-status.mjs .env.test",
+    "migrate:wr-status:prod": "node scripts/migrate-wr-status.mjs .env.prod",
     "build-test": "nuxt build --dotenv .env.test",
     "build-prod": "nuxt build --dotenv .env.prod"
   },

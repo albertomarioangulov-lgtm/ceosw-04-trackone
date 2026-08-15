@@ -119,7 +119,7 @@ export default defineEventHandler(async (event) => {
         $addFields: {
           isActive: {
             $and: [
-              { $gt: ['$availablePackageCount', 0] },
+              { $in: ['$status', ['pending', 'opened']] },
               { $eq: ['$_id', { $arrayElemAt: ['$clientLatestWr._id', 0] }] }
             ]
           }

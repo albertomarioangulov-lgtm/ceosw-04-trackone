@@ -3,7 +3,6 @@ import autoIncrement from '../utils/autoincrement'
 
 // Import referenced models to ensure they are registered with Mongoose before this model is compiled.
 import './Client'
-import './WRStatus'
 import './User'
 
 const wrSchema = new mongoose.Schema({
@@ -12,7 +11,11 @@ const wrSchema = new mongoose.Schema({
     ref: 'Client', type: mongoose.Schema.Types.ObjectId,
     index: true
   },
-  status: { ref: 'WRStatus', type: mongoose.Schema.Types.ObjectId },
+  status: {
+    type: String,
+    default: 'pending',
+    enum: ['pending', 'opened', 'finalized'],
+  },
   createdBy: { ref: 'User', type: mongoose.Schema.Types.ObjectId }
 }, {
   timestamps: true,

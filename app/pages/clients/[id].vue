@@ -205,7 +205,7 @@ if (error.value?.statusCode === 404) {
 
         <v-spacer />
 
-        <template v-if="(client.lastWr && client.lastWr.availablePackageCount == 0) || !client.lastWr">
+        <template v-if="!client.lastWr || !['pending', 'opened'].includes(client.lastWr.status)">
           <WrsBtnCreate :client-id="client._id" />
         </template>
 
@@ -217,7 +217,7 @@ if (error.value?.statusCode === 404) {
           />
         </template>
         
-        <template v-if="client.lastWr && client.lastWr.availablePackageCount > 0">
+        <template v-if="client.lastWr && ['pending', 'opened'].includes(client.lastWr.status)">
           <WrsBtnAddPackages :wr="client.lastWr" />
         </template>
 

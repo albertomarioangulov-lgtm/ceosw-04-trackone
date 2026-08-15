@@ -14,6 +14,12 @@ const emit = defineEmits<{
   (e: 'update:options', options: any): void
 }>()
 
+const statusColor = (s: string) => {
+  if (s === 'opened') return 'success'
+  if (s === 'pending') return 'info'
+  return 'grey'
+}
+
 const headers = [
   { title: 'WR', key: 'wrId', sortable: true },
   { title: 'Fecha', key: 'createdAt', sortable: true },
@@ -21,6 +27,7 @@ const headers = [
   { title: 'Paquetes', key: 'packageCounter', sortable: false },
   { title: 'Dirección', key: 'client.address', sortable: false },
   { title: 'Por', key: 'createdBy', sortable: false },
+  { title: 'Estado', key: 'status', sortable: false },
   { title: 'Acciones', key: 'actions', sortable: false },
 ]
 </script>
@@ -64,10 +71,18 @@ const headers = [
       >
         {{ item.availablePackageCount || 0 }}/{{ item.packageCount || 0 }}
       </v-chip>
+      <v-chip v-if="item.isActive" size="small" color="success" class="ml-1">
+        Activo
+      </v-chip>
     </template>
     <template #item.createdBy="{ item }">
       <span v-if="item.createdBy">{{ item.createdBy.name }}</span>
       <span v-else>—</span>
+    </template>
+    <template #item.status="{ item }">
+      <v-chip size="small" :color="statusColor(item.status)" variant="tonal">
+        {{ item.status || '—' }}
+      </v-chip>
     </template>
     <template #item.actions="{ item }">
       <div class="d-flex align-center" @click.stop>

@@ -1,6 +1,8 @@
 import { PERMISSIONS } from '~~/shared/permissions'
+import { WR_STATUS } from '~~/shared/wr'
 import CR from "~~/server/models/CR"
 import Package from "~~/server/models/Package"
+import WR from "~~/server/models/WR"
 // import getUserId from "~~/server/libs/userData"
 
 import { broadcast, unicast } from '~~/server/routes/ws'
@@ -27,6 +29,15 @@ export default defineEventHandler( async (event) => {
       { _id: { $in: packageIds } },
       { $set: { cr: savedData._id } }
     )
+  }
+
+  // Si el WR se quedó sin paquetes disponibles, pasa a finalizado
+  const availableCount = await Package.countDocuments({
+    wr: savedData.wr,
+    $or: [{ cr: { $exists: false } }, { cr: null }],
+  })
+  if (availableCount === 0) {
+    await WR.updateOne({ _id: savedData.wr }, { $set: { status: WR_STATUS.FINALIZED } })
   }
 
   // Envía una notificación de éxito solo al usuario que realizó la acción

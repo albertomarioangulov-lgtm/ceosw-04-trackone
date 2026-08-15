@@ -2,7 +2,6 @@ import Role from '../models/Role'
 import User from '../models/User'
 import { PERMISSIONS } from '~~/shared/permissions'
 // import Seller from '../models/Seller'
-// import WRStatus from '../models/WRStatus'
 
 export const createRoles = async () => {
     try {
@@ -64,22 +63,6 @@ export const createUsers = async () => {
 //               address: 'CRA 13A #38-89 APTO 206 EDIF. CATALINA III ',
 //               fee: '0.3'
 //             }).save()
-//         ])
-//         console.log(values);
-//     } catch (error) {
-//         console.error(error)
-//     }
-// }
-
-// export const createWRStatuses = async () => {
-//     try {
-//         const count = await WRStatus.estimatedDocumentCount()
-//         if (count > 0) return
-
-//         const values = await Promise.all([
-//             new WRStatus({ name: 'created' }).save(),
-//             new WRStatus({ name: 'opened' }).save(),
-//             new WRStatus({ name: 'finalized' }).save()
 //         ])
 //         console.log(values);
 //     } catch (error) {

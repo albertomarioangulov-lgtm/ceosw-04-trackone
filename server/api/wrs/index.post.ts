@@ -1,5 +1,5 @@
 import { PERMISSIONS } from '~~/shared/permissions'
-import { wrCreateSchema } from '~~/shared/wr'
+import { WR_STATUS, wrCreateSchema } from '~~/shared/wr'
 import WR from "~~/server/models/WR"
 import Package from "~~/server/models/Package"
 import mongoose from "mongoose"
@@ -60,6 +60,11 @@ export default defineEventHandler( async (event) => {
       await Package.create(packagesToSave)
     }
   }
+
+  // Ciclo de vida: con paquetes -> opened; sin paquetes -> pending
+  const packageCount = await Package.countDocuments({ wr: wr._id })
+  wr.status = packageCount > 0 ? WR_STATUS.OPENED : WR_STATUS.PENDING
+  await wr.save()
 
   // Después de crear el WR exitosamente, emitimos un evento
   broadcast({
