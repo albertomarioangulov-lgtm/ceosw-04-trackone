@@ -213,7 +213,7 @@ if (error.value?.statusCode === 404) {
           <CrsBtnCreateCR
             :selected="selectedPackages"
             :wr-id="client.lastWr._id"
-            @on-cr-created="handleCRCreation"
+            @created="handleCRCreation"
           />
         </template>
         

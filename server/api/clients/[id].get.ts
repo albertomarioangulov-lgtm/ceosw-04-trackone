@@ -63,7 +63,7 @@ export default defineEventHandler(async (event) => {
             }
           },
           // Seleccionamos los campos que necesitamos del WR y los nuevos conteos
-          { $project: { _id: 1, wrId: 1, createdAt: 1, packageCount: 1, availablePackageCount: 1 } }
+          { $project: { _id: 1, wrId: 1, status: 1, createdAt: 1, packageCount: 1, availablePackageCount: 1 } }
         ],
         as: 'lastWr'
       }
