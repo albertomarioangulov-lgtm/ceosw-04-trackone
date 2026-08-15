@@ -56,6 +56,32 @@ const handleWRCreation = async () => {
   }
 }
 
+const handleWrSaved = async (mode: 'create' | 'addPackages') => {
+  if (mode === 'create') {
+    await handleWRCreation()
+    return
+  }
+
+  // addPackages: solo la lista de paquetes y los contadores del WR activo
+  await nextTick()
+  if (packagesListRef.value) {
+    packagesListRef.value.reload()
+  }
+
+  const lastWr = client.value?.lastWr
+  if (!lastWr?._id) return
+  try {
+    const summary = await $fetch(`/api/wrs/${lastWr._id}/summary`)
+    if (client.value?.lastWr) {
+      client.value.lastWr.packageCount = summary.packageCount
+      client.value.lastWr.availablePackageCount = summary.availablePackageCount
+      client.value.lastWr.status = summary.status
+    }
+  } catch (error) {
+    console.error('Error actualizando resumen del WR:', error)
+  }
+}
+
 // Función de utilidad para formatear fechas
 const formatDate = (dateString: string) => {
   if (!dateString) return '';
@@ -218,7 +244,7 @@ if (error.value?.statusCode === 404) {
         </template>
         
         <template v-if="client.lastWr && ['pending', 'opened'].includes(client.lastWr.status)">
-          <WrsBtnAddPackages :wr="client.lastWr" />
+          <WrsBtnAddPackages :wr="client.lastWr" :client="client" />
         </template>
 
         <!-- <v-spacer /> -->
@@ -242,7 +268,7 @@ if (error.value?.statusCode === 404) {
         class="mt-4"
       />
 
-      <WrsForm @saved="handleWRCreation" />
+      <WrsForm @saved="handleWrSaved" />
     </div>
   </v-container>
 </template>

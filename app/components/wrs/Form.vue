@@ -6,7 +6,7 @@ const { isFormOpen, selectedWR, mode, closeForm } = useWRUI()
 const { saving, submitError, fieldErrors, saveWR } = useWRForm()
 
 const emit = defineEmits<{
-  (e: 'saved'): void
+  (e: 'saved', mode: 'create' | 'addPackages'): void
 }>()
 
 const formRef = ref<any>(null)
@@ -40,7 +40,7 @@ watch(isFormOpen, async (open) => {
   fieldErrors.value = {}
   wrId.value = selectedWR.value?.id ?? selectedWR.value?._id ?? undefined
   packages.value = []
-  await loadClient(selectedWR.value?.client ?? (selectedWR.value?.id ? selectedWR.value?.client : undefined))
+  await loadClient(selectedWR.value?.client)
 })
 
 const addPackage = () => {
@@ -76,7 +76,7 @@ const save = async () => {
     packages: packages.value,
   })
   if (success) {
-    emit('saved')
+    emit('saved', mode.value)
     closeForm()
   }
 }
