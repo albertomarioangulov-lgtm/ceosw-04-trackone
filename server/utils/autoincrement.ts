@@ -18,7 +18,10 @@ export default (options: AutoIncrementOptions) => {
         return;
       }
 
-      const counterId = options.id || `${options.inc_field}_seq`;
+      // Llave única: usamos el nombre del campo (o el id explícito).
+      // Históricamente existían contadores con y sin el sufijo `_seq`,
+      // lo que duplicaba secuencias y reiniciaba los consecutivos.
+      const counterId = options.id || options.inc_field;
       const query: any = { id: counterId };
 
       // Manejo de contadores con referencia (scoped sequences)
@@ -35,21 +38,14 @@ export default (options: AutoIncrementOptions) => {
       }
 
       try {
-        // Buscar y actualizar atómicamente
+        // Buscar y actualizar atómicamente.
+        // En un contador nuevo, `$setOnInsert` arranca en `start_seq - 1`
+        // y el `$inc` lo deja en `start_seq`. Nunca reinicia uno existente.
         let counter = await Counter.findOneAndUpdate(
           query,
-          { $inc: { seq: 1 } },
+          { $inc: { seq: 1 }, $setOnInsert: { seq: (options.start_seq || 1) - 1 } },
           { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
         );
-
-        // Manejo de secuencia inicial (start_seq)
-        if (options.start_seq && counter.seq < options.start_seq) {
-          counter = await Counter.findOneAndUpdate(
-            query,
-            { $set: { seq: options.start_seq } },
-            { returnDocument: 'after' }
-          );
-        }
 
         doc.set(options.inc_field, counter.seq);
       } catch (err: any) {

@@ -19,6 +19,9 @@
     "migrate:wr-status": "node scripts/migrate-wr-status.mjs",
     "migrate:wr-status:test": "node scripts/migrate-wr-status.mjs .env.test",
     "migrate:wr-status:prod": "node scripts/migrate-wr-status.mjs .env.prod",
+    "fix-sequences": "node scripts/fix-sequences.mjs",
+    "fix-sequences:test": "node scripts/fix-sequences.mjs .env.test",
+    "fix-sequences:prod": "node scripts/fix-sequences.mjs .env.prod",
     "build-test": "nuxt build --dotenv .env.test",
     "build-prod": "nuxt build --dotenv .env.prod"
   },
