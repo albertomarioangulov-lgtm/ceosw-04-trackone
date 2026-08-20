@@ -2,18 +2,29 @@
 // Repara secuencias duplicadas (wrId, crId, pkgId).
 //
 // 1. Renumera los documentos cuyo consecutivo está duplicado
-//    (conserva el más antiguo con el número original).
+//    (conserva el más antiguo con el número original y, si se pasa
+//    `--since <fecha>`, solo toca documentos creados desde esa fecha;
+//    los anteriores nunca se modifican).
 // 2. Consolida los contadores: elimina los duplicados (con y sin
 //    sufijo `_seq`) y deja UNO solo con la llave que usa el código
 //    y seq = máximo final.
 //
 // Uso: node scripts/fix-sequences.mjs .env.test --dry-run
+//      node scripts/fix-sequences.mjs .env.prod --since 2026-08-15
 //      node scripts/fix-sequences.mjs .env.prod
 // ============================================================
 import mongoose from 'mongoose'
 
 const envFile = process.argv[2] ?? '.env'
 const dryRun = process.argv.includes('--dry-run')
+const sinceIdx = process.argv.indexOf('--since')
+const sinceArg = sinceIdx !== -1 ? process.argv[sinceIdx + 1] : undefined
+const since = sinceArg ? new Date(sinceArg) : null
+
+if (since && Number.isNaN(since.getTime())) {
+  console.error(`Fecha inválida para --since: ${sinceArg}`)
+  process.exit(1)
+}
 
 process.loadEnvFile(envFile)
 
@@ -60,6 +71,11 @@ for (const seq of sequences) {
   for (const d of docs) {
     const val = d[seq.field]
     if (seen.has(val)) {
+      // Protección: si hay filtro de fecha, solo se renumera lo creado
+      // desde esa fecha. Los documentos antiguos nunca se modifican.
+      if (since && (!d.createdAt || new Date(d.createdAt) < since)) {
+        continue
+      }
       const newVal = next++
       changes.push({ _id: d._id, old: val, new: newVal })
       if (!dryRun) {
