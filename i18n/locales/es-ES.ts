@@ -23,6 +23,7 @@ export default {
 
   // Resources
   users: "Usuarios",
+  sequences: "Secuencias",
   client: "Cliente",
   clients: "Clientes",
   "Client": "Cliente",

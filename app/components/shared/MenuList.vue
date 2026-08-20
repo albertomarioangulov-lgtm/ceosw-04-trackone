@@ -26,6 +26,7 @@ const menu = ref<MenuItem[]>([
   { title: 'config', path: '#', nuxtIcon: 'ic:outline-settings', permission: undefined,
     children: [
       { title: 'users', path: '/users', nuxtIcon: 'ic:outline-person', permission: 'manage_users' },
+      { title: 'sequences', path: '/admin/sequences', nuxtIcon: 'ic:outline-format-list-numbered', permission: 'manage_users' },
       { title: 'sellers', path: '/sellers', nuxtIcon: 'ic:outline-map', permission: ['manage_sellers', 'view_sellers'] },
       { title: 'carriers', path: '/carriers', nuxtIcon: 'mdi:truck-outline', permission: ['manage_carriers', 'view_carriers'] },
     ]

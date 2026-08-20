@@ -13,6 +13,9 @@ node_modules
 logs
 *.log
 
+# Reportes de scripts (datos de negocio)
+scripts/reports/
+
 # Misc
 .DS_Store
 .fleet

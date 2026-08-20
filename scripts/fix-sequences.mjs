@@ -14,6 +14,8 @@
 //      node scripts/fix-sequences.mjs .env.prod
 // ============================================================
 import mongoose from 'mongoose'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const envFile = process.argv[2] ?? '.env'
 const dryRun = process.argv.includes('--dry-run')
@@ -45,6 +47,7 @@ try {
 
 const db = mongoose.connection.db
 const counters = db.collection('counters')
+const rows: Array<Record<string, any>> = []
 
 const sequences = [
   { collection: 'wrs', field: 'wrId', counterKey: 'wrId' },
@@ -78,8 +81,19 @@ for (const seq of sequences) {
       }
       const newVal = next++
       changes.push({ _id: d._id, old: val, new: newVal })
+      rows.push({
+        coleccion: seq.collection,
+        _id: String(d._id),
+        campo: seq.field,
+        anterior: val,
+        nuevo: newVal,
+        createdAt: d.createdAt ? new Date(d.createdAt).toISOString() : '',
+      })
       if (!dryRun) {
-        await coll.updateOne({ _id: d._id }, { $set: { [seq.field]: newVal } })
+        await coll.updateOne(
+          { _id: d._id },
+          { $set: { [seq.field]: newVal, [`old_${seq.field}`]: val } },
+        )
       }
     } else {
       seen.add(val)
@@ -102,6 +116,24 @@ for (const seq of sequences) {
   const before = existing.map((c) => `${c.id}=${c.seq}`).join(', ') || 'ninguno'
   console.log(`   contadores antes: ${before}`)
   console.log(`   contador final: ${dryRun ? `id=${seq.counterKey} seq=${finalMax} (se creará al aplicar)` : `id=${seq.counterKey} seq=${finalMax}`}`)
+}
+
+if (rows.length) {
+  const reportsDir = path.join(process.cwd(), 'scripts', 'reports')
+  fs.mkdirSync(reportsDir, { recursive: true })
+  const ts = new Date().toISOString().replace(/[:.]/g, '-')
+  const envName = path.basename(envFile).replace('.env', '')
+  const reportFile = path.join(reportsDir, `fix-sequences-${envName}${dryRun ? '-dry' : ''}-${ts}.csv`)
+  const header = 'coleccion,_id,campo,anterior,nuevo,createdAt\n'
+  const body = rows
+    .map((r) =>
+      [r.coleccion, r._id, r.campo, r.anterior, r.nuevo, r.createdAt]
+        .map((v) => `"${String(v ?? '').replace(/"/g, '""')}"`)
+        .join(','),
+    )
+    .join('\n')
+  fs.writeFileSync(reportFile, header + body)
+  console.log(`\nReporte: ${reportFile}`)
 }
 
 await mongoose.disconnect()

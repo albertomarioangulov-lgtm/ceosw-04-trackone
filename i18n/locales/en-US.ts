@@ -2,6 +2,7 @@ export default {
   "Home": 'Home',
   welcome: 'Welcome',
   users: "Users",
+  sequences: "Sequences",
   
   locations: "Locations",
   assets: "Assets",
