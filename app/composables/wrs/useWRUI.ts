@@ -12,9 +12,9 @@ export const useWRUI = () => {
     isFormOpen.value = true
   }
 
-  const openAddPackages = (wr: Record<string, any>) => {
+  const openAddPackages = (wr: Record<string, any>, client?: Record<string, any>) => {
     mode.value = 'addPackages'
-    selectedWR.value = wr
+    selectedWR.value = client ? { ...wr, client } : wr
     isFormOpen.value = true
   }
 
