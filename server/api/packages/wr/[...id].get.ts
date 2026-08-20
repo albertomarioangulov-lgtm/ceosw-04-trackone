@@ -82,7 +82,13 @@ export default defineEventHandler(async (event) => {
         $addFields: {
           'selectable': { $cond: { if: '$cr', then: false, else: true } },
           'wr': { _id: '$wr._id', wrId: '$wr.wrId', client: { _id: '$wr.client._id', name: '$wr.client.name' } },
-          'cr': { _id: '$cr._id', crId: '$cr.crId' },
+          'cr': {
+            $cond: {
+              if: { $in: [{ $type: '$cr' }, ['missing', 'null']] },
+              then: null,
+              else: { _id: '$cr._id', crId: '$cr.crId' },
+            },
+          },
           'createdBy': { _id: '$createdBy._id', name: '$createdBy.name', initials: '$createdBy.initials', color: '$createdBy.color', avatar: '$createdBy.avatar' }
         }
       }

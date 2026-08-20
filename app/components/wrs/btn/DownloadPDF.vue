@@ -57,7 +57,7 @@ const downloadPDF = async (payload:any) => {
       let totalCft = 0
       if (Array.isArray(wrPackages)) {
         wrPackages.forEach(e => {
-          if(!e.cr){
+          if(!e.cr || !e.cr._id){
             const weightKg = (e.weight * 0.45359237).toFixed(2)
             const l = e.measures?.l ?? 0
             const w = e.measures?.w ?? 0
