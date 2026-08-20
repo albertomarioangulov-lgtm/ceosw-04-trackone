@@ -41,9 +41,15 @@ const rules: Record<string, VuetifyRule[]> = {
   username: [zodRule(userCreateSchema.shape.username)],
   initials: [zodRule(userCreateSchema.shape.initials)],
   email: [zodRule(userCreateSchema.shape.email)],
-  password: isEditing.value
-    ? [zodRule(userUpdateSchema.shape.password)]
-    : [zodRule(userCreateSchema.shape.password)],
+  // En edición la contraseña es opcional (vacía = no cambiar);
+  // la regla se evalúa en cada validación según el modo actual.
+  password: [
+    (v: any) => {
+      const schema = isEditing.value ? userUpdateSchema.shape.password : userCreateSchema.shape.password
+      const result = schema.safeParse(v)
+      return result.success || result.error.issues[0]?.message || true
+    },
+  ],
   confirmPassword: [
     (v: string) => v === form.value.password || 'Las contraseñas no coinciden',
   ],
