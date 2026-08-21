@@ -38,13 +38,18 @@ export default (options: AutoIncrementOptions) => {
       }
 
       try {
-        // Buscar y actualizar atómicamente.
-        // En un contador nuevo, `$setOnInsert` arranca en `start_seq - 1`
-        // y el `$inc` lo deja en `start_seq`. Nunca reinicia uno existente.
-        let counter = await Counter.findOneAndUpdate(
+        // Dos pasos para evitar el conflicto de $inc + $setOnInsert sobre el mismo campo.
+        // Paso 1: si el contador no existe, lo crea arrancando en `start_seq - 1`.
+        await Counter.updateOne(
           query,
-          { $inc: { seq: 1 }, $setOnInsert: { seq: (options.start_seq || 1) - 1 } },
-          { returnDocument: 'after', upsert: true, setDefaultsOnInsert: true }
+          { $setOnInsert: { seq: (options.start_seq || 1) - 1 } },
+          { upsert: true }
+        );
+        // Paso 2: incrementa y lee el valor. Nunca reinicia uno existente.
+        const counter = await Counter.findOneAndUpdate(
+          query,
+          { $inc: { seq: 1 } },
+          { returnDocument: 'after' }
         );
 
         doc.set(options.inc_field, counter.seq);
