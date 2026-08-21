@@ -27,13 +27,13 @@ type BrevoPackage = {
  */
 export function packageTableHtml(packages: BrevoPackage[]): string {
   const cell = (value: any, opts: { bold?: boolean; colspan?: number } = {}) => {
-    const style = `font-family:Arial,sans-serif;font-size:12px;padding:8px 6px;border:1px solid ${BRAND.border};color:${BRAND.text};text-align:center;${opts.bold ? 'font-weight:bold;background-color:#F0F4FA;' : ''}`
+    const style = `font-family:Arial,sans-serif;font-size:14px;padding:8px 6px;border:1px solid ${BRAND.border};color:${BRAND.text};text-align:center;${opts.bold ? 'font-weight:bold;background-color:#F0F4FA;' : ''}`
     const colspan = opts.colspan ? ` colspan="${opts.colspan}"` : ''
     return `<td${colspan} style="${style}">${value ?? ''}</td>`
   }
 
   const th = (label: string) =>
-    `<th style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;padding:10px 6px;color:#fff;background-color:${BRAND.primary};text-align:center;border:1px solid ${BRAND.primary};">${label}</th>`
+    `<th style="font-family:Arial,sans-serif;font-size:14px;font-weight:bold;padding:10px 6px;color:#fff;background-color:${BRAND.primary};text-align:center;border:1px solid ${BRAND.primary};">${label}</th>`
 
   let rows = ''
   let totalWeight = 0
@@ -114,7 +114,7 @@ export function emailLayout(opts: {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${BRAND.bg};padding:24px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background-color:${BRAND.card};border-radius:8px;overflow:hidden;border:1px solid ${BRAND.border};">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px;background-color:${BRAND.card};border-radius:8px;overflow:hidden;border:1px solid ${BRAND.border};">
             <tr>
               <td style="background-color:#FFFFFF;padding:20px 24px;text-align:center;">
                 <img
