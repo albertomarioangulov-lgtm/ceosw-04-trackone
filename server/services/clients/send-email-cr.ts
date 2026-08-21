@@ -1,4 +1,5 @@
 import Package from "~~/server/models/Package"
+import { emailLayoutResponsive, packageCardsHtml } from '~~/server/utils/emailTemplateResponsive'
 
 const config = useRuntimeConfig()
 
@@ -8,8 +9,8 @@ const sendEmailCr = async(savedData:any) => {
   const clientEmails = savedData.client.emails
 
   const staticRecipients = [
-    { email: "info@comprasyenviosonline.com", name: "Info CEO TrackOne" },
-    { email: "ceoswdev@gmail.com", name: "CEO TrackOne" }
+    { email: "info@comprasyenviosonline.com", name: "Info CEO TrackOne" }
+    // { email: "ceoswdev@gmail.com", name: "CEO TrackOne" }
   ];
 
   // Mapea los correos del cliente al formato requerido por Brevo
@@ -35,12 +36,12 @@ const sendEmailCr = async(savedData:any) => {
     .exec()
 
 
-  const html = emailLayout({
+  const html = emailLayoutResponsive({
     title: 'Paquetes Recibidos — Compras y Envíos Online',
     contentHtml: `
       <h2 style="margin-top:0;color:#1F3B73;">Hola {{params.name}}</h2>
       <p>Estimado cliente: los siguientes son los números de rastreo de los paquetes recibidos en nuestra bodega.</p>
-      ${packageTableHtml(rawPackages)}
+      ${packageCardsHtml(rawPackages)}
       <p>Cualquier inquietud, escríbenos a <a href="mailto:info@comprasyenviosonline.com" style="color:#26ADE4;">info@comprasyenviosonline.com</a>.<br/>
       Cordialmente, <strong>Compras y Envíos Online</strong>.</p>
     `,

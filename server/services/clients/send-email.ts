@@ -1,10 +1,12 @@
+import { emailLayoutResponsive } from '~~/server/utils/emailTemplateResponsive'
+
 const config = useRuntimeConfig()
 
 const sendEmail = async(savedData:any) => {
   const name = savedData.name
   const email = savedData.email
 
-  const html = emailLayout({
+  const html = emailLayoutResponsive({
     title: 'Bienvenido a CEO TrackOne',
     contentHtml: `
       <h2 style="margin-top:0;color:#1F3B73;">Hola {{params.name}}</h2>
