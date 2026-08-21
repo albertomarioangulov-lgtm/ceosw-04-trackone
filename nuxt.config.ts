@@ -53,6 +53,8 @@ export default defineNuxtConfig({
 
     public: {
       clientLogo: process.env.CLIENT_LOGO,
+      // URL pública de la app para enlaces/imágenes en emails (ej. logo).
+      appUrl: process.env.NUXT_PUBLIC_APP_URL || 'http://localhost:3000',
       // Desactivar en producción (App Hosting) con NUXT_PUBLIC_ENABLE_WS=false
       enableWebSocket: process.env.NUXT_PUBLIC_ENABLE_WS !== 'false',
     }
